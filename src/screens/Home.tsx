@@ -12,6 +12,7 @@ import Departments from './Department';
 import Employees from './Employee';
 import { Tab } from './Navigation';
 import SearchGarageScreen from './Garages/SearchGarage';
+import FavoriteGarage from './Garages/FavoriteGarage';
 
 type Props = StackScreenProps<StackParamList, 'Login'>;
 
@@ -44,7 +45,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     >
       <Tab.Screen name={SEARCH_GARAGE} component={SearchGarageScreen} />
       <Tab.Screen name={ACCOUNT} component={AccountScreen} />
-      <Tab.Screen name={MAP} component={MapScreen} />
+      <Tab.Screen name={MAP} component={FavoriteGarage} />
       <Tab.Screen name={DEPARTMENT} component={Departments} />
       <Tab.Screen name={EMPLOYEE} component={Employees} />
     </Tab.Navigator>

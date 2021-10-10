@@ -22,7 +22,7 @@ export default () => {
         <Text>Dia chi</Text>
         <Text>Danh gia</Text>
       </VStack>
-      <Image />
+      {/* <Image /> */}
     </HStack>
   );
 };

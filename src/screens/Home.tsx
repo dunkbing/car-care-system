@@ -45,7 +45,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     >
       <Tab.Screen name={SEARCH_GARAGE} component={SearchGarageScreen} />
       <Tab.Screen name={ACCOUNT} component={AccountScreen} />
-      <Tab.Screen name={MAP} component={FavoriteGarage} />
+      <Tab.Screen name={MAP} component={MapScreen} />
       <Tab.Screen name={DEPARTMENT} component={Departments} />
       <Tab.Screen name={EMPLOYEE} component={Employees} />
     </Tab.Navigator>

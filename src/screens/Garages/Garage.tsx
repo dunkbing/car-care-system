@@ -1,4 +1,4 @@
-import { HStack, Image, Text, View, VStack } from 'native-base';
+import { Box, HStack, Image, Text, View, VStack } from 'native-base';
 import React from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 

@@ -57,10 +57,12 @@ const AccountScreen: React.FC = () => {
           </View>
         </View>
         <View style={styles.option}>
-          <OptionLabel text='General' />
           <View>
-            <OptionItem text='Settings' />
-            <OptionItem text='Feedback' />
+            <OptionItem text='Thông tin cá nhân' />
+            <OptionItem text='Thông tin xe' />
+            <OptionItem text='Garage yêu thích' />
+            <OptionItem text='Lịch sử cứu hộ' />
+            <OptionItem text='Đổi mật khẩu' />
           </View>
         </View>
       </ScrollView>

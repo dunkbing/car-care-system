@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import AccountScreen from './Account';
 import NotificationScreen from './Notification';
-import { ACCOUNT, DEPARTMENT, EMPLOYEE, MAP, NOTIFICATION, SEARCH_GARAGE } from '@constants/screens';
+import { ACCOUNT, DEPARTMENT, EMPLOYEE, LOGIN, MAP, NOTIFICATION, SEARCH_GARAGE } from '@constants/screens';
 import { StackScreenProps } from '@react-navigation/stack';
 import { StackParamList } from './common';
 import MapScreen from './Map';
@@ -13,6 +13,7 @@ import Employees from './Employee';
 import { Tab } from './Navigation';
 import SearchGarageScreen from './Garages/SearchGarage';
 import FavoriteGarage from './Garages/FavoriteGarage';
+import Login from './Login/Login';
 
 type Props = StackScreenProps<StackParamList, 'Login'>;
 
@@ -43,6 +44,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         tabBarInactiveTintColor: 'gray',
       })}
     >
+      <Tab.Screen name={LOGIN} component={Login} />
       <Tab.Screen name={SEARCH_GARAGE} component={SearchGarageScreen} />
       <Tab.Screen name={ACCOUNT} component={AccountScreen} />
       <Tab.Screen name={MAP} component={MapScreen} />

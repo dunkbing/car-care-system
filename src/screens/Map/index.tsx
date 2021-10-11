@@ -1,14 +1,14 @@
+import SearchBar from '@screens/Garages/SearchBar';
+import { Box, Button, Center, HStack, Text, View } from 'native-base';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    height: 400,
-    width: 400,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    height: '100%',
+    width: '100%',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -17,18 +17,39 @@ const styles = StyleSheet.create({
 
 const MapScreen: React.FC = () => {
   return (
-    <View style={styles.container}>
+    <Box style={styles.container}>
       <MapView
-        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
         region={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
+          latitude: 21.0278,
+          longitude: 105.8342,
+          latitudeDelta: 0.03,
+          longitudeDelta: 0.03,
         }}
+        loadingEnabled
       />
-    </View>
+      <Box pt={10}>
+        <SearchBar placeholder='Nhập vị trí cần cứu hộ' />
+      </Box>
+      <Center pt={'100%'}>
+        <Center rounded='5' bg='white' width='90%' height='50'>
+          <Text fontSize='lg' bold>
+            Madaz - CX5
+          </Text>
+        </Center>
+      </Center>
+      <Center pt={'3'}>
+        <HStack space={4} width='90%' alignItems='center'>
+          <View flex={1}>
+            <Button colorScheme='danger'>SOS</Button>
+          </View>
+          <View flex={1}>
+            <Button>Tìm Garage</Button>
+          </View>
+        </HStack>
+      </Center>
+    </Box>
   );
 };
 

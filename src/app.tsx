@@ -25,7 +25,7 @@ const App: React.FC = () => {
 };
 
 const AppWrapper = () => (
-  <NativeBaseProvider>
+  <NativeBaseProvider config={{ suppressColorAccessibilityWarning: true }}>
     <Provider store={store}>
       <App />
     </Provider>

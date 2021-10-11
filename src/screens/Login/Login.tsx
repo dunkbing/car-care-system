@@ -4,7 +4,7 @@ import { NativeBaseProvider, Box, Heading, VStack, FormControl, Input, Link, But
 const Login: React.FC = () => {
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} w='90%' mx='auto'>
+      <Box safeArea flex={1} p={2} mt={5} w='90%' mx='auto'>
         <Heading size='lg' color='primary.500' textAlign='center'>
           Car Care System
         </Heading>
@@ -18,16 +18,16 @@ const Login: React.FC = () => {
             <Input type='password' placeholder='Mật khẩu' />
           </FormControl>
           <VStack space={2}>
-            <Button colorScheme='green' _text={{ color: 'white' }}>
+            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Đăng nhập
             </Button>
           </VStack>
         </VStack>
-        <HStack space={180}>
-          <Link _text={{ fontSize: 'xs', fontWeight: '700', color: 'cyan.500' }} alignSelf='flex-start' mt={5}>
+        <HStack space={150}>
+          <Link pl={1} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-start' mt={5}>
             Đăng ký
           </Link>
-          <Link _text={{ fontSize: 'xs', fontWeight: '700', color: 'cyan.500' }} alignSelf='flex-end' mt={5}>
+          <Link _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-end' mt={5}>
             Quên mật khẩu?
           </Link>
         </HStack>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { NativeBaseProvider, Box, VStack, FormControl, Input, Button, Text } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text } from 'native-base';
+import FormInput from '@components/FormInput';
 
 const ForgotPassword: React.FC = () => {
   return (
@@ -9,11 +10,8 @@ const ForgotPassword: React.FC = () => {
           Vui lòng nhập địa chỉ email của bạn
         </Text>
         <VStack space={2} mt={5}>
-          <FormControl mb={5}>
-            <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Email</FormControl.Label>
-            <Input placeholder='Email' />
-          </FormControl>
-          <VStack space={2}>
+          <FormInput label='Email' placeholder='Email@example.com' keyboardType='email-address' />
+          <VStack space={2} mt={5}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Tiếp tục
             </Button>

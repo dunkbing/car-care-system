@@ -1,5 +1,6 @@
 import React from 'react';
-import { NativeBaseProvider, Box, VStack, FormControl, Input, Button, Text, Image, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
+import FormInput from '@components/FormInput';
 
 const Register: React.FC = () => {
   return (
@@ -12,32 +13,18 @@ const Register: React.FC = () => {
       >
         <Box safeArea flex={1} p={2} w='90%' mx='auto'>
           <VStack space={2} mt={4}>
-            <FormControl>
-              <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Họ và tên</FormControl.Label>
-              <Input placeholder='Họ và tên' />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Số điện thoại</FormControl.Label>
-              <Input placeholder='Số điện thoại' />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Email</FormControl.Label>
-              <Input placeholder='Email' />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Mật khẩu</FormControl.Label>
-              <Input type='password' placeholder='Mật khẩu' />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Xác nhận mật khẩu</FormControl.Label>
-              <Input type='password' placeholder='Xác nhận mật khẩu' />
-            </FormControl>
+            <FormInput isRequired label='Họ và tên' placeholder='Họ và tên' keyboardType='ascii-capable' />
+            <FormInput isRequired label='Số điện thoại' placeholder='Số điện thoại' keyboardType='phone-pad' />
+            <FormInput isRequired label='Email' placeholder='Email@example.com' keyboardType='email-address' />
+            <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
+            <FormInput isRequired label='Xác nhận mật khẩu' placeholder='Xác nhận mật khẩu' keyboardType='visible-password' />
           </VStack>
           <VStack space={2} mt={4}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Đăng ký
             </Button>
           </VStack>
+
           <VStack alignItems='center'>
             <Text fontSize='md' mt={10}>
               Hoặc đăng nhập với

@@ -14,13 +14,14 @@ import { Tab } from './Navigation';
 import SearchGarageScreen from './Garages/SearchGarage';
 import FavoriteGarage from './Garages/FavoriteGarage';
 
-import Login from './Login/Login';
-// import Login from './Login/ChooseMethod';
+import Login from './Login/ChooseMethod';
+// import Login from './Login/Login';
 // import Login from './Login/Register';
 // import Login from './Login/ForgotPassword';
 // import Login from './Login/OTP';
 // import Login from './Login/ResetPassword';
 // import Login from './Login/ChangePassword';
+// import Login from './Login/DefineCarModel';
 
 type Props = StackScreenProps<StackParamList, 'Login'>;
 

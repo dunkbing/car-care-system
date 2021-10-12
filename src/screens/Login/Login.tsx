@@ -1,5 +1,6 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, FormControl, Input, Link, Button, HStack, Text, Image } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image } from 'native-base';
+import FormInput from '@components/FormInput';
 
 const Login: React.FC = () => {
   return (
@@ -9,14 +10,8 @@ const Login: React.FC = () => {
           Car Care System
         </Heading>
         <VStack space={2} mt={5}>
-          <FormControl>
-            <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Số điện thoại/Email</FormControl.Label>
-            <Input placeholder='Số điện thoại/Email' />
-          </FormControl>
-          <FormControl mb={5}>
-            <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Mật khẩu</FormControl.Label>
-            <Input type='password' placeholder='Mật khẩu' />
-          </FormControl>
+          <FormInput isRequired label='Số điện thoại/Email' placeholder='Số điện thoại/Email' keyboardType='ascii-capable' />
+          <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
           <VStack space={2}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Đăng nhập

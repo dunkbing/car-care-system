@@ -1,33 +1,28 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, FormControl, Input, Link, Button, HStack, Text, Image } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image } from 'native-base';
+import FormInput from '@components/FormInput';
 
 const Login: React.FC = () => {
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} w='90%' mx='auto'>
+      <Box safeArea flex={1} p={2} mt={5} w='90%' mx='auto'>
         <Heading size='lg' color='primary.500' textAlign='center'>
           Car Care System
         </Heading>
         <VStack space={2} mt={5}>
-          <FormControl>
-            <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Số điện thoại/Email</FormControl.Label>
-            <Input placeholder='Số điện thoại/Email' />
-          </FormControl>
-          <FormControl mb={5}>
-            <FormControl.Label _text={{ color: 'muted.700', fontSize: 'sm', fontWeight: 600 }}>Mật khẩu</FormControl.Label>
-            <Input type='password' placeholder='Mật khẩu' />
-          </FormControl>
+          <FormInput isRequired label='Số điện thoại/Email' placeholder='Số điện thoại/Email' keyboardType='ascii-capable' />
+          <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
           <VStack space={2}>
-            <Button colorScheme='green' _text={{ color: 'white' }}>
+            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Đăng nhập
             </Button>
           </VStack>
         </VStack>
-        <HStack space={180}>
-          <Link _text={{ fontSize: 'xs', fontWeight: '700', color: 'cyan.500' }} alignSelf='flex-start' mt={5}>
+        <HStack space={150}>
+          <Link pl={1} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-start' mt={5}>
             Đăng ký
           </Link>
-          <Link _text={{ fontSize: 'xs', fontWeight: '700', color: 'cyan.500' }} alignSelf='flex-end' mt={5}>
+          <Link _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-end' mt={5}>
             Quên mật khẩu?
           </Link>
         </HStack>

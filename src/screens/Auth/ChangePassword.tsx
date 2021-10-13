@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, VStack, FormControl, Input, Button, HStack } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, HStack } from 'native-base';
 import FormInput from '@components/FormInput';
 
 const ChangePassword: React.FC = () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ChooseMethod, Login, Register, ForgotPassword, ChangePassword, ResetPassword } from '@screens/Auth';
+import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, ChangePassword, ResetPassword } from '@screens/Auth';
 import { headerTintColor, headerColor } from '@screens/shared/colors';
 import { AuthStackParams } from './params';
 
@@ -10,7 +10,8 @@ export const AuthStack = (): JSX.Element => {
   return (
     <AuthStackNav.Navigator>
       <AuthStackNav.Screen name='ChooseMethod' component={ChooseMethod} options={{ headerShown: false }} />
-      <AuthStackNav.Screen name='Login' component={Login} options={{ headerShown: false }} />
+      <AuthStackNav.Screen name='CustomerLogin' component={CustomerLogin} options={{ headerShown: false }} />
+      <AuthStackNav.Screen name='GarageLogin' component={GarageLogin} options={{ headerShown: false }} />
       <AuthStackNav.Screen
         name='Register'
         component={Register}

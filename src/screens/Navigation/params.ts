@@ -15,7 +15,8 @@ export type RootStackParams = {
 
 export type AuthStackParams = {
   ChooseMethod: undefined;
-  Login: undefined;
+  CustomerLogin: undefined;
+  GarageLogin: undefined;
   Register: undefined;
   ChangePassword: undefined;
   ResetPassword: undefined;

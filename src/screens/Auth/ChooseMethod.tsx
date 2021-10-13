@@ -15,7 +15,7 @@ const ChooseMethod: React.FC<Props> = ({ navigation }) => {
         </Heading>
         <VStack space={2} mt={120}>
           <VStack space={2}>
-            <Button backgroundColor='#E86870' _text={{ color: 'white' }} onPress={() => navigation.navigate('Login')}>
+            <Button backgroundColor='#E86870' _text={{ color: 'white' }} onPress={() => navigation.navigate('CustomerLogin')}>
               Đăng nhập bằng tài khoản khách hàng
             </Button>
             <VStack style={styles.divider}>
@@ -23,7 +23,7 @@ const ChooseMethod: React.FC<Props> = ({ navigation }) => {
               <Text style={styles.dividerText}>Hoặc</Text>
               <View style={styles.dividerLine} />
             </VStack>
-            <Button backgroundColor='#206DB6' _text={{ color: 'white' }} onPress={() => navigation.navigate('Login')}>
+            <Button backgroundColor='#206DB6' _text={{ color: 'white' }} onPress={() => navigation.navigate('GarageLogin')}>
               Đăng nhập bằng tài khoản garage
             </Button>
           </VStack>

@@ -6,11 +6,11 @@ import { StackScreenProps } from '@react-navigation/stack';
 import * as yup from 'yup';
 import { CreateDepartmentModel, DepartmentModel, UpdateDepartmentModel } from '@models/department';
 import { useCreateDepartmentMutation, useUpdateDepartmentMutation } from '@redux/services/department';
-import { StackParamList } from '../common';
+import { StackParams } from '../Navigation/params';
 import FormInput from '@components/FormInput';
 import toast from '@utils/toast';
 
-type StackProps = StackScreenProps<StackParamList, 'MutateDepartment'>;
+type StackProps = StackScreenProps<StackParams, 'MutateDepartment'>;
 
 export type DeptModalProps = {
   department?: DepartmentModel;
@@ -27,16 +27,6 @@ const MutateDepartment: React.FC<StackProps> = ({ route, navigation }) => {
   const [updateDept] = useUpdateDepartmentMutation();
 
   const department = route.params;
-  const [alertProps, setAlertProps] = useState<MessageDialogProps>({
-    header: 'Lỗi',
-    body: null,
-    isOpen: false,
-  });
-  const [loadingProps, setLoadingProps] = useState<MessageDialogProps>({
-    header: 'Đang cập nhật',
-    body: null,
-    isOpen: false,
-  });
 
   return (
     <Center mt='5'>

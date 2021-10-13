@@ -1,9 +1,5 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNavigationContainerRef } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { StackParamList } from '../common';
+import { AuthStack } from './AuthStack';
+import { HomeStack } from './HomeStack';
+import { rootNavigation, RootStack } from './roots';
 
-export const Stack = createStackNavigator();
-export const Tab = createBottomTabNavigator();
-
-export const rootNavigation = createNavigationContainerRef<StackParamList>();
+export { AuthStack, HomeStack, RootStack, rootNavigation };

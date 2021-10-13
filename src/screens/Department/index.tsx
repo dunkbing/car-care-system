@@ -5,11 +5,11 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Table, Row } from 'react-native-table-component';
 import { useDeleteDepartmentByIdMutation, useGetDepartmentsQuery } from '@redux/services/department';
-import { StackParamList } from '../common';
+import { StackParams } from '../Navigation/params';
 import dialog from '@utils/dialog';
 import { MessageDialogResult } from '@components/dialog/MessageDialog';
 
-type Props = StackScreenProps<StackParamList, 'Home'>;
+type Props = StackScreenProps<StackParams, 'Home'>;
 
 const Departments: React.FC<Props> = ({ navigation }) => {
   const { data, isLoading, isFetching, refetch } = useGetDepartmentsQuery('');

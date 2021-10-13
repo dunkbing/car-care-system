@@ -5,11 +5,11 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Table, Row, TableWrapper, Cell } from 'react-native-table-component';
 import { useDeleteEmployeeByIdMutation, useGetEmployeesQuery } from '@redux/services/employee';
-import { StackParamList } from '../common';
+import { StackParams } from '../Navigation/params';
 import dialog from '@utils/dialog';
 import { MessageDialogResult } from '@components/dialog/MessageDialog';
 
-type Props = StackScreenProps<StackParamList, 'Home'>;
+type Props = StackScreenProps<StackParams, 'Home'>;
 
 const Employees: React.FC<Props> = ({ navigation }) => {
   const { data, isLoading, isFetching, refetch } = useGetEmployeesQuery('');

@@ -7,7 +7,7 @@ import { CreateEmployeeModel, UpdateEmployeeModel } from '@models/employee';
 import { useCreateEmployeeMutation, useUpdateEmployeeMutation } from '@redux/services/employee';
 import { useGetDepartmentsQuery } from '../../redux/services/department';
 import { StackScreenProps } from '@react-navigation/stack';
-import { StackParamList } from '../common';
+import { StackParams } from '../Navigation/params';
 import DeparmentPicker from './DepartmentPicker';
 import FormInput from '@components/FormInput';
 import { Button, Center, VStack } from 'native-base';
@@ -22,7 +22,7 @@ const validationSchema = yup.object().shape({
   phone: yup.string().matches(phoneRegExp, 'Số điện thoại không hợp lệ').required('Không đc bỏ trống'),
 });
 
-type Props = StackScreenProps<StackParamList, 'MutateEmployee'>;
+type Props = StackScreenProps<StackParams, 'MutateEmployee'>;
 
 const MutateEmployee: React.FC<Props> = ({ route, navigation }) => {
   const [createEmployee, { isLoading: isCreating, isError, error }] = useCreateEmployeeMutation();

@@ -21,3 +21,8 @@ export type AuthStackParams = {
   ResetPassword: undefined;
   ForgotPassword: undefined;
 };
+
+export type HomeStackParams = {
+  Home: undefined;
+  Map: undefined;
+};

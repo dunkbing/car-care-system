@@ -1,8 +1,12 @@
 import React from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Button, Text, View } from 'native-base';
 import { StyleSheet } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack/lib/typescript/src/types';
+import { AuthStackParams } from '@screens/Navigation/params';
 
-const ChooseMethod: React.FC = () => {
+type Props = StackScreenProps<AuthStackParams, 'ChooseMethod'>;
+
+const ChooseMethod: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={50} w='90%' mx='auto'>
@@ -11,7 +15,7 @@ const ChooseMethod: React.FC = () => {
         </Heading>
         <VStack space={2} mt={120}>
           <VStack space={2}>
-            <Button backgroundColor='#E86870' _text={{ color: 'white' }}>
+            <Button backgroundColor='#E86870' _text={{ color: 'white' }} onPress={() => navigation.navigate('Login')}>
               Đăng nhập bằng tài khoản khách hàng
             </Button>
             <VStack style={styles.divider}>
@@ -19,7 +23,7 @@ const ChooseMethod: React.FC = () => {
               <Text style={styles.dividerText}>Hoặc</Text>
               <View style={styles.dividerLine} />
             </VStack>
-            <Button backgroundColor='#206DB6' _text={{ color: 'white' }}>
+            <Button backgroundColor='#206DB6' _text={{ color: 'white' }} onPress={() => navigation.navigate('Login')}>
               Đăng nhập bằng tài khoản garage
             </Button>
           </VStack>

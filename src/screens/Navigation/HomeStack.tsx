@@ -1,8 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ACCOUNT, NOTIFICATION, SEARCH_GARAGE, MAP } from '@constants/screens';
-import AccountScreen from '@screens/Account';
-import SearchGarageScreen from '@screens/Garages/SearchGarage';
+import { ACCOUNT, NOTIFICATION, MAP } from '@constants/screens';
 import MapScreen from '@screens/Map';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -19,8 +17,8 @@ export const HomeStack: React.FC = () => {
           if (route.name === ACCOUNT) {
             iconName = focused ? 'user-circle' : 'user-circle-o';
             return <FAIcon name={iconName} size={size} color={color} />;
-          } else if (route.name === NOTIFICATION) {
-            iconName = focused ? 'notifications' : 'notifications-outline';
+          } else if (route.name === MAP) {
+            iconName = focused ? 'location' : 'location-outline';
             return <Ionicons name={iconName} size={size} color={color} />;
           }
           return <FAIcon name={'user-circle'} size={size} color={color} />;
@@ -29,9 +27,7 @@ export const HomeStack: React.FC = () => {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name={SEARCH_GARAGE} component={SearchGarageScreen} />
-      <Tab.Screen name={ACCOUNT} component={AccountScreen} />
-      <Tab.Screen name={MAP} component={MapScreen} />
+      <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name={MAP} component={MapScreen} />
     </Tab.Navigator>
   );
 };

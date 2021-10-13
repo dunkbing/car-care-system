@@ -6,7 +6,7 @@ import { AuthStackParams } from './params';
 
 const AuthStackNav = createNativeStackNavigator<AuthStackParams>();
 
-export const AuthStack = (): JSX.Element => {
+export const AuthStack: React.FC = () => {
   return (
     <AuthStackNav.Navigator>
       <AuthStackNav.Screen name='ChooseMethod' component={ChooseMethod} options={{ headerShown: false }} />

@@ -1,38 +1,46 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { StackScreenProps } from '@react-navigation/stack';
-import styles from './styles';
-import { StackParamList } from '../common';
-import { Avatar } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image } from 'native-base';
+import FormInput from '@components/FormInput';
 
-type Props = StackScreenProps<StackParamList, 'Login'>;
-
-const LoginScreen: React.FC<Props> = ({ navigation }) => {
+const Login: React.FC = () => {
   return (
-    <View style={styles.container}>
-      <Avatar source={{ uri: 'https://pbs.twimg.com/profile_images/1188747996843761665/8CiUdKZW_400x400.jpg' }} />
-
-      <View style={styles.inputView}>
-        <TextInput placeholder='Email.' placeholderTextColor='#003f5c' />
-      </View>
-
-      <View style={styles.inputView}>
-        <TextInput placeholder='Password.' placeholderTextColor='#003f5c' secureTextEntry={true} />
-      </View>
-
-      <TouchableOpacity>
-        <Text style={styles.forgotBtn}>Forgot Password?</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Home')}>
-        <Text style={styles.loginText}>LOGIN</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.forgotBtn}>Register</Text>
-      </TouchableOpacity>
-    </View>
+    <NativeBaseProvider>
+      <Box safeArea flex={1} p={2} mt={5} w='90%' mx='auto'>
+        <Heading size='lg' color='primary.500' textAlign='center'>
+          Car Care System
+        </Heading>
+        <VStack space={2} mt={5}>
+          <FormInput isRequired label='Số điện thoại/Email' placeholder='Số điện thoại/Email' keyboardType='ascii-capable' />
+          <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
+          <VStack space={2}>
+            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
+              Đăng nhập
+            </Button>
+          </VStack>
+        </VStack>
+        <HStack space={150}>
+          <Link pl={1} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-start' mt={5}>
+            Đăng ký
+          </Link>
+          <Link _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='flex-end' mt={5}>
+            Quên mật khẩu?
+          </Link>
+        </HStack>
+        <VStack alignItems='center'>
+          <Text fontSize='md' mt={10}>
+            Hoặc đăng nhập với
+          </Text>
+          <Image
+            source={{
+              uri: 'https://wallpaperaccess.com/full/317501.jpg',
+            }}
+            alt='Alternate Text'
+            size={'md'}
+          />
+        </VStack>
+      </Box>
+    </NativeBaseProvider>
   );
 };
 
-export default LoginScreen;
+export default Login;

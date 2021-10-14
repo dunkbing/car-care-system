@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ACCOUNT, NOTIFICATION, MAP } from '@constants/screens';
+import { ACCOUNT, MAP } from '@constants/screens';
 import MapScreen from '@screens/Map';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';

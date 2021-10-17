@@ -63,6 +63,7 @@ const FavoriteGarage: React.FC = () => {
             latitudeDelta: 0.03,
             longitudeDelta: 0.03,
           }}
+          loadingEnabled
         />
       </Center>
       <Center w='80%'>

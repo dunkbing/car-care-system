@@ -1,11 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ACCOUNT, MAP } from '@constants/screens';
-import MapScreen from '@screens/Map';
+import Map from '@screens/Home/Map';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
+import { HomeStackParams } from './params';
+import ProfileSettings from '@screens/Home/ProfileSettings';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<HomeStackParams>();
 
 export const HomeStack: React.FC = () => {
   return (
@@ -14,10 +15,10 @@ export const HomeStack: React.FC = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName = '';
 
-          if (route.name === ACCOUNT) {
+          if (route.name === 'ProfileHome') {
             iconName = focused ? 'user-circle' : 'user-circle-o';
             return <FAIcon name={iconName} size={size} color={color} />;
-          } else if (route.name === MAP) {
+          } else if (route.name === 'Map') {
             iconName = focused ? 'location' : 'location-outline';
             return <Ionicons name={iconName} size={size} color={color} />;
           }
@@ -27,7 +28,9 @@ export const HomeStack: React.FC = () => {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name={MAP} component={MapScreen} />
+      <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='Map' component={Map} />
+      {/* <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='ProfileHome' component={ProfileStack} /> */}
+      <Tab.Screen options={{ title: 'username', headerTitleAlign: 'center' }} name='ProfileHome' component={ProfileSettings} />
     </Tab.Navigator>
   );
 };

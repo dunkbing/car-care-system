@@ -1,17 +1,12 @@
-import { CreateEmployeeModel, EmployeeModel } from '@models/employee';
-import { CreateDepartmentModel, DepartmentModel } from '@models/department';
+import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type StackParams = {
-  Home: undefined;
-  Auth: undefined;
-  MutateEmployee: (EmployeeModel & CreateEmployeeModel) | undefined;
-  MutateDepartment: (DepartmentModel & CreateDepartmentModel) | undefined;
+  Auth: NavigatorScreenParams<AuthStackParams>;
+  Home: NavigatorScreenParams<HomeStackParams> | undefined;
+  Profile: NavigatorScreenParams<ProfileStackParams>;
 };
 
-export type RootStackParams = {
-  Home: undefined;
-  Auth: undefined;
-};
+export type RootStackParams = StackParams;
 
 export type AuthStackParams = {
   ChooseMethod: undefined;
@@ -23,7 +18,16 @@ export type AuthStackParams = {
   ForgotPassword: undefined;
 };
 
+export type ProfileStackParams = {
+  ProfileOverview: undefined;
+  ProfileInfo: undefined;
+  CarInfo: undefined;
+  FavoriteGarage: undefined;
+  RescueHistory: undefined;
+  ChangePassword: undefined;
+};
+
 export type HomeStackParams = {
-  Home: undefined;
   Map: undefined;
+  ProfileHome: undefined;
 };

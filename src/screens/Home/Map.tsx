@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const MapScreen: React.FC = () => {
+const Map: React.FC = () => {
   const [region, setRegion] = useState<Region>({
     latitude: 21.0278,
     longitude: 105.8342,
@@ -79,4 +79,4 @@ const MapScreen: React.FC = () => {
   );
 };
 
-export default MapScreen;
+export default Map;

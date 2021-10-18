@@ -16,7 +16,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
         </Heading>
         <VStack space={2} mt={10}>
           <FormInput isRequired label='Số điện thoại/Email' placeholder='Số điện thoại/Email' keyboardType='ascii-capable' />
-          <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
+          <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' secureTextEntry />
           <VStack space={2}>
             <Button
               style={{ alignSelf: 'center', width: '40%', height: 40 }}

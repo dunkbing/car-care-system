@@ -16,8 +16,8 @@ const Register: React.FC = () => {
             <FormInput isRequired label='Họ và tên' placeholder='Họ và tên' keyboardType='ascii-capable' />
             <FormInput isRequired label='Số điện thoại' placeholder='Số điện thoại' keyboardType='phone-pad' />
             <FormInput isRequired label='Email' placeholder='Email@example.com' keyboardType='email-address' />
-            <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' keyboardType='visible-password' />
-            <FormInput isRequired label='Xác nhận mật khẩu' placeholder='Xác nhận mật khẩu' keyboardType='visible-password' />
+            <FormInput isRequired label='Mật khẩu' placeholder='Mật khẩu' secureTextEntry />
+            <FormInput isRequired label='Xác nhận mật khẩu' placeholder='Xác nhận mật khẩu' secureTextEntry />
           </VStack>
           <VStack space={2} mt={4}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>

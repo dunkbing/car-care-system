@@ -20,9 +20,7 @@ const OTP: React.FC = () => {
             autoFocusOnLoad
             codeInputFieldStyle={styles.underlineStyleBase}
             codeInputHighlightStyle={styles.underlineStyleHighLighted}
-            onCodeFilled={(code) => {
-              console.log(`Code is ${code}, you are good to go!`);
-            }}
+            onCodeFilled={(code) => {}}
           />
         </VStack>
         <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>

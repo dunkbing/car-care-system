@@ -30,4 +30,13 @@ export const loginValidationSchema = yup.object({
   password: yup.string().required('Không được bỏ trống'),
 });
 
+export const registerValidationSchema = yup.object({
+  fullname: yup.string().required('Không được bỏ trống'),
+  phone: yup.string().required('Không được bỏ trống'),
+  email: yup.string().required('Không được bỏ trống'),
+  password: yup.string().required('Không được bỏ trống'),
+  confirmPassword: yup.string().required('Không được bỏ trống'),
+});
+
 export type CustomerLoginQueryModel = yup.InferType<typeof loginValidationSchema>;
+export type CustomerRegisterQueryModel = yup.InferType<typeof registerValidationSchema>;

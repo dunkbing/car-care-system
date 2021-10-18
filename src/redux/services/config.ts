@@ -11,6 +11,31 @@ type RequestError = {
   message?: string;
 };
 
+export type Pagination = {
+  totalPages: number;
+  displayItems: number;
+  totalRecords: number;
+  currentPage: number;
+};
+
+export type ResponseData<T> = {
+  records: Array<T>;
+  pagination: Pagination;
+};
+
+export type ResponseError = {
+  field: any;
+  message: string;
+};
+
+export type Response<T = any> = {
+  executeStatus: string;
+  executeMessage: string;
+  executeCode: number;
+  data: { result: ResponseData<T> };
+  errors: Array<ResponseError>;
+};
+
 // create a full path from base url and path
 const fullPath = (basePath: string, path: string) => {
   return basePath + (path !== '' ? '/' + path : '');
@@ -28,24 +53,25 @@ const axiosBaseQuery =
       getPlural?: boolean;
       withProgress?: boolean;
     },
-    any,
+    Response,
     RequestError
   > =>
-  async ({ path, method, data, getPlural, withProgress }) => {
+  async ({ path, method, data, getPlural, withProgress }): Promise<any> => {
     const progressDialogState = store.getState().progressDialog.value;
 
     try {
       withProgress && store.dispatch(showProgress({ ...progressDialogState, isOpen: true }));
       const result = await axios({ url: fullPath(baseUrl, path), method, data });
-      const errors: any[] = (result.data as any).errors;
+      const responseData = result.data as Response;
+      const errors: ResponseError[] = responseData.errors;
       const error = errors && errors.length ? errors[0].message : null;
 
       withProgress && store.dispatch(showProgress({ ...progressDialogState, isOpen: false }));
 
       if (getPlural) {
-        return { data: (result.data as any).data.result.records, error };
+        return { data: responseData.data.result.records, error };
       }
-      return { data: (result.data as any).data.result, error };
+      return { data: responseData.data.result, error };
     } catch (axiosError) {
       const err = axiosError as AxiosError<any>;
       const errors: any[] = err.response?.data?.errors;
@@ -53,6 +79,7 @@ const axiosBaseQuery =
 
       withProgress && store.dispatch(showProgress({ ...progressDialogState, isOpen: false }));
       return {
+        data: null,
         error: { status: err.response?.status, message },
       };
     }

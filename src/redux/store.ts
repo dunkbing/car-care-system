@@ -1,21 +1,20 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import departmentApi from './services/department';
-import employeeApi from './services/employee';
+import authApi from './services/auth';
 import { messageDialogSlice, progressDialogSlice } from './services/dialog';
 import { MessageDialogProps } from '@components/dialog/MessageDialog';
 import { ProgressDialogProps } from '@components/dialog/ProgressDialog';
+import garageApi from './services/garage';
 
 const reducer = combineReducers({
-  [employeeApi.reducerPath]: employeeApi.reducer,
-  [departmentApi.reducerPath]: departmentApi.reducer,
+  [authApi.reducerPath]: authApi.reducer,
+  [garageApi.reducerPath]: garageApi.reducer,
   messageDialog: messageDialogSlice.reducer,
   progressDialog: progressDialogSlice.reducer,
 });
 
 const store = configureStore({
   reducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }).concat(employeeApi.middleware, departmentApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }).concat(authApi.middleware, garageApi.middleware),
 });
 
 export default store;

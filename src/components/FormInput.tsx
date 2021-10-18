@@ -7,6 +7,7 @@ type Props = {
   isInvalid?: boolean;
   label: string;
   value?: string;
+  type?: string;
   leftIcon?: JSX.Element;
   errorMessage?: string;
   keyboardType?: KeyboardTypeOptions;
@@ -22,6 +23,7 @@ const FormInput: React.FC<Props> = ({
   isInvalid,
   errorMessage,
   leftIcon,
+  type,
   placeholder,
   keyboardType,
   onChangeText,
@@ -33,6 +35,7 @@ const FormInput: React.FC<Props> = ({
       <Input
         size='xl'
         placeholder={placeholder}
+        type={type || 'text'}
         onChangeText={onChangeText}
         onBlur={onBlur}
         value={value}

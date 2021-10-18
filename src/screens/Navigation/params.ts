@@ -4,6 +4,7 @@ export type StackParams = {
   Auth: NavigatorScreenParams<AuthStackParams>;
   Home: NavigatorScreenParams<HomeStackParams> | undefined;
   Profile: NavigatorScreenParams<ProfileStackParams>;
+  Rescue: NavigatorScreenParams<RescueStackParams>;
 };
 
 export type RootStackParams = StackParams;
@@ -30,4 +31,8 @@ export type ProfileStackParams = {
 export type HomeStackParams = {
   Map: undefined;
   ProfileHome: undefined;
+};
+
+export type RescueStackParams = {
+  SearchGarage: undefined;
 };

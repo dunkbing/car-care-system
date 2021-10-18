@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { GOOGLE_API_KEY } from '@env';
+import { rootNavigation } from '@screens/Navigation/roots';
 
 const styles = StyleSheet.create({
   container: {
@@ -70,7 +71,7 @@ const Map: React.FC = () => {
               <Button colorScheme='danger'>SOS</Button>
             </View>
             <View flex={1}>
-              <Button>Tìm Garage</Button>
+              <Button onPress={() => rootNavigation.navigate('Rescue', { screen: 'SearchGarage' })}>Tìm Garage</Button>
             </View>
           </HStack>
         </Center>

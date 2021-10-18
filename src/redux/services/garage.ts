@@ -9,10 +9,9 @@ const garageApi = createApi({
   baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
     getGarages: builder.query<Array<GarageModel>, unknown>({
-      query: (Keyword: string) => ({
-        path: path,
+      query: (keyword: string) => ({
+        path: `${path}?Keyword=${keyword}`,
         method: HttpMethod.GET,
-        data: { Keyword },
         getPlural: true,
       }),
     }),

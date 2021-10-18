@@ -9,7 +9,12 @@ const authApi = createApi({
   baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
     login: builder.mutation({
-      query: (loginQuery: CustomerLoginQueryModel) => ({ path: `${path}/login`, method: HttpMethod.POST, data: loginQuery }),
+      query: (loginQuery: CustomerLoginQueryModel) => ({
+        path: `${path}/login`,
+        method: HttpMethod.POST,
+        data: loginQuery,
+        withProgress: true,
+      }),
     }),
     register: builder.mutation({
       query: () => ({ path: `${path}/register`, method: HttpMethod.POST, withProgress: true }),

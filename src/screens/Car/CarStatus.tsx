@@ -1,8 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, HStack, Button, Text, Avatar, VStack, ScrollView, View } from 'native-base';
-import { StyleSheet } from 'react-native';
-import { ProfileStackParams } from '@screens/Navigation/params';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeBaseProvider, Box, HStack, Button, Text, Avatar, VStack, ScrollView } from 'native-base';
 
 const CarView: React.FC = () => {
   return (
@@ -23,7 +20,6 @@ const CarView: React.FC = () => {
 };
 
 const CarStatus: React.FC = () => {
-  type Props = NativeStackScreenProps<ProfileStackParams, 'CarInfo'>;
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='90%' mx='auto'>
@@ -43,17 +39,3 @@ const CarStatus: React.FC = () => {
 };
 
 export default CarStatus;
-
-const styles = StyleSheet.create({
-  underlineStyleBase: {
-    width: 30,
-    height: 40,
-    borderWidth: 1,
-    color: '#000000',
-    backgroundColor: '#E9E4E4',
-  },
-
-  underlineStyleHighLighted: {
-    borderColor: '#000000',
-  },
-});

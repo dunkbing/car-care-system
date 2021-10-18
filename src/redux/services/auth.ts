@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery, HttpMethod } from './config';
-import { CustomerLoginQueryModel } from '@models/customer';
+import { CustomerLoginQueryModel, CustomerRegisterQueryModel } from '@models/customer';
 
 const path = 'auth/customer';
 
@@ -17,7 +17,12 @@ const authApi = createApi({
       }),
     }),
     register: builder.mutation({
-      query: () => ({ path: `${path}/register`, method: HttpMethod.POST, withProgress: true }),
+      query: (registerQuery: CustomerRegisterQueryModel) => ({
+        path: `${path}/register`,
+        method: HttpMethod.POST,
+        data: registerQuery,
+        withProgress: true,
+      }),
     }),
   }),
 });

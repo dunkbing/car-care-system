@@ -7,9 +7,9 @@ const ChangePassword: React.FC = () => {
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={5} w='90%' mx='auto'>
         <VStack space={2} mt={5}>
-          <FormInput label='Mật khẩu cũ' placeholder='Mật khẩu cũ' keyboardType='visible-password' />
-          <FormInput label='Mật khẩu mới' placeholder='Mật khẩu mới' keyboardType='visible-password' />
-          <FormInput label='Xác nhận mật khẩu mới' placeholder='Nhập lại mật khẩu mới' keyboardType='visible-password' />
+          <FormInput label='Mật khẩu cũ' placeholder='Mật khẩu cũ' secureTextEntry />
+          <FormInput label='Mật khẩu mới' placeholder='Mật khẩu mới' secureTextEntry />
+          <FormInput label='Xác nhận mật khẩu mới' placeholder='Nhập lại mật khẩu mới' secureTextEntry />
           <HStack space={60} mt={5}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Lưu

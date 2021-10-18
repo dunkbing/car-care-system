@@ -26,6 +26,7 @@ module.exports = {
           '.json',
         ],
         alias: {
+          '@assets': './src/assets',
           '@components': './src/components',
           '@components/*': ['src/components'],
           '@constants': './src/constants',

@@ -3,7 +3,7 @@ import { useGetGaragesQuery } from '@redux/services/garage';
 import { HStack, Image, ScrollView, Text, View, VStack } from 'native-base';
 import React from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
-import SearchBar from './SearchBar';
+import SearchBar from '@components/SearchBar';
 
 const Garage = ({ name, address }: Omit<GarageModel, 'businessRegistrationNumber' | 'email' | 'phoneNumber'>) => {
   return (
@@ -33,7 +33,7 @@ const SearchGarage: React.FC = () => {
   const { data } = useGetGaragesQuery('');
   return (
     <VStack>
-      <SearchBar />
+      <SearchBar timeout={2000} />
       <ScrollView px='5' mt='5'>
         {data?.map((garage) => (
           <Garage key={garage.id} id={garage.id} name={garage.name} address={garage.address} />

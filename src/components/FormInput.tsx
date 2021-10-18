@@ -7,7 +7,7 @@ type Props = {
   isInvalid?: boolean;
   label: string;
   value?: string;
-  type?: string;
+  secureTextEntry?: boolean;
   leftIcon?: JSX.Element;
   errorMessage?: string;
   keyboardType?: KeyboardTypeOptions;
@@ -23,7 +23,7 @@ const FormInput: React.FC<Props> = ({
   isInvalid,
   errorMessage,
   leftIcon,
-  type,
+  secureTextEntry,
   placeholder,
   keyboardType,
   onChangeText,
@@ -35,12 +35,13 @@ const FormInput: React.FC<Props> = ({
       <Input
         size='xl'
         placeholder={placeholder}
-        type={type || 'text'}
         onChangeText={onChangeText}
+        overflow='visible'
         onBlur={onBlur}
         value={value}
         InputLeftElement={leftIcon}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
       />
       <Center>
         {

@@ -23,14 +23,14 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
           validationSchema={loginValidationSchema}
           initialValues={{ emailOrPhone: '', password: '' }}
           onSubmit={async (values) => {
-            // const res: any = await login({ ...values });
-            // if (isError) {
-            //   toast.show(`Thất bại: ${error?.message as string}`);
-            //   return;
-            // } else if (res.error) {
-            //   toast.show(`Thất bại: ${res.error?.message as string}`);
-            //   return;
-            // }
+            const res: any = await login({ ...values });
+            if (isError) {
+              toast.show(`Thất bại: ${error?.message as string}`);
+              return;
+            } else if (res.error) {
+              toast.show(`Thất bại: ${res.error?.message as string}`);
+              return;
+            }
             rootNavigation.navigate('Home');
           }}
         >
@@ -51,13 +51,13 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
                 isRequired
                 label='Mật khẩu'
                 placeholder='Mật khẩu'
-                type='password'
+                secureTextEntry
                 value={values.password}
                 isInvalid={!isValid}
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
                 errorMessage={errors.password}
-                keyboardType='visible-password'
+                // keyboardType='visible-password'
               />
               <VStack space={2}>
                 <Button

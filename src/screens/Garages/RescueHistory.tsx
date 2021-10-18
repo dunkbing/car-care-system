@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Center, ScrollView, Text, View, VStack } from 'native-base';
-import SearchBar from './SearchBar';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
+import SearchBar from '@components/SearchBar';
 
 const HistoryView: React.FC = () => {
   return (

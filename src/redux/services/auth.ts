@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { axiosBaseQuery, HttpMethod, Response } from './config';
+import { axiosBaseQuery, HttpMethod } from './config';
 import { CustomerLoginQueryModel } from '@models/customer';
 
 const path = 'auth/customer';

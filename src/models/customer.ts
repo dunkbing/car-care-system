@@ -26,8 +26,8 @@ export type UpdateCustomerModel = {
 };
 
 export const loginValidationSchema = yup.object({
-  emailOrPhone: yup.string().required(''),
-  password: yup.string().required(''),
+  emailOrPhone: yup.string().required('Không được bỏ trống'),
+  password: yup.string().required('Không được bỏ trống'),
 });
 
 export type CustomerLoginQueryModel = yup.InferType<typeof loginValidationSchema>;

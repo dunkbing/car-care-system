@@ -8,7 +8,7 @@ const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
 export const RescueStack: React.FC = () => {
   return (
-    <RescueStackNav.Navigator>
+    <RescueStackNav.Navigator screenOptions={{ contentStyle: { backgroundColor: 'white' } }}>
       <RescueStackNav.Screen
         name='SearchGarage'
         component={SearchGarage}

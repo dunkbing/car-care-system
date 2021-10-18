@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import FormInput from '@components/FormInput';
 import { AuthStackParams } from '@screens/Navigation/params';
@@ -8,6 +8,7 @@ import { loginValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
 import { useLoginMutation } from '@redux/services/auth';
 import toast from '@utils/toast';
+import GoogleLogo from '@assets/google_logo.png';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 
@@ -73,36 +74,32 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
             </VStack>
           )}
         </Formik>
-        <HStack space={150}>
-          <Link
-            pl={1}
-            _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }}
-            alignSelf='flex-start'
-            mt={5}
-            onPress={() => navigation.navigate('Register')}
-          >
-            Đăng ký
-          </Link>
-          <Link
-            _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }}
-            alignSelf='flex-end'
-            mt={5}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          >
-            Quên mật khẩu?
-          </Link>
-        </HStack>
+        <Center>
+          <HStack space={150}>
+            <Link
+              pl={1}
+              _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }}
+              alignSelf='center'
+              mt={5}
+              onPress={() => navigation.navigate('Register')}
+            >
+              Đăng ký
+            </Link>
+            <Link
+              _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }}
+              alignSelf='center'
+              mt={5}
+              onPress={() => navigation.navigate('ForgotPassword')}
+            >
+              Quên mật khẩu?
+            </Link>
+          </HStack>
+        </Center>
         <VStack alignItems='center'>
           <Text fontSize='md' mt={10}>
             Hoặc đăng nhập với
           </Text>
-          <Image
-            source={{
-              uri: 'https://wallpaperaccess.com/full/317501.jpg',
-            }}
-            alt='Alternate Text'
-            size={'md'}
-          />
+          <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
         </VStack>
       </Box>
     </NativeBaseProvider>

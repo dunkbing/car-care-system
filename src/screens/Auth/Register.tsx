@@ -6,6 +6,7 @@ import { Formik } from 'formik';
 import { useRegisterMutation } from '@redux/services/auth';
 import toast from '@utils/toast';
 import { rootNavigation } from '@screens/Navigation/roots';
+import GoogleLogo from '@assets/google_logo.png';
 
 const Register: React.FC = () => {
   const [register, { isLoading: isRegister, isError, error }] = useRegisterMutation();
@@ -110,13 +111,7 @@ const Register: React.FC = () => {
             <Text fontSize='md' mt={10}>
               Hoặc đăng nhập với
             </Text>
-            <Image
-              source={{
-                uri: 'https://wallpaperaccess.com/full/317501.jpg',
-              }}
-              alt='Alternate Text'
-              size={'md'}
-            />
+            <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
           </VStack>
         </Box>
       </ScrollView>

@@ -8,6 +8,7 @@ import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
 import { useLoginMutation } from '@redux/services/auth';
 import toast from '@utils/toast';
+import GoogleLogo from '@assets/google_logo.png';
 
 type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
@@ -89,13 +90,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
           <Text fontSize='md' mt={10}>
             Hoặc đăng nhập với
           </Text>
-          <Image
-            source={{
-              uri: 'https://wallpaperaccess.com/full/317501.jpg',
-            }}
-            alt='Alternate Text'
-            size={'md'}
-          />
+          <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
         </VStack>
       </Box>
     </NativeBaseProvider>

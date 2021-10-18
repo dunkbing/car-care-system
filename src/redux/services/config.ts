@@ -41,6 +41,8 @@ const fullPath = (basePath: string, path: string) => {
   return basePath + (path !== '' ? '/' + path : '');
 };
 
+export const toParams = (obj: Record<string, any>) => new URLSearchParams(obj).toString();
+
 // axios-based baseQuery utility
 const axiosBaseQuery =
   (
@@ -50,18 +52,19 @@ const axiosBaseQuery =
       path: string;
       method: AxiosRequestConfig['method'];
       data?: AxiosRequestConfig['data'];
+      params?: AxiosRequestConfig['params'];
       getPlural?: boolean;
       withProgress?: boolean;
     },
     Response,
     RequestError
   > =>
-  async ({ path, method, data, getPlural, withProgress }): Promise<any> => {
+  async ({ path, method, data, params, getPlural, withProgress }): Promise<any> => {
     const progressDialogState = store.getState().progressDialog.value;
 
     try {
       withProgress && store.dispatch(showProgress({ ...progressDialogState, isOpen: true }));
-      const result = await axios({ url: fullPath(baseUrl, path), method, data });
+      const result = await axios({ url: fullPath(baseUrl, path), method, data, params });
       const responseData = result.data as Response;
       const errors: ResponseError[] = responseData.errors;
       const error = errors && errors.length ? errors[0].message : null;

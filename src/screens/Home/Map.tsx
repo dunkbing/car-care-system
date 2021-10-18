@@ -2,7 +2,7 @@ import { Box, Button, Center, HStack, Text, View } from 'native-base';
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { GOOGLE_API_KEY } from '@env';
 import { rootNavigation } from '@screens/Navigation/roots';
 
@@ -26,7 +26,9 @@ const Map: React.FC = () => {
   });
   return (
     <Box style={styles.container}>
-      <MapView provider={PROVIDER_GOOGLE} style={styles.map} region={region} loadingEnabled />
+      <MapView provider={PROVIDER_GOOGLE} style={styles.map} region={region} loadingEnabled>
+        <Marker coordinate={{ latitude: 21.0278, longitude: 105.8342 }} />
+      </MapView>
       <Box pt={10}>
         <GooglePlacesAutocomplete
           styles={{

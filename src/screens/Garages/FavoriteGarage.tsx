@@ -66,8 +66,10 @@ const FavoriteGarage: React.FC = () => {
           loadingEnabled
         />
       </Center>
-      <Center w='80%'>
-        <Button width='60%'>Thay đổi garage yêu thích</Button>
+      <Center w='100%'>
+        <Button colorScheme='green' width='80%'>
+          Thay đổi garage cứu hộ mặc định
+        </Button>
       </Center>
     </VStack>
   );

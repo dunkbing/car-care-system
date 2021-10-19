@@ -1,4 +1,4 @@
-package com.app;
+package com.goatteam.carcare;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;

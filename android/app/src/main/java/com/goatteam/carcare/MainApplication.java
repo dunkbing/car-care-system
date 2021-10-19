@@ -1,4 +1,4 @@
-package com.app;
+package com.goatteam.carcare;
 
 import android.app.Application;
 import android.content.Context;

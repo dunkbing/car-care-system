@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '@components/SearchBar';
 import { Rating } from 'react-native-ratings';
-import { rootNavigation } from '@screens/Navigation';
+import { rootNavigation } from '@screens/Navigation/roots';
 
 const Garage = ({ name, address }: Omit<GarageModel, 'businessRegistrationNumber' | 'email' | 'phoneNumber'>) => {
   return (

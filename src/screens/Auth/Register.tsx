@@ -3,13 +3,11 @@ import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from
 import FormInput from '@components/FormInput';
 import { registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import { useRegisterMutation } from '@redux/services/auth';
 import toast from '@utils/toast';
 import { rootNavigation } from '@screens/Navigation/roots';
 import GoogleLogo from '@assets/google_logo.png';
 
 const Register: React.FC = () => {
-  const [register, { isLoading: isRegister, isError, error }] = useRegisterMutation();
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -23,15 +21,8 @@ const Register: React.FC = () => {
             <Formik
               validationSchema={registerValidationSchema}
               initialValues={{ fullname: '', phone: '', email: '', password: '', confirmPassword: '' }}
+              // eslint-disable-next-line @typescript-eslint/require-await
               onSubmit={async (values) => {
-                const res: any = await register({ ...values });
-                if (isError) {
-                  toast.show(`Thất bại: ${error?.message as string}`);
-                  return;
-                } else if (res.error) {
-                  toast.show(`Thất bại: ${res.error?.message as string}`);
-                  return;
-                }
                 rootNavigation.navigate('Home');
               }}
             >
@@ -98,7 +89,7 @@ const Register: React.FC = () => {
                       colorScheme='green'
                       _text={{ color: 'white' }}
                       onPress={handleSubmit}
-                      disabled={!isValid || isRegister}
+                      // disabled={!isValid || isRegister}
                     >
                       Đăng ký
                     </Button>

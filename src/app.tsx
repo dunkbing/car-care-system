@@ -1,11 +1,13 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
-import store from './redux/store';
 import 'react-native-gesture-handler';
 import { NativeBaseProvider } from 'native-base';
 import { AuthStack, HomeStack, ProfileStack, RescueStack, rootNavigation, RootStack } from './screens/Navigation';
 import Dialog from '@components/dialog';
+import axios from 'axios';
+import { API_URL } from '@env';
+
+axios.defaults.baseURL = API_URL;
 
 const App: React.FC = () => {
   return (
@@ -23,9 +25,7 @@ const App: React.FC = () => {
 
 const AppWrapper = () => (
   <NativeBaseProvider config={{ suppressColorAccessibilityWarning: true }}>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <App />
   </NativeBaseProvider>
 );
 

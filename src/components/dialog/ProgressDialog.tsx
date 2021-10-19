@@ -1,18 +1,23 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { AlertDialog, Button, Spinner } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
+export enum DialogState {
+  OPEN,
+  CLOSE,
+}
+
 export type ProgressDialogProps = {
   header: any;
-  isOpen?: boolean;
+  state?: DialogState;
   onClosed?: () => void;
 };
 
-export function ProgressDialog({ header, isOpen, onClosed }: ProgressDialogProps): ReactElement {
+export const ProgressDialog = ({ header, state, onClosed }: ProgressDialogProps) => {
   const cancelRef = React.useRef<TouchableOpacity>(null);
 
   return (
-    <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClosed}>
+    <AlertDialog leastDestructiveRef={cancelRef} isOpen={state === DialogState.OPEN} onClose={onClosed}>
       <AlertDialog.Content>
         <AlertDialog.CloseButton />
         <AlertDialog.Header>{header}</AlertDialog.Header>
@@ -29,4 +34,4 @@ export function ProgressDialog({ header, isOpen, onClosed }: ProgressDialogProps
       </AlertDialog.Content>
     </AlertDialog>
   );
-}
+};

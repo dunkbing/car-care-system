@@ -15,7 +15,7 @@
       "@components/*": ["src/components/*"],
       "@constants/*": ["src/constants/*"],
       "@models/*": ["src/models/*"],
-      "@redux/*": ["src/redux/*"],
+      "@mobx/*": ["src/mobx/*"],
       "@utils/*": ["src/utils/*"],
       "@screens/*": ["src/screens/*"],
     },                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */

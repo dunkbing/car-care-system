@@ -1,11 +1,13 @@
 import { GarageModel } from '@models/garage';
-import { useGetGaragesQuery } from '@redux/services/garage';
 import { Button, HStack, Image, Link, ScrollView, Spinner, Text, View, VStack } from 'native-base';
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '@components/SearchBar';
 import { Rating } from 'react-native-ratings';
 import { rootNavigation } from '@screens/Navigation/roots';
+import GarageStore from '@mobx/stores/garage';
+import { observer } from 'mobx-react';
+import { STATES } from '@utils/constants';
 
 const Garage = ({ name, address }: Omit<GarageModel, 'businessRegistrationNumber' | 'email' | 'phoneNumber'>) => {
   return (
@@ -39,22 +41,20 @@ const Garage = ({ name, address }: Omit<GarageModel, 'businessRegistrationNumber
 };
 
 const SearchGarage: React.FC = () => {
-  const [query, setQuery] = useState('');
-  const { data, isFetching, refetch } = useGetGaragesQuery(query);
+  const garageStore = useContext(GarageStore);
   return (
     <VStack>
       <SearchBar
         timeout={500}
         onSearch={(text) => {
-          setQuery(text);
-          refetch();
+          void garageStore.searchGarage(text);
         }}
       />
       <ScrollView px='5' mt='5' contentContainerStyle={{ marginBottom: 50 }} height='60%'>
-        {isFetching ? (
+        {garageStore.state === STATES.LOADING ? (
           <Spinner size='lg' />
         ) : (
-          data?.map((garage) => <Garage key={garage.id} id={garage.id} name={garage.name} address={garage.address} />)
+          garageStore.garages.map((garage) => <Garage key={garage.id} id={garage.id} name={garage.name} address={garage.address} />)
         )}
       </ScrollView>
       <VStack mt='10'>
@@ -69,4 +69,4 @@ const SearchGarage: React.FC = () => {
   );
 };
 
-export default SearchGarage;
+export default observer(SearchGarage);

@@ -31,8 +31,8 @@ module.exports = {
           '@components/*': ['src/components'],
           '@constants': './src/constants',
           '@models': './src/models',
-          '@redux': './src/redux',
-          '@redux/*': ['src/redux'],
+          '@mobx': './src/mobx',
+          '@mobx/*': ['src/mobx'],
           '@utils': './src/utils',
           '@screens': './src/screens',
         }

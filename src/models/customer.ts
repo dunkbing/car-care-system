@@ -38,5 +38,25 @@ export const registerValidationSchema = yup.object({
   confirmPassword: yup.string().required('Không được bỏ trống'),
 });
 
-export type CustomerLoginQueryModel = yup.InferType<typeof loginValidationSchema>;
+export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
+export enum Gender {
+  Male,
+  Female,
+}
+
+export type LoginResponseModel = {
+  id: 1;
+  phoneNumber: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  dateOfBirth: string;
+  address: string;
+  accountStatus: number;
+  accessToken: string;
+};
+
+export type User = LoginResponseModel;
+
 export type CustomerRegisterQueryModel = yup.InferType<typeof registerValidationSchema>;

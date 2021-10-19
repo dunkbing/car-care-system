@@ -1,0 +1,7 @@
+export enum STATES {
+  IDLE,
+  LOADING,
+  LOADING_BACKGROUND,
+  SUCCESS,
+  ERROR,
+}

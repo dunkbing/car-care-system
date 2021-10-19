@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Link, Button, Text, Image } from 'native-base';
 import FormInput from '@components/FormInput';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -6,14 +6,22 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
-import { useLoginMutation } from '@redux/services/auth';
 import toast from '@utils/toast';
 import GoogleLogo from '@assets/google_logo.png';
+import { LoginQueryModel } from '@models/customer';
+import DialogStore from '@mobx/stores/dialog';
+import { authService } from '@mobx/services/auth';
 
 type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
 const GarageLogin: React.FC<Props> = ({ navigation }) => {
-  const [login, { isLoading: isLoggingIn, isError, error }] = useLoginMutation();
+  const dialogStore = useContext(DialogStore);
+  async function onLoginSubmit(values: LoginQueryModel) {
+    dialogStore.openProgressDialog();
+    await authService.login(values);
+    dialogStore.closeProgressDialog();
+    rootNavigation.navigate('Home');
+  }
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
@@ -21,21 +29,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
           Car Care System
         </Heading>
         <VStack space={2} mt={10}>
-          <Formik
-            validationSchema={loginValidationSchema}
-            initialValues={{ emailOrPhone: '', password: '' }}
-            onSubmit={async (values) => {
-              const res: any = await login({ ...values });
-              if (isError) {
-                toast.show(`Thất bại: ${error?.message as string}`);
-                return;
-              } else if (res.error) {
-                toast.show(`Thất bại: ${res.error?.message as string}`);
-                return;
-              }
-              rootNavigation.navigate('Home');
-            }}
-          >
+          <Formik validationSchema={loginValidationSchema} initialValues={{ emailOrPhone: '', password: '' }} onSubmit={onLoginSubmit}>
             {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
               <VStack space={2} mt={10}>
                 <FormInput
@@ -67,7 +61,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
                     colorScheme='green'
                     _text={{ color: 'white' }}
                     onPress={handleSubmit}
-                    disabled={!isValid || isLoggingIn}
+                    // disabled={!isValid || isLoggingIn}
                   >
                     Đăng nhập
                   </Button>

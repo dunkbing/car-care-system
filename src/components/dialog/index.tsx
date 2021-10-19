@@ -1,30 +1,30 @@
 import { Box } from 'native-base';
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { showMsgDialog, showProgress } from '@redux/services/dialog';
-import { selectMsgDialogState, selectProgressDialogState } from '@redux/store';
+import React, { useContext } from 'react';
 import { MessageDialog } from './MessageDialog';
 import { ProgressDialog } from './ProgressDialog';
+import { observer } from 'mobx-react';
+import DialogStore from '@mobx/stores/dialog';
 
-export default function Dialog() {
-  const msgDialogState = useSelector(selectMsgDialogState);
-  const progressDialogState = useSelector(selectProgressDialogState);
-  const dispatch = useDispatch();
+const Dialog = () => {
+  const dialogStore = useContext(DialogStore);
+  const { msgDialogState, progressDialogState } = dialogStore;
   return (
     <Box>
       <MessageDialog
         title={msgDialogState.title}
         message={msgDialogState.message}
-        isOpen={msgDialogState.isOpen}
+        state={msgDialogState.state}
         onRefused={msgDialogState.onRefused}
         onAgreed={msgDialogState.onAgreed}
-        onClosed={() => dispatch(showMsgDialog({ ...msgDialogState, isOpen: false }))}
+        onClosed={() => dialogStore.closeMsgDialog()}
       />
       <ProgressDialog
         header={progressDialogState.header}
-        isOpen={progressDialogState.isOpen}
-        onClosed={() => dispatch(showProgress({ ...progressDialogState, isOpen: false }))}
+        state={progressDialogState.state}
+        onClosed={() => dialogStore.closeProgressDialog()}
       />
     </Box>
   );
-}
+};
+
+export default observer(Dialog);

@@ -31,7 +31,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Họ và tên'
-                    placeholder='Họ và tên'
+                    placeholder='Nhập họ và tên'
                     value={values.fullname}
                     isInvalid={!isValid}
                     onChangeText={handleChange('fullname')}
@@ -42,7 +42,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Số điện thoại'
-                    placeholder='Số điện thoại'
+                    placeholder='Nhập số điện thoại'
                     value={values.phone}
                     isInvalid={!isValid}
                     onChangeText={handleChange('phone')}
@@ -53,7 +53,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Email'
-                    placeholder='Email@example.com'
+                    placeholder='Nhập email'
                     value={values.email}
                     isInvalid={!isValid}
                     onChangeText={handleChange('email')}
@@ -64,7 +64,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Mật khẩu'
-                    placeholder='Mật khẩu'
+                    placeholder='Nhập mật khẩu'
                     secureTextEntry
                     value={values.password}
                     isInvalid={!isValid}
@@ -83,6 +83,8 @@ const Register: React.FC = () => {
                     onBlur={handleBlur('confirmPassword')}
                     errorMessage={errors.password}
                   />
+                  <FormInput label='Loại khách hàng' placeholder='Nhập loại khách hàng' />
+                  <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
                     <Button
                       style={{ alignSelf: 'center', width: '40%', height: 40 }}

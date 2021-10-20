@@ -10,7 +10,7 @@ export default () => {
         selectedValue={model}
         minWidth='200'
         accessibilityLabel='Mẫu xe'
-        placeholder='Mẫu xe'
+        placeholder='Chọn mẫu xe'
         _selectedItem={{
           bg: 'teal.600',
           endIcon: <CheckIcon size='5' />,

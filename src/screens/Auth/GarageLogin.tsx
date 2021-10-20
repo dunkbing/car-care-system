@@ -35,7 +35,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
                 <FormInput
                   isRequired
                   label='Số điện thoại/Email'
-                  placeholder='Số điện thoại/Email'
+                  placeholder='Nhập số điện thoại/Email'
                   value={values.emailOrPhone}
                   isInvalid={!isValid}
                   onChangeText={handleChange('emailOrPhone')}
@@ -46,7 +46,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
                 <FormInput
                   isRequired
                   label='Mật khẩu'
-                  placeholder='Mật khẩu'
+                  placeholder='Nhập mật khẩu'
                   secureTextEntry
                   value={values.password}
                   isInvalid={!isValid}

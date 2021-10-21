@@ -1,13 +1,13 @@
 import React from 'react';
-import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl, Select, CheckIcon } from 'native-base';
 import FormInput from '@components/FormInput';
 import { registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import toast from '@utils/toast';
 import { rootNavigation } from '@screens/Navigation/roots';
 import GoogleLogo from '@assets/google_logo.png';
 
 const Register: React.FC = () => {
+  const [typeCustomer, setTypeCustomer] = React.useState('');
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -83,7 +83,25 @@ const Register: React.FC = () => {
                     onBlur={handleBlur('confirmPassword')}
                     errorMessage={errors.password}
                   />
-                  <FormInput label='Loại khách hàng' placeholder='Nhập loại khách hàng' />
+                  <FormControl.Label>
+                    <Text bold>Loại khách hàng</Text>
+                  </FormControl.Label>
+                  <Select
+                    selectedValue={typeCustomer}
+                    minWidth='200'
+                    accessibilityLabel='Loại khách hàng'
+                    placeholder='Loại khách hàng'
+                    _selectedItem={{
+                      bg: 'teal.600',
+                      endIcon: <CheckIcon size='5' />,
+                    }}
+                    mb={1}
+                    mt={-2}
+                    onValueChange={(itemValue) => setTypeCustomer(itemValue)}
+                  >
+                    <Select.Item label='Cá nhân' value='cá nhân' />
+                    <Select.Item label='Doanh nghiệp' value='doanh nghiệp' />
+                  </Select>
                   <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
                     <Button

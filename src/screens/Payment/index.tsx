@@ -25,7 +25,7 @@ const Payment: React.FC = () => {
             <Cell textStyle={{ textAlign: 'right' }} data={'354.800'} />
           </TableWrapper>
           <TableWrapper style={{ flexDirection: 'row', marginTop: 10 }}>
-            <Cell data={'Log gio'} />
+            <Cell data={'Loc gio'} />
             <Cell textStyle={{ textAlign: 'center' }} data={'4'} />
             <Cell textStyle={{ textAlign: 'right' }} data={'354.800'} />
           </TableWrapper>

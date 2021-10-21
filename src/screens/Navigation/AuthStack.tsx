@@ -1,8 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, ChangePassword, ResetPassword } from '@screens/Auth';
-import { headerTintColor, headerColor } from '@screens/shared/colors';
 import { AuthStackParams } from './params';
+import { navHeaderStyle } from './roots';
 
 const AuthStackNav = createNativeStackNavigator<AuthStackParams>();
 
@@ -17,9 +17,7 @@ export const AuthStack: React.FC = () => {
         component={Register}
         options={{
           title: 'Đăng ký',
-          headerTitleAlign: 'center',
-          headerTintColor: headerTintColor,
-          headerStyle: { backgroundColor: headerColor },
+          ...navHeaderStyle,
         }}
       />
       <AuthStackNav.Screen
@@ -27,9 +25,7 @@ export const AuthStack: React.FC = () => {
         component={ForgotPassword}
         options={{
           title: 'Quên mật khẩu',
-          headerTitleAlign: 'center',
-          headerTintColor: headerTintColor,
-          headerStyle: { backgroundColor: headerColor },
+          ...navHeaderStyle,
         }}
       />
       <AuthStackNav.Screen name='ChangePassword' component={ChangePassword} />

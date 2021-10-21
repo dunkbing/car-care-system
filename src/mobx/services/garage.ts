@@ -1,16 +1,20 @@
 import { GarageModel } from '@models/garage';
 import axios, { AxiosResponse } from 'axios';
-import { Response } from './config';
+import { ResponsePlural, ServiceResult } from './config';
 
 const path = 'garages';
 
 class GarageService {
-  public async searchGarages(keyword: string): Promise<GarageModel[]> {
-    const response = await axios.get<any, AxiosResponse<Response<GarageModel[]>>>(path, {
-      params: { Keyword: keyword },
-    });
-    const data = response.data.data.result.records as GarageModel[];
-    return data;
+  public async searchGarages(keyword: string): Promise<ServiceResult<GarageModel[]>> {
+    try {
+      const response = await axios.get<any, AxiosResponse<ResponsePlural<GarageModel>>>(path, {
+        params: { Keyword: keyword },
+      });
+      const result = response.data.data.result.records;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    }
   }
 }
 

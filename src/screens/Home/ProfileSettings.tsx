@@ -66,7 +66,7 @@ const ProfileSettings: React.FC<Props> = () => {
             text='Garage yêu thích'
             onPress={() => {
               rootNavigation.navigate('Profile', {
-                screen: 'FavoriteGarage',
+                screen: 'DefaultGarage',
               });
             }}
             icon={<MatCommuIcon name='garage' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}

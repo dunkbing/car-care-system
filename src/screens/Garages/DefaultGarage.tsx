@@ -1,9 +1,7 @@
 import React from 'react';
-import { Button, Center, HStack, Image, Text, VStack } from 'native-base';
+import { Button, Center, HStack, Image, ScrollView, Text, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet } from 'react-native';
 import { Rating } from 'react-native-ratings';
 
 const GarageInfo: React.FC = () => {
@@ -37,9 +35,24 @@ const GarageInfo: React.FC = () => {
   );
 };
 
-const FavoriteGarage: React.FC = () => {
+const GarageFeedback: React.FC<{ username: string; rating: number; content: string; time: string }> = (props) => {
   return (
-    <VStack h='100%' space={4} alignItems='center' bg='white'>
+    <VStack>
+      <HStack space={3}>
+        <Text bold fontSize='lg'>
+          {props.username}
+        </Text>
+        <Rating ratingCount={5} imageSize={24} startingValue={props.rating} ratingBackgroundColor='primary.500' />
+      </HStack>
+      <Text fontSize='md'>{props.content}</Text>
+      <Text fontSize='sm'>{props.time}</Text>
+    </VStack>
+  );
+};
+
+const DefaultGarage: React.FC = () => {
+  return (
+    <VStack h='100%' alignItems='center' bg='white'>
       <Center w='100%' h='33%' bg='primary.500' rounded='md' shadow={3}>
         <Image
           source={{
@@ -53,20 +66,22 @@ const FavoriteGarage: React.FC = () => {
       <Center w='100%' h='20%'>
         <GarageInfo />
       </Center>
-      <Center w='100%' h='33%' bg='emerald.500' rounded='md' shadow={3}>
-        <MapView
-          provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-          style={{ ...StyleSheet.absoluteFillObject, flex: 2 }}
-          region={{
-            latitude: 21.0278,
-            longitude: 105.8342,
-            latitudeDelta: 0.03,
-            longitudeDelta: 0.03,
-          }}
-          loadingEnabled
-        />
+      <Center w='80%' h='30%' rounded='md'>
+        <ScrollView>
+          <VStack space={2} backgroundColor='green'>
+            <GarageFeedback
+              username='Nam Anh'
+              rating={5}
+              content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình nhiệt tình'
+              time='19-10-2021 14:29'
+            />
+            <GarageFeedback username='Nam Anh' rating={5} content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình' time='19-10-2021 14:29' />
+            <GarageFeedback username='Nam Anh' rating={5} content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình' time='19-10-2021 14:29' />
+            <GarageFeedback username='Nam Anh' rating={5} content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình' time='19-10-2021 14:29' />
+          </VStack>
+        </ScrollView>
       </Center>
-      <Center w='100%'>
+      <Center mt='4' w='100%'>
         <Button colorScheme='green' width='80%'>
           Thay đổi garage cứu hộ mặc định
         </Button>
@@ -75,4 +90,4 @@ const FavoriteGarage: React.FC = () => {
   );
 };
 
-export default FavoriteGarage;
+export default DefaultGarage;

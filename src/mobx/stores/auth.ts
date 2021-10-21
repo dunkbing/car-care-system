@@ -15,15 +15,17 @@ class AuthStore {
   user: User | null = null;
 
   public async login(loginQuery: LoginQueryModel) {
-    try {
-      const user = await authService.login(loginQuery);
+    const { result: user, error } = await authService.login(loginQuery);
+    if (error) {
+      runInAction(() => {
+        this.user = null;
+        this.state = STATES.ERROR;
+      });
+    } else
       runInAction(() => {
         this.user = user;
         this.state = STATES.SUCCESS;
       });
-    } catch (error) {
-      this.state = STATES.ERROR;
-    }
   }
 }
 

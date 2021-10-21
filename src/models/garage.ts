@@ -7,6 +7,11 @@ export type GarageModel = {
   businessRegistrationNumber: string;
   phoneNumber: string;
   email: string;
+  imageUrl: string;
+  location: {
+    longitude: number;
+    latitude: number;
+  };
 };
 
 export const loginValidationSchema = yup.object({

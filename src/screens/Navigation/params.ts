@@ -23,7 +23,7 @@ export type ProfileStackParams = {
   ProfileOverview: undefined;
   ProfileInfo: undefined;
   CarInfo: undefined;
-  FavoriteGarage: undefined;
+  DefaultGarage: undefined;
   RescueHistory: undefined;
   ChangePassword: undefined;
 };

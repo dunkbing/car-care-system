@@ -21,7 +21,7 @@ const Garage = ({ name, address }: Omit<GarageModel, 'businessRegistrationNumber
       />
       <VStack width='100%' mx='3' space={2}>
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-          <Text onPress={() => rootNavigation.navigate('Profile', { screen: 'FavoriteGarage' })} fontSize='lg' style={{ flex: 2 }}>
+          <Text onPress={() => rootNavigation.navigate('Profile', { screen: 'DefaultGarage' })} fontSize='lg' style={{ flex: 2 }}>
             {name}
           </Text>
           <FAIcon size={24} style={{ flex: 1, paddingRight: 15 }} name='heart' />

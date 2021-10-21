@@ -3,7 +3,7 @@ import React from 'react';
 
 const Payment: React.FC = () => {
   return (
-    <VStack mt='2' px='5'>
+    <VStack mt='2' px='1'>
       <ScrollView
         _contentContainerStyle={{
           px: '20px',
@@ -16,25 +16,25 @@ const Payment: React.FC = () => {
         <VStack mt='2'>
           <HStack space={2}>
             <Text bold fontSize='lg'>
-              Khách hàng
+              Khách hàng:
             </Text>
             <Text fontSize='lg'>Lê Đức Anh</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
-              Loại xe
+              Loại xe:
             </Text>
             <Text fontSize='lg'>Mazda CX5</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
-              Biển số
+              Biển số:
             </Text>
-            <Text fontSize='lg'>29-T8 3045</Text>
+            <Text fontSize='lg'>30A 13045</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
-              Màu xe
+              Màu xe:
             </Text>
             <Text fontSize='lg'>Trắng</Text>
           </HStack>

@@ -31,8 +31,8 @@ const ChangePassword: React.FC<Props> = ({ navigation }) => {
             <Button
               onPress={cancel}
               style={{ alignSelf: 'center', width: '40%', height: 40 }}
-              backgroundColor='white'
-              _text={{ color: '#1F87FE' }}
+              backgroundColor='#EA4335'
+              _text={{ color: 'white' }}
             >
               Hủy
             </Button>

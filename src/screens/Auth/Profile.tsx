@@ -43,7 +43,12 @@ const Profile: React.FC<Props> = () => {
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Lưu
             </Button>
-            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} variant='outline' onPress={() => rootNavigation.goBack()}>
+            <Button
+              style={{ alignSelf: 'center', width: '40%', height: 40 }}
+              bgColor='#EA4335'
+              _text={{ color: 'white' }}
+              onPress={() => rootNavigation.goBack()}
+            >
               Hủy
             </Button>
           </HStack>

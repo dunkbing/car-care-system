@@ -1,13 +1,13 @@
 import React from 'react';
-import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl, Select, CheckIcon } from 'native-base';
 import FormInput from '@components/FormInput';
 import { registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import toast from '@utils/toast';
 import { rootNavigation } from '@screens/Navigation/roots';
 import GoogleLogo from '@assets/google_logo.png';
 
 const Register: React.FC = () => {
+  const [typeCustomer, setTypeCustomer] = React.useState('');
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -31,7 +31,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Họ và tên'
-                    placeholder='Họ và tên'
+                    placeholder='Nhập họ và tên'
                     value={values.fullname}
                     isInvalid={!isValid}
                     onChangeText={handleChange('fullname')}
@@ -42,7 +42,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Số điện thoại'
-                    placeholder='Số điện thoại'
+                    placeholder='Nhập số điện thoại'
                     value={values.phone}
                     isInvalid={!isValid}
                     onChangeText={handleChange('phone')}
@@ -53,7 +53,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Email'
-                    placeholder='Email@example.com'
+                    placeholder='Nhập email'
                     value={values.email}
                     isInvalid={!isValid}
                     onChangeText={handleChange('email')}
@@ -64,7 +64,7 @@ const Register: React.FC = () => {
                   <FormInput
                     isRequired
                     label='Mật khẩu'
-                    placeholder='Mật khẩu'
+                    placeholder='Nhập mật khẩu'
                     secureTextEntry
                     value={values.password}
                     isInvalid={!isValid}
@@ -83,6 +83,26 @@ const Register: React.FC = () => {
                     onBlur={handleBlur('confirmPassword')}
                     errorMessage={errors.password}
                   />
+                  <FormControl.Label>
+                    <Text bold>Loại khách hàng</Text>
+                  </FormControl.Label>
+                  <Select
+                    selectedValue={typeCustomer}
+                    minWidth='200'
+                    accessibilityLabel='Loại khách hàng'
+                    placeholder='Loại khách hàng'
+                    _selectedItem={{
+                      bg: 'teal.600',
+                      endIcon: <CheckIcon size='5' />,
+                    }}
+                    mb={1}
+                    mt={-2}
+                    onValueChange={(itemValue) => setTypeCustomer(itemValue)}
+                  >
+                    <Select.Item label='Cá nhân' value='cá nhân' />
+                    <Select.Item label='Doanh nghiệp' value='doanh nghiệp' />
+                  </Select>
+                  <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
                     <Button
                       style={{ alignSelf: 'center', width: '40%', height: 40 }}

@@ -10,7 +10,7 @@ export default () => {
         selectedValue={brand}
         minWidth='200'
         accessibilityLabel='Hãng xe'
-        placeholder='Hãng xe'
+        placeholder='Chọn hãng xe'
         _selectedItem={{
           bg: 'teal.600',
           endIcon: <CheckIcon size='5' />,

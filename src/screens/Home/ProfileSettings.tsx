@@ -83,7 +83,7 @@ const ProfileSettings: React.FC<Props> = () => {
           />
         </VStack>
         <Center mt='50px'>
-          <Button onPress={() => rootNavigation.navigate('Auth', { screen: 'ChooseMethod' })}>Đăng xuất</Button>
+          <Button bgColor='#EA4335' onPress={() => rootNavigation.navigate('Auth', { screen: 'ChooseMethod' })}>Đăng xuất</Button>
         </Center>
       </ScrollView>
     </SafeAreaView>

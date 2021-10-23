@@ -18,13 +18,13 @@ export default () => {
         mb={-12}
         onValueChange={(itemValue) => setColor(itemValue)}
       >
-        <Select.Item label='Đỏ' value='đỏ' />
-        <Select.Item label='Đen' value='đen' />
-        <Select.Item label='Trắng' value='trắng' />
-        <Select.Item label='Xám' value='xám' />
-        <Select.Item label='Lam' value='lam' />
-        <Select.Item label='Lục' value='lục' />
-        <Select.Item label='Khác' value='khác' />
+        <Select.Item label='Đỏ' value='1' />
+        <Select.Item label='Đen' value='2' />
+        <Select.Item label='Trắng' value='3' />
+        <Select.Item label='Xám' value='4' />
+        <Select.Item label='Lam' value='5' />
+        <Select.Item label='Lục' value='6' />
+        <Select.Item label='Khác' value='7' />
       </Select>
     </VStack>
   );

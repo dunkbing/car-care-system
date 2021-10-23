@@ -27,15 +27,45 @@ export type UpdateCustomerModel = {
 
 export const loginValidationSchema = yup.object({
   emailOrPhone: yup.string().required('Không được bỏ trống'),
-  password: yup.string().required('Không được bỏ trống'),
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[#$^+=!*()@%&]).{8,}$/,
+      'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa',
+    ),
 });
 
 export const registerValidationSchema = yup.object({
-  fullname: yup.string().required('Không được bỏ trống'),
-  phone: yup.string().required('Không được bỏ trống'),
-  email: yup.string().required('Không được bỏ trống'),
-  password: yup.string().required('Không được bỏ trống'),
-  confirmPassword: yup.string().required('Không được bỏ trống'),
+  fullname: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(
+      /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\W|_]+/,
+      'Tên không hợp lệ',
+    ),
+  phone: yup
+    .string()
+    .required('Không được bỏ trống')
+    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
+    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
+    .matches(/^[0-9]+$/, 'Số điện thoại phải có 10 hoặc 11 số'),
+  email: yup
+    .string()
+    .required('Không được bỏ trống')
+    .max(254, 'Email quá dài.')
+    .matches(/^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/, 'Email không hợp lệ'),
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[#$^+=!*()@%&]).{8,}$/,
+      'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa',
+    ),
+  confirmPassword: yup
+    .string()
+    .required('Vui lòng xác nhận mật khẩu')
+    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;

@@ -18,13 +18,13 @@ export default () => {
         mb={-12}
         onValueChange={(itemValue) => setModel(itemValue)}
       >
-        <Select.Item label='Toyota' value='toyota' />
-        <Select.Item label='Chevrolet' value='chevrolet' />
-        <Select.Item label='Honda' value='honda' />
-        <Select.Item label='Hyundai' value='hyundai' />
-        <Select.Item label='Mazda' value='mazda' />
-        <Select.Item label='Mitsubishi' value='mitsubishi' />
-        <Select.Item label='Khác' value='khác' />
+        <Select.Item label='Toyota' value='1' />
+        <Select.Item label='Chevrolet' value='2' />
+        <Select.Item label='Honda' value='3' />
+        <Select.Item label='Hyundai' value='4' />
+        <Select.Item label='Mazda' value='5' />
+        <Select.Item label='Mitsubishi' value='6' />
+        <Select.Item label='Khác' value='7' />
       </Select>
     </VStack>
   );

@@ -19,7 +19,7 @@ const Dialog = () => {
         onClosed={() => dialogStore.closeMsgDialog()}
       />
       <ProgressDialog
-        header={progressDialogState.header}
+        title={progressDialogState.title}
         state={progressDialogState.state}
         onClosed={() => dialogStore.closeProgressDialog()}
       />

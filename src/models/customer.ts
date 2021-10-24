@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { orRegex, regexes } from '@utils/regex';
 
 export type CustomerModel = {
   id: number;
@@ -26,42 +27,29 @@ export type UpdateCustomerModel = {
 };
 
 export const loginValidationSchema = yup.object({
-  emailOrPhone: yup.string().required('Không được bỏ trống'),
+  emailOrPhone: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(orRegex(regexes.email, regexes.phone), 'Vui lòng nhập email hoặc số điện thoại hợp lệ'),
   password: yup
     .string()
     .required('Không được bỏ trống')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[#$^+=!*()@%&]).{8,}$/,
-      'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa',
-    ),
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
 });
 
 export const registerValidationSchema = yup.object({
-  fullname: yup
-    .string()
-    .required('Không được bỏ trống')
-    .matches(
-      /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\W|_]+/,
-      'Tên không hợp lệ',
-    ),
+  fullname: yup.string().required('Không được bỏ trống').matches(regexes.fullName, 'Tên không hợp lệ'),
   phone: yup
     .string()
     .required('Không được bỏ trống')
     .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
     .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
-    .matches(/^[0-9]+$/, 'Số điện thoại phải có 10 hoặc 11 số'),
-  email: yup
-    .string()
-    .required('Không được bỏ trống')
-    .max(254, 'Email quá dài.')
-    .matches(/^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/, 'Email không hợp lệ'),
+    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+  email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   password: yup
     .string()
     .required('Không được bỏ trống')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[#$^+=!*()@%&]).{8,}$/,
-      'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa',
-    ),
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
   confirmPassword: yup
     .string()
     .required('Vui lòng xác nhận mật khẩu')
@@ -83,7 +71,9 @@ export type LoginResponseModel = {
   gender: Gender;
   dateOfBirth: string;
   address: string;
-  accountStatus: number;
+  avatarUrl: string;
+  isVerified: boolean;
+  defaultGarageId: number;
   accessToken: string;
 };
 

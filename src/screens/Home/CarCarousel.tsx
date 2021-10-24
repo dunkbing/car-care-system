@@ -2,6 +2,7 @@ import { VStack, Text, View } from 'native-base';
 import React from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import SmoothPicker from 'react-native-smooth-picker';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
 
 const { width } = Dimensions.get('screen');
 
@@ -29,25 +30,22 @@ const dataCity = [
   { name: 'Chevrolet', license: '29-T8 2159' },
 ];
 
-const opacities = [1, 1, 0.6, 0.3, 0.1];
-
-const sizeText = [18, 13, 8];
-
-const Item = React.memo(({ opacity, selected, fontSize, name, license }: any) => {
+const Item = React.memo(({ selected, name, license }: any) => {
+  const color = selected ? '#3F87F2' : 'grey';
   return (
     <VStack
       style={[
         styles.optionWrapper,
         {
-          opacity,
           width: (width * 0.9) / 3,
         },
       ]}
     >
-      <Text style={{ fontSize }} bold={selected}>
+      <FAIcon name='car' size={40} color={color} />
+      <Text style={{ color }} bold={selected}>
         {name}
       </Text>
-      <Text style={{ fontSize }} bold={selected}>
+      <Text style={{ color }} bold={selected}>
         {license}
       </Text>
     </VStack>
@@ -56,18 +54,8 @@ const Item = React.memo(({ opacity, selected, fontSize, name, license }: any) =>
 
 const ItemToRender = ({ item, index }: any, indexSelected: number) => {
   const selected = index === indexSelected;
-  const gap = Math.abs(index - indexSelected);
 
-  let opacity = opacities[gap];
-  if (gap > 3) {
-    opacity = opacities[4];
-  }
-  let fontSize = sizeText[gap];
-  if (gap > 1) {
-    fontSize = sizeText[2];
-  }
-
-  return <Item opacity={opacity} selected={selected} fontSize={fontSize} name={item.name} license={item.license} />;
+  return <Item selected={selected} name={item.name} license={item.license} />;
 };
 
 export default function CarCarousel() {
@@ -81,12 +69,13 @@ export default function CarCarousel() {
     <View py='2' style={styles.wrapperVertical}>
       <SmoothPicker
         // initialScrollToIndex={selected}
+        scrollEnabled={false}
         onScrollToIndexFailed={() => {}}
         keyExtractor={(_, index) => index.toString()}
         showsVerticalScrollIndicator={false}
         data={dataCity}
         scrollAnimation
-        onSelected={({ item, index }) => handleChange(index)}
+        onSelected={({ index }) => handleChange(index)}
         renderItem={(option) => ItemToRender(option, selected)}
         magnet
         selectOnPress

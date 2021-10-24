@@ -1,34 +1,42 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Center, HStack, Image, ScrollView, Text, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Rating } from 'react-native-ratings';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ProfileStackParams } from '@screens/Navigation/params';
+import GarageStore from '@mobx/stores/garage';
+import { GarageModel } from '@models/garage';
+import { observer } from 'mobx-react';
+import { Linking, TouchableOpacity } from 'react-native';
 
-const GarageInfo: React.FC = () => {
+const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber }) => {
   return (
     <VStack width='100%'>
       <Center>
         <Text bold fontSize='xl' alignContent='center'>
-          Gara oto
+          {name}
         </Text>
       </Center>
       <Center>
-        <HStack alignItems='center' space={2}>
+        <HStack width='80%' justifyContent='center' alignItems='center' space={2}>
           <FAIcon name='map-marker' size={24} />
-          <Text fontSize='lg'>QL23, Van Noi, Dong Anh, Ha Noi</Text>
+          <Text fontSize='lg'>{address}</Text>
         </HStack>
       </Center>
       <Center>
         <HStack space={4}>
           <HStack alignItems='center' space={2}>
-            <IonIcon name='call' size={24} />
-            <Text fontSize='lg'>goi toi gara</Text>
-          </HStack>
-          <HStack alignItems='center' space={2}>
             <Text fontSize='lg'>3</Text>
             <Rating ratingCount={5} imageSize={24} startingValue={3} ratingBackgroundColor='primary.500' />
             <Text fontSize='lg'>(59)</Text>
           </HStack>
+          <TouchableOpacity onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
+            <HStack alignItems='center' space={2}>
+              <IonIcon name='call' size={24} />
+              {/* <Text fontSize='lg'>Gọi tới gara</Text> */}
+            </HStack>
+          </TouchableOpacity>
         </HStack>
       </Center>
     </VStack>
@@ -50,13 +58,19 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
   );
 };
 
-const DefaultGarage: React.FC = () => {
+type Props = StackScreenProps<ProfileStackParams, 'DefaultGarage'>;
+
+const DefaultGarage: React.FC<Props> = ({ navigation }) => {
+  const { defaultGarage } = useContext(GarageStore);
+  function changeDefaultGarage() {
+    navigation.navigate('SearchGarage');
+  }
   return (
     <VStack h='100%' alignItems='center' bg='white'>
       <Center w='100%' h='33%' bg='primary.500' rounded='md' shadow={3}>
         <Image
           source={{
-            uri: 'https://mucar.vn/wp-content/uploads/2020/03/noi-that-garage-o-to.jpg',
+            uri: defaultGarage?.imageUrl || 'https://pixerpaints.com/wp-content/uploads/2021/02/product-default.jpg',
           }}
           alt='garage'
           width='100%'
@@ -64,7 +78,7 @@ const DefaultGarage: React.FC = () => {
         />
       </Center>
       <Center w='100%' h='20%'>
-        <GarageInfo />
+        <GarageInfo name={defaultGarage?.name} address={defaultGarage?.address} phoneNumber={defaultGarage?.phoneNumber} />
       </Center>
       <Center w='80%' h='30%' rounded='md'>
         <ScrollView>
@@ -82,7 +96,7 @@ const DefaultGarage: React.FC = () => {
         </ScrollView>
       </Center>
       <Center mt='4' w='100%'>
-        <Button colorScheme='green' width='80%'>
+        <Button onPress={changeDefaultGarage} colorScheme='green' width='80%'>
           Thay đổi garage cứu hộ mặc định
         </Button>
       </Center>
@@ -90,4 +104,4 @@ const DefaultGarage: React.FC = () => {
   );
 };
 
-export default DefaultGarage;
+export default observer(DefaultGarage);

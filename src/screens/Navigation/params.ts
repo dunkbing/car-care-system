@@ -24,15 +24,29 @@ export type ProfileStackParams = {
   ProfileInfo: undefined;
   CarInfo: undefined;
   DefaultGarage: undefined;
+  SearchGarage: undefined;
   RescueHistory: undefined;
   ChangePassword: undefined;
 };
 
 export type HomeStackParams = {
-  Map: undefined;
+  RescueHome: undefined;
   ProfileHome: undefined;
 };
 
 export type RescueStackParams = {
-  SearchGarage: undefined;
+  Map: undefined;
+  DefineCarStatus: {
+    onConfirm: () => void;
+  };
+  DetailRescueRequest:
+    | undefined
+    | {
+        onCancel: () => void;
+      };
+  DefineRequestCancelReason:
+    | undefined
+    | {
+        onCancel: (() => void) | undefined;
+      };
 };

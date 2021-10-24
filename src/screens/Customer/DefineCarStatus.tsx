@@ -1,8 +1,16 @@
 import React from 'react';
 import { VStack, Select, CheckIcon, FormControl, NativeBaseProvider, Box, Heading, TextArea, Button, Text } from 'native-base';
+import { StackScreenProps } from '@react-navigation/stack';
+import { RescueStackParams } from '@screens/Navigation/params';
 
-export default () => {
+type Props = StackScreenProps<RescueStackParams, 'DefineCarStatus'>;
+
+const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
   const [carStatus, setCarStatus] = React.useState('');
+  function handleConfirm() {
+    route.params?.onConfirm();
+    navigation.goBack();
+  }
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
@@ -67,10 +75,17 @@ export default () => {
             elevation: 6,
           }}
         />
-        <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
+        <Button
+          onPress={handleConfirm}
+          style={{ alignSelf: 'center', width: '40%', height: 40 }}
+          colorScheme='green'
+          _text={{ color: 'white' }}
+        >
           Xác nhận
         </Button>
       </Box>
     </NativeBaseProvider>
   );
 };
+
+export default DefineCarStatus;

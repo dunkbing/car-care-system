@@ -1,5 +1,5 @@
 import { ResponseSingular, ServiceResult } from './config';
-import { LoginQueryModel, LoginResponseModel } from '@models/customer';
+import { CustomerRegisterQueryModel, LoginQueryModel, LoginResponseModel } from '@models/customer';
 import axios, { AxiosResponse } from 'axios';
 
 const path = 'auth/customers';
@@ -16,6 +16,10 @@ class AuthService {
     } catch (error) {
       return { result: null, error };
     }
+  }
+
+  public async register(registerData: CustomerRegisterQueryModel) {
+    
   }
 }
 

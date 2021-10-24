@@ -8,13 +8,21 @@ class GarageStore {
   constructor() {
     makeObservable(this, {
       state: observable,
+      defaultGarage: observable,
       garages: observable,
       searchGarage: action,
     });
   }
 
   state: STATES = STATES.IDLE;
+  defaultGarage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
+
+  public setDefaultGarage(garage: GarageModel) {
+    runInAction(() => {
+      this.defaultGarage = garage;
+    });
+  }
 
   public async searchGarage(keyword: string) {
     this.state = STATES.LOADING;

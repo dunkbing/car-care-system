@@ -1,5 +1,4 @@
-/* eslint-disable indent */
-import { Method } from 'axios';
+import axios, { Method } from 'axios';
 
 export type RequestError = {
   status?: number;
@@ -60,3 +59,7 @@ export const HttpMethod: { [key: string]: Method } = {
   PUT: 'put',
   DELETE: 'delete',
 };
+
+export function setHeader(key: string, value: string) {
+  (axios.defaults.headers as any)[key] = value;
+}

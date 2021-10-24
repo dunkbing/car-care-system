@@ -34,7 +34,7 @@ export const loginValidationSchema = yup.object({
   password: yup
     .string()
     .required('Không được bỏ trống')
-    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+    // .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
 });
 
 export const registerValidationSchema = yup.object({

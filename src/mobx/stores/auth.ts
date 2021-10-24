@@ -3,6 +3,7 @@ import { authService } from '@mobx/services/auth';
 import { STATES } from '@utils/constants';
 import { makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
+import { setHeader } from '@mobx/services/config';
 
 class AuthStore {
   constructor() {
@@ -25,6 +26,7 @@ class AuthStore {
       runInAction(() => {
         this.user = user;
         this.state = STATES.SUCCESS;
+        setHeader('Authorization', this.user?.accessToken as string);
       });
   }
 }

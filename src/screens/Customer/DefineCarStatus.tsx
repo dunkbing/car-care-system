@@ -1,14 +1,24 @@
 import React from 'react';
-import { VStack, Select, CheckIcon, FormControl, NativeBaseProvider, Box, Heading, TextArea, Button } from 'native-base';
+import { VStack, Select, CheckIcon, FormControl, NativeBaseProvider, Box, Heading, TextArea, Button, Text } from 'native-base';
 
 export default () => {
   const [carStatus, setCarStatus] = React.useState('');
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
-        <Heading mb={10} size='lg' color='black' textAlign='center'>
-          Mô tả tình trạng xe
+        <Heading mb={3} size='lg' color='black'>
+          Garage Ô tô Trung Anh
         </Heading>
+        <Text
+          style={{
+            fontWeight: 'bold',
+            color: 'black',
+            fontSize: 20,
+            marginVertical: 20,
+          }}
+        >
+          Mô tả tình trạng xe
+        </Text>
         <VStack>
           <FormControl.Label>Tình trạng xe</FormControl.Label>
           <Select
@@ -31,18 +41,31 @@ export default () => {
           </Select>
         </VStack>
         <TextArea
-          mt={30}
-          mb={10}
-          h={120}
-          placeholder='Mô tả tình trạng xe hiện tại...'
-          textAlignVertical='top'
-          w={{
-            base: '100%',
-            md: '25%',
+          placeholder={'Nhập mô tả'}
+          placeholderTextColor={'#AEA0A0'}
+          multiline={true}
+          maxLength={1000}
+          style={{
+            marginTop: 10,
+            marginBottom: 10,
+            backgroundColor: '#F2F2F2',
+            color: 'black',
+            width: '100%',
+            paddingHorizontal: 10,
+            textAlignVertical: 'top',
+            height: 100,
+            borderColor: '#AB9898',
+            borderRadius: 3,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.27,
+            shadowRadius: 4.65,
+
+            elevation: 6,
           }}
-          bgColor='#D7D7D7'
-          borderColor='#939292'
-          borderWidth='1'
         />
         <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
           Xác nhận

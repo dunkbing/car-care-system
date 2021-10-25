@@ -2,8 +2,15 @@ import React from 'react';
 import { Button, HStack, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import GarageLocation from '@assets/garageLocation.png';
 import CurrentLocation from '@assets/currentLocation.png';
+import { StackScreenProps } from '@react-navigation/stack';
+import { RescueStackParams } from '@screens/Navigation/params';
 
-const DetailRescueRequest: React.FC = () => {
+type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
+
+const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+  function cancelRequest() {
+    navigation.navigate('DefineRequestCancelReason', { onCancel: route.params?.onCancel });
+  }
   return (
     <NativeBaseProvider>
       <VStack
@@ -95,7 +102,9 @@ const DetailRescueRequest: React.FC = () => {
             </HStack>
           </View>
         </View>
-        <Button style={{ width: 130, backgroundColor: '#EA4335', alignSelf: 'center' }}>Hủy yêu cầu</Button>
+        <Button onPress={cancelRequest} style={{ width: 130, backgroundColor: '#EA4335', alignSelf: 'center' }}>
+          Hủy yêu cầu
+        </Button>
       </VStack>
     </NativeBaseProvider>
   );

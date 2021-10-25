@@ -3,14 +3,17 @@ import { Center, Icon, Input } from 'native-base';
 import React, { useCallback, useState } from 'react';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import AntIcon from 'react-native-vector-icons/AntDesign';
+import { TextInputProps } from 'react-native';
+import { WidthProps } from 'styled-system';
+import { SpaceProps } from 'native-base/lib/typescript/components/types/SpaceProps';
 
 type Props = {
-  placeholder?: string;
   onSearch?: (query: string) => void;
   timeout?: number;
 };
 
-export default ({ placeholder, timeout, onSearch }: Props) => {
+export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
+  const { placeholder, timeout, width, onSearch } = props;
   const [query, setQuery] = useState('');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchDebounce = useCallback(
@@ -24,14 +27,14 @@ export default ({ placeholder, timeout, onSearch }: Props) => {
     void searchDebounce(text);
   }
   return (
-    <Center>
+    <Center mt={props.mt}>
       <Input
         placeholder={placeholder}
         placeholderTextColor='black'
         value={query}
         bg='white'
         onChangeText={handleTextChange}
-        // width='90%'
+        width={width}
         borderRadius='5'
         py='3'
         px='1'

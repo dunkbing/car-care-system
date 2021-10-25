@@ -14,19 +14,37 @@ class DialogStore {
       closeProgressDialog: action,
     });
   }
-  msgDialogState: MessageDialogProps = { title: '', message: '', state: DialogState.CLOSE };
-  progressDialogState: ProgressDialogProps = { header: 'Vui lòng đợi', state: DialogState.CLOSE };
+  msgDialogState: MessageDialogProps = {
+    title: '',
+    message: '',
+    state: DialogState.CLOSE,
+  };
+  progressDialogState: ProgressDialogProps = {
+    title: 'Vui lòng đợi',
+    state: DialogState.CLOSE,
+  };
 
-  public openMsgDialog() {
-    runInAction(() => (this.msgDialogState = { ...this.msgDialogState, state: DialogState.OPEN }));
+  public openMsgDialog(config: MessageDialogProps = { message: '' }) {
+    runInAction(
+      () =>
+        (this.msgDialogState = {
+          title: config.title,
+          message: config.message,
+          cancel: config.cancel,
+          onAgreed: config.onAgreed,
+          onClosed: config.onClosed,
+          onRefused: config.onRefused,
+          state: DialogState.OPEN,
+        }),
+    );
   }
 
   public closeMsgDialog() {
     runInAction(() => (this.msgDialogState = { ...this.msgDialogState, state: DialogState.CLOSE }));
   }
 
-  public openProgressDialog() {
-    runInAction(() => (this.progressDialogState = { ...this.progressDialogState, state: DialogState.OPEN }));
+  public openProgressDialog(config: ProgressDialogProps = { title: '' }) {
+    runInAction(() => (this.progressDialogState = { title: config.title, onClosed: config.onClosed, state: DialogState.OPEN }));
   }
 
   public closeProgressDialog() {

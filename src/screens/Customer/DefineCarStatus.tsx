@@ -6,7 +6,7 @@ export default () => {
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
-        <Heading mb={3} size='lg' color='black'>
+        <Heading mb={5} size='lg' color='black'>
           Garage Ô tô Trung Anh
         </Heading>
         <Text
@@ -15,6 +15,7 @@ export default () => {
             color: 'black',
             fontSize: 20,
             marginVertical: 20,
+            marginBottom: 30,
           }}
         >
           Mô tả tình trạng xe
@@ -26,18 +27,19 @@ export default () => {
             minWidth='200'
             accessibilityLabel='Tình trạng xe'
             placeholder='Tình trạng xe'
+            mb={3}
             _selectedItem={{
               bg: 'teal.600',
               endIcon: <CheckIcon size='5' />,
             }}
             onValueChange={(itemValue) => setCarStatus(itemValue)}
           >
-            <Select.Item label='Thủng lốp' value='Thủng lốp' />
-            <Select.Item label='Hết xăng' value='Hết xăng' />
-            <Select.Item label='Hết điện bình ắc quy' value='Hết điện bình ắc quy' />
-            <Select.Item label='Động cơ nóng bất thường' value='Động cơ nóng bất thường' />
-            <Select.Item label='Lỗi động cơ có tiếng gõ' value='Lỗi động cơ có tiếng gõ' />
-            <Select.Item label='Khác' value='Khác' />
+            <Select.Item label='Thủng lốp' value='1' />
+            <Select.Item label='Hết xăng' value='2' />
+            <Select.Item label='Hết điện bình ắc quy' value='3' />
+            <Select.Item label='Động cơ nóng bất thường' value='4' />
+            <Select.Item label='Lỗi động cơ có tiếng gõ' value='5' />
+            <Select.Item label='Khác' value='6' />
           </Select>
         </VStack>
         <TextArea
@@ -47,7 +49,7 @@ export default () => {
           maxLength={1000}
           style={{
             marginTop: 10,
-            marginBottom: 10,
+            marginBottom: 20,
             backgroundColor: '#F2F2F2',
             color: 'black',
             width: '100%',

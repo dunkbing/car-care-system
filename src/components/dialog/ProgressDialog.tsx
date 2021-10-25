@@ -8,19 +8,19 @@ export enum DialogState {
 }
 
 export type ProgressDialogProps = {
-  header: any;
+  title: any;
   state?: DialogState;
   onClosed?: () => void;
 };
 
-export const ProgressDialog = ({ header, state, onClosed }: ProgressDialogProps) => {
+export const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) => {
   const cancelRef = React.useRef<TouchableOpacity>(null);
 
   return (
     <AlertDialog leastDestructiveRef={cancelRef} isOpen={state === DialogState.OPEN} onClose={onClosed}>
       <AlertDialog.Content>
         <AlertDialog.CloseButton />
-        <AlertDialog.Header>{header}</AlertDialog.Header>
+        {title && <AlertDialog.Header>{title}</AlertDialog.Header>}
         <AlertDialog.Body>
           <Spinner size='lg' accessibilityLabel='Updating department' />
         </AlertDialog.Body>

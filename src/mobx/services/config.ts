@@ -1,5 +1,4 @@
-/* eslint-disable indent */
-import { Method } from 'axios';
+import axios, { Method } from 'axios';
 
 export type RequestError = {
   status?: number;
@@ -14,22 +13,37 @@ export type Pagination = {
   currentPage: number;
 };
 
-export type ResponseData<T> = {
-  records: T | Array<T>;
-  pagination: Pagination;
-};
-
 export type ResponseError = {
   field: any;
   message: string;
 };
 
-export type Response<T = any> = {
+export type Response = {
   executeStatus: string;
   executeMessage: string;
   executeCode: number;
-  data: { result: ResponseData<T> };
+};
+
+export type ResponseSingular<T = any> = Response & {
+  data: {
+    result: T;
+  };
   errors: Array<ResponseError>;
+};
+
+export type ResponsePlural<T = any> = Response & {
+  data: {
+    result: {
+      records: Array<T>;
+      pagination: Pagination;
+    };
+  };
+  errors: Array<ResponseError>;
+};
+
+export type ServiceResult<T> = {
+  result: T | null;
+  error: any | null;
 };
 
 // create a full path from base url and path
@@ -45,3 +59,7 @@ export const HttpMethod: { [key: string]: Method } = {
   PUT: 'put',
   DELETE: 'delete',
 };
+
+export function setHeader(key: string, value: string) {
+  (axios.defaults.headers as any)[key] = value;
+}

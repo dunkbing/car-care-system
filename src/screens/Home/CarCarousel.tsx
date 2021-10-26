@@ -28,7 +28,7 @@ const data = [
   { name: 'Toyota', license: '29-T8 1147' },
   { name: 'Mazda', license: '29-T8 3045' },
   { name: 'Chevrolet', license: '29-T8 2159' },
-  { name: 'Chevrolet', license: '29-T8 2159' },
+  // { name: 'Chevrolet', license: '29-T8 2159' },
 ];
 
 const Item = React.memo(({ selected, name, license }: any) => {

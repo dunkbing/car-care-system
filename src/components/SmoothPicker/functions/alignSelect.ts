@@ -11,7 +11,6 @@ export default function (
 ) {
   try {
     if (option) {
-      console.log(itemIndex, totalItems, option.left);
       let newPosition;
       if (itemIndex === 0) {
         newPosition = horizontal ? option.left + 1.5 * option.layout.width : option.top + 1.5 * option.layout.width;

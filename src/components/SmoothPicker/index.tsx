@@ -65,6 +65,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
     if (this.props.refFlatList) {
       this.props.refFlatList.current = this.refList.current;
     }
+    alignSelect(this.props.horizontal as boolean, this.props.scrollAnimation as boolean, this.options[this.state.selected], this.refList, {
+      itemIndex: this.state.selected,
+      totalItems: this.props.data?.length || 0,
+    });
   }
 
   _alignAfterMount = () => {
@@ -139,8 +143,8 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
 
     const handlePressOnItem = (): void => {
       this._handleSelection(item, index, null);
-      alignSelect(horizontal, this.props.scrollAnimation as boolean, this.options[this.state.selected], this.refList, {
-        itemIndex: this.state.selected,
+      alignSelect(horizontal, this.props.scrollAnimation as boolean, this.options[index], this.refList, {
+        itemIndex: index,
         totalItems: this.props.data?.length || 0,
       });
     };

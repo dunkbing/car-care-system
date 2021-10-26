@@ -24,8 +24,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
             marginBottom: 40,
           }}
         >
-          {/* flexDirection: 'row', justifyContent: 'flex-start'  */}
-          <View style={{ paddingHorizontal: 20 }}>
+          <View style={{ paddingHorizontal: 25 }}>
             <HStack space={5} mb={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
                 Nhân viên

@@ -6,7 +6,6 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
-import toast from '@utils/toast';
 import GoogleLogo from '@assets/google_logo.png';
 import { LoginQueryModel } from '@models/customer';
 import DialogStore from '@mobx/stores/dialog';
@@ -25,10 +24,10 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
-        <Heading size='lg' color='primary.500' textAlign='center'>
-          Car Care System
+        <Heading size='lg' textAlign='center' mt={5}>
+          Đăng nhập bằng tài khoản garage
         </Heading>
-        <VStack space={2} mt={10}>
+        <VStack space={2} mt={5}>
           <Formik validationSchema={loginValidationSchema} initialValues={{ emailOrPhone: '', password: '' }} onSubmit={onLoginSubmit}>
             {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
               <VStack space={2} mt={10}>

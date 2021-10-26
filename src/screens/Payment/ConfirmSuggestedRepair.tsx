@@ -86,7 +86,7 @@ const ConfirmSuggestedRepair: React.FC = () => {
           Tổng 2.784.800đ
         </Text>
         <Button mt='10' mb='5' backgroundColor='#34A853' _text={{ color: 'white' }} onPress={() => {}}>
-          Tiến hành thanh toán
+          Tiến hành sửa chữa
         </Button>
       </ScrollView>
     </VStack>

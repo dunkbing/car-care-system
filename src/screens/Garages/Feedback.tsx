@@ -1,7 +1,7 @@
 import { Button, Center, Text, View, VStack } from 'native-base';
 import React from 'react';
 import { TextInput } from 'react-native';
-import { Rating } from 'react-native-ratings';
+import { AirbnbRating } from 'react-native-ratings';
 
 const Feedback: React.FC = () => {
   return (
@@ -12,10 +12,12 @@ const Feedback: React.FC = () => {
             Gửi góp ý cho khách hàng
           </Text>
         </Center>
-        <Text>Khách hàng: John Doe</Text>
+        <Text fontWeight='bold'>
+          Khách hàng: <Text> John Doe </Text>
+        </Text>
         <Center>
           <View marginY={10}>
-            <Rating type='star' startingValue={0} minValue={1} />
+            <AirbnbRating defaultRating={0} showRating={false} onFinishRating={(value) => console.log(value)} />
           </View>
           <TextInput
             placeholder={'Nhập đánh giá'}

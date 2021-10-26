@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Center, ScrollView, Text, View, VStack } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
-import SearchBar from '@components/SearchBar';
+import SearchBar from '../../components/SearchBar';
 
 const HistoryView: React.FC = () => {
   return (
@@ -25,7 +25,7 @@ const HistoryView: React.FC = () => {
     >
       <View width='100%'>
         <Text mb={4} bold={true} fontSize={20}>
-          John Doe
+          Mercedes C300
         </Text>
       </View>
       <View>
@@ -54,7 +54,7 @@ const HistoryView: React.FC = () => {
   );
 };
 
-const RescueHistory: React.FC = () => {
+const CustomerHistory: React.FC = () => {
   return (
     <VStack width='100%'>
       <Center>
@@ -81,4 +81,4 @@ const RescueHistory: React.FC = () => {
   );
 };
 
-export default RescueHistory;
+export default CustomerHistory;

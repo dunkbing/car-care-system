@@ -1,3 +1,4 @@
+import { dialogStore } from '@mobx/stores/dialog';
 import axios, { Method } from 'axios';
 
 export type RequestError = {
@@ -33,6 +34,13 @@ export type ResponseSingular<T = any> = Response & {
 
 export type ResponsePlural<T = any> = Response & {
   data: {
+    result: Array<T>;
+  };
+  errors: Array<ResponseError>;
+};
+
+export type WithPagination<T = any> = Response & {
+  data: {
     result: {
       records: Array<T>;
       pagination: Pagination;
@@ -62,4 +70,16 @@ export const HttpMethod: { [key: string]: Method } = {
 
 export function setHeader(key: string, value: string) {
   (axios.defaults.headers as any)[key] = value;
+}
+
+/**
+ * show progress for an async operation.
+ * @param promise async openration.
+ * @returns promise result
+ */
+export async function withProgress<T = any>(promise: Promise<ServiceResult<T>>) {
+  dialogStore.openProgressDialog({ title: 'Vui lòng đợi' });
+  const result = await promise;
+  dialogStore.closeProgressDialog();
+  return result;
 }

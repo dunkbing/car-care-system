@@ -6,21 +6,25 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel, loginValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import { authService } from '@mobx/services/auth';
 import GoogleLogo from '@assets/google_logo.png';
 import { observer } from 'mobx-react';
-import DialogStore from '@mobx/stores/dialog';
+import toast from '@utils/toast';
+import AuthStore from '@mobx/stores/auth';
+import { STATES } from '@utils/constants';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 
 const CustomerLogin: React.FC<Props> = ({ navigation }) => {
   // const [login, { isLoading: isLoggingIn, isError, error }] = useLoginMutation();
-  const dialogStore = useContext(DialogStore);
+  const authStore = useContext(AuthStore);
   async function onLoginSubmit(values: LoginQueryModel) {
-    dialogStore.openProgressDialog();
-    await authService.login(values);
-    dialogStore.closeProgressDialog();
-    rootNavigation.navigate('Home');
+    await authStore.login(values);
+
+    if (authStore.state === STATES.ERROR) {
+      toast.show('Đăng nhập thất bại');
+    } else {
+      rootNavigation.navigate('Home');
+    }
   }
   return (
     <NativeBaseProvider>

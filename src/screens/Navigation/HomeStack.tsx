@@ -30,7 +30,7 @@ export const HomeStack: React.FC = () => {
     >
       <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='RescueHome' component={RescueStack} />
       {/* <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='ProfileHome' component={ProfileStack} /> */}
-      <Tab.Screen options={{ headerShown: false }} name='ProfileHome' component={ProfileSettings} />
+      <Tab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='ProfileHome' component={ProfileSettings} />
     </Tab.Navigator>
   );
 };

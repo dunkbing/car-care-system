@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Center, ScrollView, Text, View, VStack } from 'native-base';
+import { Center, ScrollView, Text, View, VStack } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import SearchBar from '@components/SearchBar';
 
@@ -46,9 +46,7 @@ const HistoryView: React.FC = () => {
 const RescueHistory: React.FC = () => {
   return (
     <VStack width='100%'>
-      <Box pt={5}>
-        <SearchBar placeholder='Tìm kiếm lịch sử cứu hộ' />
-      </Box>
+      <SearchBar placeholder='Tìm kiếm lịch sử cứu hộ' width='90%' mt='5' />
       <Center>
         <View width='90%' pt={2}>
           <ScrollView mb={40}>

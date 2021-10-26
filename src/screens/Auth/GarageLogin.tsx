@@ -8,18 +8,22 @@ import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
 import GoogleLogo from '@assets/google_logo.png';
 import { LoginQueryModel } from '@models/customer';
-import DialogStore from '@mobx/stores/dialog';
-import { authService } from '@mobx/services/auth';
+import AuthStore from '@mobx/stores/auth';
+import toast from '@utils/toast';
+import { STATES } from '@utils/constants';
 
 type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
 const GarageLogin: React.FC<Props> = ({ navigation }) => {
-  const dialogStore = useContext(DialogStore);
+  const authStore = useContext(AuthStore);
   async function onLoginSubmit(values: LoginQueryModel) {
-    dialogStore.openProgressDialog();
-    await authService.login(values);
-    dialogStore.closeProgressDialog();
-    rootNavigation.navigate('Home');
+    await authStore.login(values);
+
+    if (authStore.state === STATES.ERROR) {
+      toast.show('Đăng nhập thất bại');
+    } else {
+      rootNavigation.navigate('Home');
+    }
   }
   return (
     <NativeBaseProvider>

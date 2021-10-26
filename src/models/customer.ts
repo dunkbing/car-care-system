@@ -31,15 +31,14 @@ export const loginValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(orRegex(regexes.email, regexes.phone), 'Vui lòng nhập email hoặc số điện thoại hợp lệ'),
-  password: yup
-    .string()
-    .required('Không được bỏ trống')
-    // .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  password: yup.string().required('Không được bỏ trống'),
+  // .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
 });
 
 export const registerValidationSchema = yup.object({
-  fullname: yup.string().required('Không được bỏ trống').matches(regexes.fullName, 'Tên không hợp lệ'),
-  phone: yup
+  firstName: yup.string().required('Không được bỏ trống').matches(regexes.fullName, 'Tên không hợp lệ'),
+  lastName: yup.string().required('Không được bỏ trống').matches(regexes.fullName, 'Tên không hợp lệ'),
+  phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
     .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
@@ -73,10 +72,23 @@ export type LoginResponseModel = {
   address: string;
   avatarUrl: string;
   isVerified: boolean;
-  defaultGarageId: number;
+  defaultGarageId?: number;
   accessToken: string;
+};
+
+export type RegisterResponseModel = {
+  id: number;
+  phoneNumber: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  dateOfBirth: string;
+  address: string;
+  accountStatus: number;
+  accessToken: string | null;
 };
 
 export type User = LoginResponseModel;
 
-export type CustomerRegisterQueryModel = yup.InferType<typeof registerValidationSchema>;
+export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema>;

@@ -52,4 +52,6 @@ class DialogStore {
   }
 }
 
-export default createContext(new DialogStore());
+export const dialogStore = new DialogStore();
+
+export default createContext(dialogStore);

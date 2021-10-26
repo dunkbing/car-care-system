@@ -73,7 +73,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
       if (typeof initialScrollToIndex !== 'undefined') {
         const option = this.options[initialScrollToIndex];
         if (option) {
-          alignSelect(horizontal, scrollAnimation, option, this.refList);
+          alignSelect(horizontal, scrollAnimation, option, this.refList, {
+            itemIndex: this.state.selected,
+            totalItems: this.props.data?.length || 0,
+          });
         }
       }
     } catch (error) {
@@ -110,10 +113,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
   };
 
   _handleSelection: HandleSelection = (item, index, scrollPosition) => {
-    if (this.props.onSelected) {
-      this.props.onSelected({ item, index });
-    }
+    this.props.onSelected?.({ item, index });
+
     this.setState({
+      ...this.state,
       selected: index,
       scrollPosition: scrollPosition,
     });
@@ -136,6 +139,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
 
     const handlePressOnItem = (): void => {
       this._handleSelection(item, index, null);
+      alignSelect(horizontal, this.props.scrollAnimation as boolean, this.options[this.state.selected], this.refList, {
+        itemIndex: this.state.selected,
+        totalItems: this.props.data?.length || 0,
+      });
     };
 
     if (!data) {
@@ -219,7 +226,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
           this.fingerAction = false;
           if (this.onMomentum && magnet && !snapInterval) {
             this.onMomentum = false;
-            alignSelect(horizontal, scrollAnimation, this.options[this.state.selected], this.refList);
+            alignSelect(horizontal, scrollAnimation, this.options[this.state.selected], this.refList, {
+              itemIndex: this.state.selected,
+              totalItems: this.props.data?.length || 0,
+            });
           }
         }}
         renderItem={this._renderItem}

@@ -10,15 +10,15 @@ export default function (
 ) {
   const cursor = horizontal ? nativeEvent.contentOffset.x : nativeEvent.contentOffset.y;
 
-  let SP: number = scrollPosition || 0;
+  let sp: number = scrollPosition || 0;
   if (scrollPosition === null) {
     if (options[selected]) {
       const option = options[selected];
-      SP = horizontal ? option.left : option.top;
+      sp = horizontal ? option.left : option.top;
     }
   }
 
-  const direction = horizontal ? (SP > cursor ? 'right' : 'left') : SP > cursor ? 'down' : 'top';
+  const direction = horizontal ? (sp > cursor ? 'right' : 'left') : sp > cursor ? 'down' : 'top';
 
   switch (direction) {
     case 'left':

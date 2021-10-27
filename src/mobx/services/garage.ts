@@ -1,6 +1,6 @@
 import { GarageModel } from '@models/garage';
 import axios, { AxiosResponse } from 'axios';
-import { ResponsePlural, ResponseSingular, ServiceResult } from './config';
+import { WithPagination, ResponseSingular, ServiceResult } from './config';
 
 const path = 'garages';
 
@@ -16,7 +16,7 @@ class GarageService {
   }
   public async searchGarages(keyword: string): Promise<ServiceResult<GarageModel[]>> {
     try {
-      const response = await axios.get<any, AxiosResponse<ResponsePlural<GarageModel>>>(path, {
+      const response = await axios.get<any, AxiosResponse<WithPagination<GarageModel>>>(path, {
         params: { Keyword: keyword },
       });
       const result = response.data.data.result.records;

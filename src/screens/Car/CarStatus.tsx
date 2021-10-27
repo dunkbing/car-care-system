@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeBaseProvider, Box, HStack, Button, Text, VStack, ScrollView, Image, View } from 'native-base';
-import DefaultCar from '@assets/defaultCar.png';
+import { DefaultCar } from '@assets/images';
 const CarView: React.FC = () => {
   return (
     <View

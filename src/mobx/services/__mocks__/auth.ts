@@ -8,12 +8,13 @@ class AuthService {
     email: 'email@example.com',
     address: 'address',
     accessToken: '123',
-    accountStatus: 1,
     dateOfBirth: '01/01/2021',
     firstName: 'a',
     lastName: 'b',
     gender: Gender.Male,
     phoneNumber: '034958273',
+    avatarUrl: '',
+    isVerified: false,
   };
 
   public async login({ emailOrPhone }: LoginQueryModel) {

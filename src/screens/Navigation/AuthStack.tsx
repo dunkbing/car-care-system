@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, ChangePassword, ResetPassword } from '@screens/Auth';
 import { AuthStackParams } from './params';
 import { navHeaderStyle } from './roots';
+import DefineCarModel from '@screens/Car/DefineCarModel';
+import SearchGarage from '@screens/Garages/SearchGarage';
 
 const AuthStackNav = createNativeStackNavigator<AuthStackParams>();
 
@@ -17,6 +19,22 @@ export const AuthStack: React.FC = () => {
         component={Register}
         options={{
           title: 'Đăng ký',
+          ...navHeaderStyle,
+        }}
+      />
+      <AuthStackNav.Screen
+        name='DefineCarModel'
+        component={DefineCarModel}
+        options={{
+          title: 'Thông tin xe',
+          ...navHeaderStyle,
+        }}
+      />
+      <AuthStackNav.Screen
+        name='SearchGarage'
+        component={SearchGarage}
+        options={{
+          title: 'Tìm kiếm',
           ...navHeaderStyle,
         }}
       />

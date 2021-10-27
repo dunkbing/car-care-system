@@ -9,7 +9,9 @@ import { observer } from 'mobx-react';
 import { STATES } from '@utils/constants';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { ProfileStackParams } from '@screens/Navigation/params';
+import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
+import { rootNavigation } from '@screens/Navigation';
+import { customerService } from '@mobx/services/customer';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   const garageStore = useContext(GarageStore);
@@ -37,9 +39,9 @@ const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   );
 });
 
-type ScreenProps = StackScreenProps<ProfileStackParams, 'SearchGarage'>;
+type ScreenProps = StackScreenProps<ProfileStackParams | AuthStackParams, 'SearchGarage'>;
 
-const SearchGarage: React.FC<ScreenProps> = ({ navigation }) => {
+const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
   const garageStore = useContext(GarageStore);
   const onRefresh = React.useCallback(() => {
     void garageStore.searchGarage('');
@@ -48,6 +50,21 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation }) => {
   useEffect(() => {
     void garageStore.searchGarage('');
   }, [garageStore]);
+
+  function onDone() {
+    if (route.params?.skip) {
+      rootNavigation.navigate('Home');
+    } else {
+      navigation.goBack();
+    }
+  }
+
+  function onSelectGarage(garage: GarageModel) {
+    return function () {
+      garageStore.setDefaultGarage(garage);
+      void customerService.setDefaultGarage(garage?.id);
+    };
+  }
 
   return (
     <VStack>
@@ -71,24 +88,21 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation }) => {
           <Spinner size='lg' />
         ) : (
           garageStore.garages.map((garage) => (
-            <TouchableOpacity key={garage.id} onPress={() => garageStore.setDefaultGarage(garage)}>
+            <TouchableOpacity key={garage.id} onPress={onSelectGarage(garage)}>
               <Garage key={garage.id} id={garage.id} name={garage.name} address={garage.address} imageUrl={garage.imageUrl} />
             </TouchableOpacity>
           ))
         )}
       </ScrollView>
       <VStack mt='10'>
-        <Button
-          onPress={() => navigation.goBack()}
-          style={{ alignSelf: 'center', width: '40%', height: 40 }}
-          colorScheme='green'
-          _text={{ color: 'white' }}
-        >
+        <Button onPress={onDone} style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
           Hoàn tất
         </Button>
-        <Link pl={1} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='center' mt={5}>
-          Bỏ qua
-        </Link>
+        {route.params?.skip && (
+          <Link pl={1} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6' }} alignSelf='center' mt={5}>
+            Bỏ qua
+          </Link>
+        )}
       </VStack>
     </VStack>
   );

@@ -1,15 +1,18 @@
 import FormInput from '@components/FormInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Avatar, Box, Button, Center, CheckIcon, FormControl, HStack, ScrollView, Select, Text, VStack } from 'native-base';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import AntIcon from 'react-native-vector-icons/AntDesign';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
+import AuthStore from '@mobx/stores/auth';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
 const Profile: React.FC<Props> = () => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
+  const authStore = useContext(AuthStore);
+  const [user, setUser] = useState({ ...authStore.user });
   return (
     <ScrollView
       _contentContainerStyle={{
@@ -33,11 +36,36 @@ const Profile: React.FC<Props> = () => {
               <AntIcon name='camera' size={24} />
             </Avatar>
           </Center>
-          <FormInput isRequired label='Họ và tên' placeholder='Họ và tên' keyboardType='ascii-capable' />
-          <FormInput isRequired label='Số điện thoại' placeholder='Số điện thoại' keyboardType='phone-pad' />
-          <FormInput isRequired label='Email' placeholder='Email@example.com' keyboardType='email-address' />
-          <FormInput isRequired label='Ngày sinh' placeholder='Ngày sinh' keyboardType='ascii-capable' />
-          <FormInput isRequired label='Địa chỉ' placeholder='Địa chỉ' keyboardType='ascii-capable' />
+          <FormInput
+            isRequired
+            label='Họ và tên'
+            placeholder='Họ và tên'
+            keyboardType='ascii-capable'
+            defaultValue={`${user?.lastName} ${user?.firstName}`}
+          />
+          <FormInput
+            isRequired
+            label='Số điện thoại'
+            placeholder='Số điện thoại'
+            keyboardType='phone-pad'
+            defaultValue={user?.phoneNumber || ''}
+            onChangeText={(text) => setUser({ ...user, phoneNumber: text })}
+          />
+          <FormInput
+            isRequired
+            label='Email'
+            placeholder='Email@example.com'
+            keyboardType='email-address'
+            defaultValue={user?.email || ''}
+          />
+          <FormInput
+            isRequired
+            label='Ngày sinh'
+            placeholder='Ngày sinh'
+            keyboardType='ascii-capable'
+            defaultValue={user?.dateOfBirth || ''}
+          />
+          <FormInput isRequired label='Địa chỉ' placeholder='Địa chỉ' keyboardType='ascii-capable' defaultValue={user?.address || ''} />
           <FormControl.Label>
             <Text bold>Loại khách hàng</Text>
           </FormControl.Label>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, HStack, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
-import GarageLocation from '@assets/garageLocation.png';
-import CurrentLocation from '@assets/currentLocation.png';
+import { GarageLocation } from '@assets/images';
+import { CurrentLocation } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
 

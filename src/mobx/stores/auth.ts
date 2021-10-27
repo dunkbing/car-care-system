@@ -3,7 +3,7 @@ import { authService } from '@mobx/services/auth';
 import { STATES } from '@utils/constants';
 import { makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
-import { setHeader } from '@mobx/services/config';
+import { setHeader, withProgress } from '@mobx/services/config';
 
 class AuthStore {
   constructor() {
@@ -16,7 +16,7 @@ class AuthStore {
   user: User | null = null;
 
   public async login(loginQuery: LoginQueryModel) {
-    const { result: user, error } = await authService.login(loginQuery);
+    const { result: user, error } = await withProgress(authService.login(loginQuery));
     if (error) {
       runInAction(() => {
         this.user = null;

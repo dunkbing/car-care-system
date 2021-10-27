@@ -1,7 +1,7 @@
 import { VStack, Text, View } from 'native-base';
 import React from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import SmoothPicker from 'react-native-smooth-picker';
+import SmoothPicker from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 
 const { width } = Dimensions.get('screen');
@@ -24,10 +24,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const dataCity = [
+const data = [
   { name: 'Toyota', license: '29-T8 1147' },
   { name: 'Mazda', license: '29-T8 3045' },
   { name: 'Chevrolet', license: '29-T8 2159' },
+  // { name: 'Chevrolet', license: '29-T8 2159' },
 ];
 
 const Item = React.memo(({ selected, name, license }: any) => {
@@ -68,19 +69,20 @@ export default function CarCarousel() {
   return (
     <View py='2' style={styles.wrapperVertical}>
       <SmoothPicker
-        // initialScrollToIndex={selected}
-        scrollEnabled={false}
+        initialScrollToIndex={selected}
+        scrollEnabled={data.length > 3}
         onScrollToIndexFailed={() => {}}
         keyExtractor={(_, index) => index.toString()}
         showsVerticalScrollIndicator={false}
-        data={dataCity}
+        data={data}
         scrollAnimation
         onSelected={({ index }) => handleChange(index)}
         renderItem={(option) => ItemToRender(option, selected)}
         magnet
         selectOnPress
         horizontal
-        endMargin={100}
+        startMargin={0}
+        endMargin={0}
       />
     </View>
   );

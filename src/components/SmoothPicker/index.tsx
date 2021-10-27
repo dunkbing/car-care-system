@@ -74,15 +74,11 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
   _alignAfterMount = () => {
     try {
       const { horizontal = false, scrollAnimation = false, initialScrollToIndex } = this.props;
-      if (typeof initialScrollToIndex !== 'undefined') {
-        const option = this.options[initialScrollToIndex];
-        if (option) {
-          alignSelect(horizontal, scrollAnimation, option, this.refList, {
-            itemIndex: this.state.selected,
-            totalItems: this.props.data?.length || 0,
-          });
-        }
-      }
+      const option = this.options[initialScrollToIndex as any];
+      alignSelect(horizontal, scrollAnimation, option, this.refList, {
+        itemIndex: this.state.selected,
+        totalItems: this.props.data?.length || 0,
+      });
     } catch (error) {
       console.log('error', error);
     }
@@ -192,6 +188,10 @@ class SmoothPicker extends Component<SmoothPickerProps, State> {
         snapToAlignment: snapToAlignment,
       };
     }
+    alignSelect(this.props.horizontal as boolean, this.props.scrollAnimation as boolean, this.options[this.state.selected], this.refList, {
+      itemIndex: this.state.selected,
+      totalItems: this.props.data?.length || 0,
+    });
     return (
       <FlatList
         {...this.props}

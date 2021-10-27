@@ -69,7 +69,7 @@ export default function CarCarousel() {
   return (
     <View py='2' style={styles.wrapperVertical}>
       <SmoothPicker
-        // initialScrollToIndex={selected}
+        initialScrollToIndex={selected}
         scrollEnabled={data.length > 3}
         onScrollToIndexFailed={() => {}}
         keyExtractor={(_, index) => index.toString()}

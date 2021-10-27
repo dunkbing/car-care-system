@@ -27,7 +27,7 @@ export const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) 
         <AlertDialog.Footer>
           <Button.Group space={2}>
             <Button variant='solid' colorScheme='secondary' onPress={onClosed}>
-              Cancel
+              Hủy
             </Button>
           </Button.Group>
         </AlertDialog.Footer>

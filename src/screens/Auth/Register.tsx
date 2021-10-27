@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl, Select, CheckIcon } from 'native-base';
 import FormInput from '@components/FormInput';
-import { registerValidationSchema } from '@models/customer';
+import { RegisterQueryModel, registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import { rootNavigation } from '@screens/Navigation/roots';
-import GoogleLogo from '@assets/google_logo.png';
+import { GoogleLogo } from '@assets/images';
+import { StackScreenProps } from '@react-navigation/stack';
+import { AuthStackParams } from '@screens/Navigation/params';
+import { authService } from '@mobx/services/auth';
+import DialogStore from '@mobx/stores/dialog';
+import toast from '@utils/toast';
 
-const Register: React.FC = () => {
+type Props = StackScreenProps<AuthStackParams, 'Register'>;
+
+const Register: React.FC<Props> = ({ navigation }) => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
+  const dialogStore = useContext(DialogStore);
+  async function onRegisterSubmit(values: RegisterQueryModel) {
+    dialogStore.openProgressDialog();
+    const { error } = await authService.register(values);
+    dialogStore.closeProgressDialog();
+
+    if (error) {
+      toast.show(`Đăng ký thất bại: ${error.message}`);
+    } else {
+      navigation.navigate('DefineCarModel');
+    }
+  }
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -20,34 +38,43 @@ const Register: React.FC = () => {
           <VStack space={2} mt={-5}>
             <Formik
               validationSchema={registerValidationSchema}
-              initialValues={{ fullname: '', phone: '', email: '', password: '', confirmPassword: '' }}
+              initialValues={{ firstName: '', lastName: '', phoneNumber: '', email: '', password: '', confirmPassword: '' }}
               // eslint-disable-next-line @typescript-eslint/require-await
-              onSubmit={async (values) => {
-                rootNavigation.navigate('Home');
-              }}
+              onSubmit={onRegisterSubmit}
             >
               {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
                 <VStack space={2} mt={10}>
                   <FormInput
                     isRequired
-                    label='Họ và tên'
-                    placeholder='Nhập họ và tên'
-                    value={values.fullname}
+                    label='Tên'
+                    placeholder='Nhập tên'
+                    value={values.firstName}
                     isInvalid={!isValid}
-                    onChangeText={handleChange('fullname')}
-                    onBlur={handleBlur('fullname')}
-                    errorMessage={errors.fullname}
+                    onChangeText={handleChange('firstName')}
+                    onBlur={handleBlur('firstName')}
+                    errorMessage={errors.firstName}
+                    keyboardType='ascii-capable'
+                  />
+                  <FormInput
+                    isRequired
+                    label='Họ'
+                    placeholder='Nhập họ'
+                    value={values.lastName}
+                    isInvalid={!isValid}
+                    onChangeText={handleChange('lastName')}
+                    onBlur={handleBlur('lastName')}
+                    errorMessage={errors.lastName}
                     keyboardType='ascii-capable'
                   />
                   <FormInput
                     isRequired
                     label='Số điện thoại'
                     placeholder='Nhập số điện thoại'
-                    value={values.phone}
+                    value={values.phoneNumber}
                     isInvalid={!isValid}
-                    onChangeText={handleChange('phone')}
-                    onBlur={handleBlur('phone')}
-                    errorMessage={errors.phone}
+                    onChangeText={handleChange('phoneNumber')}
+                    onBlur={handleBlur('phoneNumber')}
+                    errorMessage={errors.phoneNumber}
                     keyboardType='number-pad'
                   />
                   <FormInput

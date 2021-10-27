@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { VStack, Select, CheckIcon, FormControl } from 'native-base';
+import { observer } from 'mobx-react';
+import BrandStore from '@mobx/stores/car-brand';
 
-export default () => {
+export type SelectItemProps = {
+  onSelectItem?: (item: string | number) => void;
+};
+
+export default observer(({ onSelectItem }: SelectItemProps) => {
   const [brand, setBrand] = React.useState('');
+  const brandStore = useContext(BrandStore);
+
+  useEffect(() => {
+    void brandStore.getBrands();
+  }, [brandStore]);
+
   return (
     <VStack>
       <FormControl.Label>Hãng xe</FormControl.Label>
@@ -16,16 +28,15 @@ export default () => {
           endIcon: <CheckIcon size='5' />,
         }}
         mb={-12}
-        onValueChange={(itemValue) => setBrand(itemValue)}
+        onValueChange={(itemValue) => {
+          setBrand(itemValue);
+          onSelectItem?.(itemValue);
+        }}
       >
-        <Select.Item label='Toyota' value='1' />
-        <Select.Item label='Chevrolet' value='2' />
-        <Select.Item label='Honda' value='3' />
-        <Select.Item label='Hyundai' value='4' />
-        <Select.Item label='Mazda' value='5' />
-        <Select.Item label='Mitsubishi' value='6' />
-        <Select.Item label='Khác' value='7' />
+        {brandStore.brands.map((brand) => (
+          <Select.Item key={brand.id} label={brand.name} value={brand.id.toString()} />
+        ))}
       </Select>
     </VStack>
   );
-};
+});

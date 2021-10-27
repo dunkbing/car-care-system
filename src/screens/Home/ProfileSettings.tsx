@@ -5,8 +5,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AntIcon from 'react-native-vector-icons/AntDesign';
-import FaIcon from 'react-native-vector-icons/FontAwesome';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import GarageStore from '@mobx/stores/garage';
@@ -66,7 +64,7 @@ const ProfileSettings: React.FC<Props> = () => {
                 screen: 'CarInfo',
               })
             }
-            icon={<AntIcon name='car' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
+            icon={<MatCommuIcon name='car' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
           <OptionItem
             text='Garage cứu hộ mặc định'
@@ -86,17 +84,17 @@ const ProfileSettings: React.FC<Props> = () => {
           <OptionItem
             text='Lịch sử cứu hộ'
             onPress={() => rootNavigation.navigate('Profile', { screen: 'RescueHistory' })}
-            icon={<FaIcon name='history' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
+            icon={<MatCommuIcon name='history' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
           <OptionItem
             text='Đổi mật khẩu'
             onPress={() => rootNavigation.navigate('Profile', { screen: 'ChangePassword' })}
-            icon={<AntIcon name='lock' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
+            icon={<MatCommuIcon name='lock-reset' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
           <OptionItem
             text='Đăng xuất'
             onPress={() => rootNavigation.navigate('Auth', { screen: 'ChooseMethod' })}
-            icon={<AntIcon name='lock' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
+            icon={<MatCommuIcon name='logout' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
         </VStack>
       </ScrollView>

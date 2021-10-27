@@ -7,6 +7,7 @@ type Props = {
   isInvalid?: boolean;
   label: string;
   value?: string;
+  defaultValue?: string;
   secureTextEntry?: boolean;
   leftIcon?: JSX.Element;
   errorMessage?: string;
@@ -18,6 +19,7 @@ type Props = {
 
 const FormInput: React.FC<Props> = ({
   value,
+  defaultValue,
   label,
   isRequired,
   isInvalid,
@@ -39,6 +41,7 @@ const FormInput: React.FC<Props> = ({
         overflow='visible'
         onBlur={onBlur}
         value={value}
+        defaultValue={defaultValue}
         InputLeftElement={leftIcon}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}

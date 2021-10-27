@@ -1,20 +1,37 @@
-import { Box, Button, Center, Image, Text } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import { GOOGLE_API_KEY } from '@env';
+import { Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
+import { Box, Button, Center, Text, View } from 'native-base';
+import { observer } from 'mobx-react';
+import MapboxGL, { Logger } from '@react-native-mapbox-gl/maps';
+import { StackScreenProps } from '@react-navigation/stack';
+import { Location } from 'react-native-location';
+import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
+
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
+import AssignedEmployee from './AssignedEmployee';
 import { GarageModel } from '@models/garage';
+import { Place } from '@models/map';
 import GarageStore from '@mobx/stores/garage';
 import locationService from '@mobx/services/location';
-import { observer } from 'mobx-react';
-import { Location } from 'react-native-location';
-import { RescueStackParams } from '@screens/Navigation/params';
-import { StackScreenProps } from '@react-navigation/stack';
 import DialogStore from '@mobx/stores/dialog';
-import AssignedEmployee from './AssignedEmployee';
+import { mapService } from '@mobx/services/map';
+import { RescueStackParams } from '@screens/Navigation/params';
+import SearchBar from '@components/SearchBar';
+import Marker from './Marker';
+import { withProgress } from '@mobx/services/config';
+
+Logger.setLogCallback((log) => {
+  const { message } = log;
+
+  if (
+    /Request failed due to a permanent error: Canceled/.exec(message) ||
+    /Request failed due to a permanent error: Socket Closed/.exec(message)
+  ) {
+    return true;
+  }
+  return false;
+});
 
 const { height } = Dimensions.get('screen');
 
@@ -25,8 +42,8 @@ export enum RescueState {
 }
 
 type MapState = {
-  userLocation: { latitude: number; longitude: number } | null;
-  mapViewCoordinate: { latitude: number; longitude: number } | Location | null;
+  userLocation: { latitude: number; longitude: number };
+  mapViewCoordinate: { latitude: number; longitude: number } | Location;
   garage: GarageModel | null;
   rescueState: RescueState;
 };
@@ -46,10 +63,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
     garage: null,
     rescueState: RescueState.IDLE,
   });
+  const [places, setPlaces] = useState<Place[]>([]);
   const garageStore = useContext(GarageStore);
   const dialogStore = useContext(DialogStore);
 
   useEffect(() => {
+    MapboxGL.setAccessToken(GOONG_API_KEY);
     void locationService
       .requestPermission()
       .then((location) =>
@@ -59,17 +78,21 @@ const Map: React.FC<Props> = ({ navigation }) => {
             latitude: location!.latitude,
             longitude: location!.longitude,
           },
-          mapViewCoordinate: mapState.mapViewCoordinate || {
+          mapViewCoordinate: {
             latitude: location!.latitude,
             longitude: location!.longitude,
           },
         }),
       )
       .catch(console.log);
+    if (Platform.OS === 'android') {
+      void MapboxGL.requestAndroidLocationPermissions();
+    }
     void garageStore.searchGarage('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const mapRef = useRef<MapView>(null);
+  const cameraRef = useRef<MapboxGL.Camera>(null);
 
   function showPopupGarage(garage: GarageModel) {
     return function () {
@@ -81,8 +104,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
           longitude: garage.location.longitude,
         },
       });
-      mapRef.current?.animateToCoordinate({ ...garage.location });
     };
+  }
+
+  async function searchPlaces(input: string) {
+    const { result, error } = await mapService.getPlaces({ input, api_key: GOONG_API_KEY });
+    if (error == null) {
+      setPlaces(result?.predictions || []);
+    }
   }
 
   /**
@@ -98,12 +127,9 @@ const Map: React.FC<Props> = ({ navigation }) => {
         dialogStore.openMsgDialog({
           message: `${garageStore.defaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
           onAgreed: () => {
-            mapRef.current?.animateToNavigation(
-              { latitude: garageStore.defaultGarage!.location.latitude, longitude: garageStore.defaultGarage!.location.longitude },
-              0,
-              0,
-              0.5,
-            );
+            const { userLocation } = mapState;
+            const { location: garaLocation } = garageStore.defaultGarage as GarageModel;
+            cameraRef.current?.fitBounds([userLocation.longitude, userLocation.latitude], [garaLocation.longitude, garaLocation.latitude]);
             setMapState({
               ...mapState,
               mapViewCoordinate: garageStore.defaultGarage!.location,
@@ -131,74 +157,54 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Box style={{ ...StyleSheet.absoluteFillObject, height: '100%', width: '100%' }}>
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
+      <MapboxGL.MapView
         style={{ ...StyleSheet.absoluteFillObject }}
-        region={{ ...(mapState.mapViewCoordinate as any), latitudeDelta: 0.03, longitudeDelta: 0.03 }}
-        loadingEnabled
+        styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAP_TILE_KEY}`}
       >
-        <Marker
-          coordinate={{ latitude: mapState.userLocation?.latitude as number, longitude: mapState.userLocation?.longitude as number }}
+        <MapboxGL.UserLocation
+          onUpdate={(location) => {
+            setMapState({ ...mapState, userLocation: { latitude: location.coords.latitude, longitude: location.coords.longitude } });
+          }}
+        />
+        <MapboxGL.Camera
+          ref={cameraRef}
+          zoomLevel={10}
+          centerCoordinate={[mapState.userLocation.longitude, mapState.userLocation.latitude]}
         />
         {garageStore.garages.map((garage) => {
-          const { location } = garage;
           return (
             <Marker
               key={garage.id}
-              coordinate={{ latitude: location?.latitude, longitude: location?.longitude }}
+              id={garage.id.toString()}
+              coordinate={[garage.location.longitude, garage.location.latitude]}
               onPress={showPopupGarage(garage)}
-            >
-              <Image alt='marker' source={require('@assets/images/location-marker.png')} style={{ width: 45 }} />
-            </Marker>
+            />
           );
         })}
-        {mapState.rescueState === RescueState.ACCEPTED && (
-          <Polyline
-            coordinates={[
-              { latitude: mapState.userLocation!.latitude, longitude: mapState.userLocation!.longitude },
-              { latitude: garageStore.defaultGarage!.location.latitude, longitude: garageStore.defaultGarage!.location.longitude },
-            ]}
-            strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
-            strokeColors={['#7F0000']}
-            strokeWidth={6}
-          />
-        )}
-      </MapView>
+      </MapboxGL.MapView>
       <Box pt={10}>
-        <GooglePlacesAutocomplete
-          styles={{
-            container: {
-              flex: 0,
-              width: '90%',
-              alignSelf: 'center',
-            },
-            textInput: {
-              color: 'black',
-              fontSize: 18,
-            },
-          }}
-          textInputProps={{ placeholderTextColor: '#6c6f73' }}
+        <SearchBar
           placeholder='Nhập vị trí cần cứu hộ'
-          debounce={500}
-          // fetchDetails
-          onFail={(error) => console.log(error)}
-          onPress={(data, details = null) => {
-            if (details?.geometry.location) {
-              const { lat, lng } = details.geometry.location;
-              setMapState({
-                ...mapState,
-                userLocation: { latitude: lat, longitude: lng },
-                mapViewCoordinate: { latitude: lat, longitude: lng },
-              });
-            }
+          timeout={500}
+          width='90%'
+          onSearch={searchPlaces}
+          listProps={{
+            data: places,
+            keyExtractor: (item: Place) => item.place_id,
+            renderItem: ({ item }: ListRenderItemInfo<Place>) => (
+              <View pl='3' py='1' width='100%' backgroundColor='white'>
+                <Text fontSize='md'>{item.description}</Text>
+              </View>
+            ),
           }}
-          query={{
-            key: GOOGLE_API_KEY,
-            language: 'vi',
-            components: 'country:vn',
+          onItemPress={async ({ item }: ListRenderItemInfo<Place>) => {
+            const { result } = await withProgress(mapService.getPlaceDetail({ api_key: GOONG_API_KEY, place_id: item.place_id }));
+            console.log(result);
+            cameraRef.current?.fitBounds(
+              [result?.result.geometry.location.lng as number, result?.result.geometry.location.lat as number],
+              [mapState.userLocation.longitude, mapState.userLocation.latitude],
+            );
           }}
-          nearbyPlacesAPI='GooglePlacesSearch'
         />
       </Box>
       {mapState.garage && (

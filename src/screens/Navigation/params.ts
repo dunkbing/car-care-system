@@ -14,6 +14,8 @@ export type AuthStackParams = {
   CustomerLogin: undefined;
   GarageLogin: undefined;
   Register: undefined;
+  DefineCarModel: undefined;
+  SearchGarage: undefined | { skip?: boolean };
   ChangePassword: undefined;
   ResetPassword: undefined;
   ForgotPassword: undefined;

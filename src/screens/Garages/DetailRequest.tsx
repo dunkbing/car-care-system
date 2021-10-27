@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
+import { DefaultCar } from '@assets/images';
 
 const Label: React.FC = (props: any) => {
   return (
@@ -29,7 +30,7 @@ const DetailRequest: React.FC = () => {
             marginBottom: 40,
           }}
         >
-          <Image defaultSource={require('@assets/defaultCar.png')} source={require('@assets/defaultCar.png')} alt={'Car image'} />
+          <Image defaultSource={DefaultCar} source={DefaultCar} alt={'Car image'} />
           <View style={{ paddingHorizontal: 20 }}>
             <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
               Lê Đức Anh

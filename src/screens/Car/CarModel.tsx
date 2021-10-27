@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { VStack, Select, CheckIcon, FormControl } from 'native-base';
+import { observer } from 'mobx-react';
+import CarModelStore from '@mobx/stores/car-model';
+import { SelectItemProps } from './CarBrand';
 
-export default () => {
+export default observer(({ onSelectItem }: SelectItemProps) => {
   const [model, setModel] = React.useState('');
+  const carModelStore = useContext(CarModelStore);
   return (
     <VStack>
       <FormControl.Label>Mẫu xe</FormControl.Label>
@@ -16,16 +20,15 @@ export default () => {
           endIcon: <CheckIcon size='5' />,
         }}
         mb={-12}
-        onValueChange={(itemValue) => setModel(itemValue)}
+        onValueChange={(itemValue) => {
+          setModel(itemValue);
+          onSelectItem?.(itemValue);
+        }}
       >
-        <Select.Item label='Toyota' value='1' />
-        <Select.Item label='Chevrolet' value='2' />
-        <Select.Item label='Honda' value='3' />
-        <Select.Item label='Hyundai' value='4' />
-        <Select.Item label='Mazda' value='5' />
-        <Select.Item label='Mitsubishi' value='6' />
-        <Select.Item label='Khác' value='7' />
+        {carModelStore.models.map((model) => (
+          <Select.Item key={model.id} label={model.modelName} value={model.id.toString()} />
+        ))}
       </Select>
     </VStack>
   );
-};
+});

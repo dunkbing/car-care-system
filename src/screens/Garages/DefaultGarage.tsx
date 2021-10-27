@@ -9,6 +9,7 @@ import GarageStore from '@mobx/stores/garage';
 import { GarageModel } from '@models/garage';
 import { observer } from 'mobx-react';
 import { Linking, TouchableOpacity } from 'react-native';
+import { headerColor } from '@screens/shared/colors';
 
 const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber }) => {
   return (
@@ -20,23 +21,25 @@ const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber
       </Center>
       <Center>
         <HStack width='80%' justifyContent='center' alignItems='center' space={2}>
-          <FAIcon name='map-marker' size={24} />
+          <FAIcon name='map-marker' size={24} color={headerColor} />
           <Text fontSize='lg'>{address}</Text>
         </HStack>
       </Center>
       <Center>
         <HStack space={4}>
+          <TouchableOpacity onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
+            <HStack alignItems='center' space={2}>
+              <IonIcon name='call' size={24} color={headerColor} />
+              <Text fontSize='lg' style={{ color: headerColor }}>
+                Gọi tới gara
+              </Text>
+            </HStack>
+          </TouchableOpacity>
           <HStack alignItems='center' space={2}>
             <Text fontSize='lg'>3</Text>
             <Rating ratingCount={5} imageSize={24} startingValue={3} ratingBackgroundColor='primary.500' />
             <Text fontSize='lg'>(59)</Text>
           </HStack>
-          <TouchableOpacity onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
-            <HStack alignItems='center' space={2}>
-              <IonIcon name='call' size={24} />
-              {/* <Text fontSize='lg'>Gọi tới gara</Text> */}
-            </HStack>
-          </TouchableOpacity>
         </HStack>
       </Center>
     </VStack>

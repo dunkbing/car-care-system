@@ -1,5 +1,5 @@
 import { ResponseSingular, ServiceResult } from './config';
-import { CustomerRegisterQueryModel, LoginQueryModel, LoginResponseModel } from '@models/customer';
+import { RegisterQueryModel, LoginQueryModel, LoginResponseModel, RegisterResponseModel } from '@models/customer';
 import axios, { AxiosResponse } from 'axios';
 
 const path = 'auth/customers';
@@ -9,17 +9,23 @@ class AuthService {
     try {
       const response = await axios.post<LoginQueryModel, AxiosResponse<ResponseSingular<LoginResponseModel>>>(`${path}/login`, loginData);
       const result = response.data.data.result;
-      return {
-        result,
-        error: null,
-      };
+      return { result, error: null };
     } catch (error) {
       return { result: null, error };
     }
   }
 
-  public async register(registerData: CustomerRegisterQueryModel) {
-    
+  public async register(registerData: RegisterQueryModel): Promise<ServiceResult<RegisterResponseModel>> {
+    try {
+      const response = await axios.post<RegisterQueryModel, AxiosResponse<ResponseSingular<RegisterResponseModel>>>(
+        `${path}/register`,
+        registerData,
+      );
+      const result = response.data.data.result;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    }
   }
 }
 

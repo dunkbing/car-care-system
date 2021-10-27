@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading } from 'native-base';
-import { AvatarStaff } from '@assets/images';
+import AvatarStaff from '@assets/images/avatar-staff.png';
 
 const Staff: React.FC = () => {
   return (

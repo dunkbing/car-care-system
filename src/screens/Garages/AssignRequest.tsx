@@ -1,9 +1,8 @@
 import React from 'react';
 import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
-import SearchBar from '@components/SearchBar';
 
-const Customer: React.FC = () => {
+const Staff: React.FC = () => {
   return (
     <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
       <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
@@ -14,7 +13,7 @@ const Customer: React.FC = () => {
   );
 };
 
-const ManageCustomer: React.FC = () => {
+const AssignRequest: React.FC = () => {
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -23,24 +22,21 @@ const ManageCustomer: React.FC = () => {
           mb: '4',
         }}
       >
-        <Box pt={5}>
-          <SearchBar placeholder='Tìm kiếm khách hàng' />
-        </Box>
-        <Heading size='lg' textAlign='left' mt={5} ml={5}>
-          Danh sách khách hàng
+        <Heading size='md' textAlign='left' mt={7} ml={5}>
+          Chọn nhân viên đi cứu hộ
         </Heading>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
+          <Staff />
+          <Staff />
+          <Staff />
+          <Staff />
+          <Staff />
+          <Staff />
+          <Staff />
         </Box>
       </ScrollView>
     </NativeBaseProvider>
   );
 };
 
-export default ManageCustomer;
+export default AssignRequest;

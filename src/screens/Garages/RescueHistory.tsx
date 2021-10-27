@@ -36,11 +36,7 @@ const HistoryView: React.FC = () => {
             marginBottom: 15,
           }}
         >
-<<<<<<< HEAD
           <FAFIcon name='map-marker-alt' size={20} />
-=======
-          <FAFIcon name='map-pin' size={20} />
->>>>>>> 194735c... Fix components to match the screen design
           <Text style={{ flex: 1, marginLeft: 20 }}>Km29 Đại lộ Thăng Long, Hà Nội</Text>
         </View>
         <View

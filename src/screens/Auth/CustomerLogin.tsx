@@ -6,7 +6,7 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel, loginValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import GoogleLogo from '@assets/google_logo.png';
+import { GoogleLogo } from '@assets/images';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';

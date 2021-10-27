@@ -3,7 +3,7 @@ import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormC
 import FormInput from '@components/FormInput';
 import { RegisterQueryModel, registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import GoogleLogo from '@assets/google_logo.png';
+import { GoogleLogo } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
 import { authService } from '@mobx/services/auth';

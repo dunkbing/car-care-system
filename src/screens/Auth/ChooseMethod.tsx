@@ -9,7 +9,7 @@ type Props = StackScreenProps<AuthStackParams, 'ChooseMethod'>;
 const ChooseMethod: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} mt={100} w='95%' mx='auto'>
+      <Box safeArea flex={1} p={2} mt={50} w='95%' mx='auto'>
         <Heading size='lg' color='primary.500' textAlign='center'>
           Car Care System
         </Heading>

@@ -6,6 +6,7 @@ import MapboxGL, { Logger } from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Location } from 'react-native-location';
 import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
+import polyline from '@mapbox/polyline';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
@@ -19,7 +20,6 @@ import { mapService } from '@mobx/services/map';
 import { RescueStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
 import Marker from './Marker';
-import { withProgress } from '@mobx/services/config';
 
 Logger.setLogCallback((log) => {
   const { message } = log;
@@ -43,7 +43,9 @@ export enum RescueState {
 
 type MapState = {
   userLocation: { latitude: number; longitude: number };
-  mapViewCoordinate: { latitude: number; longitude: number } | Location;
+  rescueLocation?: { latitude: number; longitude: number } | Location;
+  garageLocation?: { latitude: number; longitude: number } | Location;
+  rescueRoute?: [number, number][];
   garage: GarageModel | null;
   rescueState: RescueState;
 };
@@ -52,10 +54,6 @@ type Props = StackScreenProps<RescueStackParams, 'Map'>;
 
 const Map: React.FC<Props> = ({ navigation }) => {
   const [mapState, setMapState] = useState<MapState>({
-    mapViewCoordinate: {
-      latitude: 21.0278,
-      longitude: 105.8342,
-    },
     userLocation: {
       latitude: 21.0278,
       longitude: 105.8342,
@@ -78,10 +76,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             latitude: location!.latitude,
             longitude: location!.longitude,
           },
-          mapViewCoordinate: {
-            latitude: location!.latitude,
-            longitude: location!.longitude,
-          },
+          rescueLocation: undefined,
         }),
       )
       .catch(console.log);
@@ -99,10 +94,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
       setMapState({
         ...mapState,
         garage,
-        mapViewCoordinate: {
-          latitude: garage.location.latitude,
-          longitude: garage.location.longitude,
-        },
       });
     };
   }
@@ -127,20 +118,41 @@ const Map: React.FC<Props> = ({ navigation }) => {
         dialogStore.openMsgDialog({
           message: `${garageStore.defaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
           onAgreed: () => {
-            const { userLocation } = mapState;
+            const { rescueLocation } = mapState;
             const { location: garaLocation } = garageStore.defaultGarage as GarageModel;
-            cameraRef.current?.fitBounds([userLocation.longitude, userLocation.latitude], [garaLocation.longitude, garaLocation.latitude]);
-            setMapState({
-              ...mapState,
-              mapViewCoordinate: garageStore.defaultGarage!.location,
-              rescueState: RescueState.ACCEPTED,
-            });
-            setTimeout(() => {
+            if (rescueLocation) {
+              cameraRef.current?.fitBounds(
+                [rescueLocation.longitude, rescueLocation.latitude],
+                [garaLocation.longitude, garaLocation.latitude],
+                150,
+                1.5,
+              );
+              void mapService
+                .getDirections({
+                  api_key: GOONG_API_KEY,
+                  origin: `${rescueLocation.latitude},${rescueLocation.longitude}`,
+                  destination: `${garaLocation.latitude},${garaLocation.longitude}`,
+                })
+                .then(({ result }) => {
+                  if (result?.routes && result.routes.length > 0) {
+                    setMapState({
+                      ...mapState,
+                      rescueState: RescueState.ACCEPTED,
+                      rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
+                    });
+                  }
+                });
               setMapState({
                 ...mapState,
-                rescueState: RescueState.IDLE,
+                rescueState: RescueState.ACCEPTED,
               });
-            }, 60000);
+              setTimeout(() => {
+                setMapState({
+                  ...mapState,
+                  rescueState: RescueState.IDLE,
+                });
+              }, 10000);
+            }
           },
         });
       },
@@ -160,16 +172,66 @@ const Map: React.FC<Props> = ({ navigation }) => {
       <MapboxGL.MapView
         style={{ ...StyleSheet.absoluteFillObject }}
         styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAP_TILE_KEY}`}
+        onTouchStart={() => {
+          setMapState({ ...mapState, garage: null });
+        }}
       >
         <MapboxGL.UserLocation
           onUpdate={(location) => {
-            setMapState({ ...mapState, userLocation: { latitude: location.coords.latitude, longitude: location.coords.longitude } });
+            if (!mapState.rescueLocation) {
+              setMapState({ ...mapState, rescueLocation: { latitude: location.coords.latitude, longitude: location.coords.longitude } });
+            } else {
+              setMapState({ ...mapState, userLocation: { latitude: location.coords.latitude, longitude: location.coords.longitude } });
+            }
           }}
+          visible={false}
         />
+        <MapboxGL.PointAnnotation
+          key='pointAnnotation'
+          id='pointAnnotation'
+          coordinate={[
+            mapState.rescueLocation?.longitude || mapState.userLocation.longitude,
+            mapState.rescueLocation?.latitude || mapState.userLocation.latitude,
+          ]}
+        >
+          <View
+            style={{
+              height: 30,
+              width: 30,
+              backgroundColor: '#00cccc',
+              borderRadius: 50,
+              borderColor: '#fff',
+              borderWidth: 3,
+            }}
+          />
+        </MapboxGL.PointAnnotation>
+        {mapState.rescueRoute && (
+          <MapboxGL.ShapeSource
+            id='line1'
+            shape={{
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  properties: { color: 'green' },
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: [...mapState.rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
+                  },
+                },
+              ],
+            }}
+          >
+            <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 5, lineJoin: 'bevel', lineColor: 'red' }} />
+          </MapboxGL.ShapeSource>
+        )}
         <MapboxGL.Camera
           ref={cameraRef}
           zoomLevel={10}
-          centerCoordinate={[mapState.userLocation.longitude, mapState.userLocation.latitude]}
+          centerCoordinate={[
+            mapState.rescueLocation?.longitude || mapState.userLocation.longitude,
+            mapState.rescueLocation?.latitude || mapState.userLocation.latitude,
+          ]}
         />
         {garageStore.garages.map((garage) => {
           return (
@@ -198,12 +260,19 @@ const Map: React.FC<Props> = ({ navigation }) => {
             ),
           }}
           onItemPress={async ({ item }: ListRenderItemInfo<Place>) => {
-            const { result } = await withProgress(mapService.getPlaceDetail({ api_key: GOONG_API_KEY, place_id: item.place_id }));
-            console.log(result);
-            cameraRef.current?.fitBounds(
-              [result?.result.geometry.location.lng as number, result?.result.geometry.location.lat as number],
-              [mapState.userLocation.longitude, mapState.userLocation.latitude],
-            );
+            const { result } = await mapService.getPlaceDetail({ api_key: GOONG_API_KEY, place_id: item.place_id });
+            const { userLocation, rescueLocation } = mapState;
+            setMapState({
+              ...mapState,
+              rescueLocation: {
+                latitude: result?.result.geometry.location.lat || rescueLocation?.latitude || userLocation.latitude,
+                longitude: result?.result.geometry.location.lng || rescueLocation?.longitude || userLocation.longitude,
+              },
+            });
+            // cameraRef.current?.fitBounds(
+            //   [result?.result.geometry.location.lng as number, result?.result.geometry.location.lat as number],
+            //   [mapState.userLocation.longitude, mapState.userLocation.latitude],
+            // );
           }}
         />
       </Box>

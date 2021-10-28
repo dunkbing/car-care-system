@@ -14,9 +14,14 @@ type Props = {
   onItemPress?: (item: ListRenderItemInfo<any>) => void;
 };
 
+type State = {
+  query: string;
+  showList: boolean;
+};
+
 export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
   const { placeholder, timeout, width, onSearch } = props;
-  const [query, setQuery] = useState('');
+  const [state, setState] = useState<State>({ query: '', showList: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchDebounce = useCallback(
     debounce(timeout as number, (newQuery: string) => {
@@ -25,7 +30,10 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
     [onSearch],
   );
   function handleTextChange(text: string) {
-    setQuery(text);
+    setState({
+      query: text,
+      showList: true,
+    });
     if (text) {
       void searchDebounce(text);
     }
@@ -35,7 +43,7 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
       <Input
         placeholder={placeholder}
         placeholderTextColor='black'
-        value={query}
+        value={state.query}
         bg='white'
         onChangeText={handleTextChange}
         width={width}
@@ -45,15 +53,28 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
         fontSize='14'
         InputLeftElement={<Icon m='2' ml='3' size='6' color='blue.400' as={<MaterialIcon name='search' />} />}
         InputRightElement={
-          <Icon m='2' ml='3' size='6' color='blue.400' as={<AntIcon onPress={() => setQuery('')} name='closecircleo' />} />
+          <Icon
+            m='2'
+            ml='3'
+            size='6'
+            color='blue.400'
+            as={<AntIcon onPress={() => setState({ ...state, query: '' })} name='closecircleo' />}
+          />
         }
       />
-      {props.listProps && query && (
+      {props.listProps && state.showList && (
         <FlatList
           {...props.listProps}
           width={width}
           renderItem={(item) => (
-            <TouchableHighlight onPress={() => props.onItemPress?.(item)}>{props.listProps?.renderItem?.(item)}</TouchableHighlight>
+            <TouchableHighlight
+              onPress={() => {
+                setState({ ...state, showList: false });
+                props.onItemPress?.(item);
+              }}
+            >
+              {props.listProps?.renderItem?.(item)}
+            </TouchableHighlight>
           )}
         />
       )}

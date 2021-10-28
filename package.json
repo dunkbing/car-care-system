@@ -11,6 +11,7 @@
     "format": "prettier --check ./src"
   },
   "dependencies": {
+    "@mapbox/polyline": "^1.1.1",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-mapbox-gl/maps": "^8.4.0",
     "@react-native-picker/picker": "^2.1.0",
@@ -45,6 +46,7 @@
     "@react-native-community/eslint-config": "^3.0.1",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.0.1",
+    "@types/mapbox__polyline": "^1.0.2",
     "@types/react-native": "^0.65.1",
     "@types/react-native-table-component": "^1.2.1",
     "@types/react-native-vector-icons": "^6.4.8",

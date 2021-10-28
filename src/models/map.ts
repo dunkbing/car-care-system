@@ -1,3 +1,4 @@
+// Places
 export type Place = {
   description: string;
   matched_substrings: any[];
@@ -55,4 +56,40 @@ export type DetailPlaceRequestParams = {
 export type DetailPlaceResponse = {
   result: DetailPlace;
   status: string;
+};
+
+// Directions
+type Leg = {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  steps: any[];
+};
+
+export type Route = {
+  bounds: any;
+  legs: Leg[];
+  overview_polyline: {
+    points: string;
+  };
+  warnings: any[];
+  waypoint_order: any[];
+};
+
+export type DirectionsRequestParams = {
+  api_key: string;
+  origin: string;
+  destination: string;
+  alternatives?: boolean;
+  vehicle?: string;
+};
+
+export type DirectionsResponse = {
+  geocoded_waypoints: any[];
+  routes: Route[];
 };

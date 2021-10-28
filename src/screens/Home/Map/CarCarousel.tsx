@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
 });
 
 const data = [
-  { name: 'Toyota', license: '29-T8 1147' },
-  { name: 'Mazda', license: '29-T8 3045' },
-  { name: 'Chevrolet', license: '29-T8 2159' },
+  { name: 'Toyota', license: '30-T8 1147' },
+  { name: 'Mazda', license: '30-T8 3045' },
+  { name: 'Chevrolet', license: '30-T8 2159' },
   // { name: 'Chevrolet', license: '29-T8 2159' },
 ];
 
@@ -42,7 +42,7 @@ const Item = React.memo(({ selected, name, license }: any) => {
         },
       ]}
     >
-      <FAIcon name='car' size={40} color={color} />
+      <FAIcon name='car' size={35} color={color} />
       <Text style={{ color }} bold={selected}>
         {name}
       </Text>

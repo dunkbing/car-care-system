@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeBaseProvider, Box, VStack, Button, Text } from 'native-base';
-import FormInput from '@components/FormInput';
+import FormInput from '@components/form/FormInput';
 
 const ForgotPassword: React.FC = () => {
   return (

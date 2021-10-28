@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeBaseProvider, Box, VStack, Button, HStack } from 'native-base';
-import FormInput from '@components/FormInput';
+import FormInput from '@components/form/FormInput';
 import { StackScreenProps } from '@react-navigation/stack/lib/typescript/src/types';
 import { AuthStackParams } from '@screens/Navigation/params';
 

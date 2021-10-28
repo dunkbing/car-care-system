@@ -1,13 +1,19 @@
 import React from 'react';
-import { VStack, Select, CheckIcon, FormControl, NativeBaseProvider, Box, Heading, TextArea, Button, Text } from 'native-base';
+import { NativeBaseProvider, Box, Heading, TextArea, Button, Text } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
+import FormSelect from '@components/form/FormSelect';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<RescueStackParams, 'DefineCarStatus'>;
 
 const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
   const [carStatus, setCarStatus] = React.useState('');
   function handleConfirm() {
+    if (carStatus === '6') {
+      toast.show('Vui lòng mô tả tình trạng xe');
+      return;
+    }
     route.params?.onConfirm();
     navigation.goBack();
   }
@@ -28,33 +34,26 @@ const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
         >
           Mô tả tình trạng xe
         </Text>
-        <VStack>
-          <FormControl.Label>Tình trạng xe</FormControl.Label>
-          <Select
-            selectedValue={carStatus}
-            minWidth='200'
-            accessibilityLabel='Tình trạng xe'
-            placeholder='Tình trạng xe'
-            mb={3}
-            _selectedItem={{
-              bg: 'teal.600',
-              endIcon: <CheckIcon size='5' />,
-            }}
-            onValueChange={(itemValue) => setCarStatus(itemValue)}
-          >
-            <Select.Item label='Thủng lốp' value='1' />
-            <Select.Item label='Hết xăng' value='2' />
-            <Select.Item label='Hết điện bình ắc quy' value='3' />
-            <Select.Item label='Động cơ nóng bất thường' value='4' />
-            <Select.Item label='Lỗi động cơ có tiếng gõ' value='5' />
-            <Select.Item label='Khác' value='6' />
-          </Select>
-        </VStack>
+        <FormSelect
+          value={carStatus}
+          label='Tình trạng xe'
+          selectProps={{ placeholder: 'Tình trạng xe' }}
+          items={[
+            { label: 'Thủng lốp', value: '1' },
+            { label: 'Hết xăng', value: '2' },
+            { label: 'Hết điện bình ắc quy', value: '3' },
+            { label: 'Động cơ nóng bất thường', value: '4' },
+            { label: 'Lỗi động cơ có tiếng gõ', value: '5' },
+            { label: 'Khác', value: '6' },
+          ]}
+          onValueChange={(value) => setCarStatus(value)}
+        />
         <TextArea
           placeholder={'Nhập mô tả'}
           placeholderTextColor={'#AEA0A0'}
-          multiline={true}
+          multiline
           maxLength={1000}
+          // isInvalid={carStatus === '6'}
           style={{
             marginTop: 10,
             marginBottom: 20,
@@ -64,7 +63,7 @@ const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
             paddingHorizontal: 10,
             textAlignVertical: 'top',
             height: 100,
-            borderColor: '#AB9898',
+            borderColor: carStatus === '6' ? 'red' : '#AB9898',
             borderRadius: 3,
             shadowColor: '#000',
             shadowOffset: {

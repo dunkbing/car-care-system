@@ -10,7 +10,7 @@ import { STATES } from '@utils/constants';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
-import { rootNavigation } from '@screens/Navigation';
+import { rootNavigation } from '@screens/Navigation/roots';
 import { customerService } from '@mobx/services/customer';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {

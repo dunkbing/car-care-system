@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
-import FormInput from '@components/FormInput';
+import FormInput from '@components/form/FormInput';
 import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel, loginValidationSchema } from '@models/customer';

@@ -1,11 +1,12 @@
-import FormInput from '@components/FormInput';
+import FormInput from '@components/form/FormInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Avatar, Box, Button, Center, CheckIcon, FormControl, HStack, ScrollView, Select, Text, VStack } from 'native-base';
+import { Avatar, Box, Button, Center, HStack, ScrollView, VStack } from 'native-base';
 import React, { useContext, useState } from 'react';
 import AntIcon from 'react-native-vector-icons/AntDesign';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import AuthStore from '@mobx/stores/auth';
+import FormSelect from '@components/form/FormSelect';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
@@ -66,25 +67,16 @@ const Profile: React.FC<Props> = () => {
             defaultValue={user?.dateOfBirth || ''}
           />
           <FormInput isRequired label='Địa chỉ' placeholder='Địa chỉ' keyboardType='ascii-capable' defaultValue={user?.address || ''} />
-          <FormControl.Label>
-            <Text bold>Loại khách hàng</Text>
-          </FormControl.Label>
-          <Select
-            selectedValue={typeCustomer}
-            minWidth='200'
-            accessibilityLabel='Loại khách hàng'
-            placeholder='Loại khách hàng'
-            _selectedItem={{
-              bg: 'teal.600',
-              endIcon: <CheckIcon size='5' />,
-            }}
-            mb={1}
-            mt={-2}
-            onValueChange={(itemValue) => setTypeCustomer(itemValue)}
-          >
-            <Select.Item label='Cá nhân' value='cá nhân' />
-            <Select.Item label='Doanh nghiệp' value='doanh nghiệp' />
-          </Select>
+          <FormSelect
+            label='Loại khách hàng'
+            value={typeCustomer}
+            items={[
+              { value: 'Cá nhân', label: 'Cá nhân' },
+              { value: 'Doanh nghiệp', label: 'Doanh nghiệp' },
+            ]}
+            onValueChange={(value) => setTypeCustomer(value)}
+            selectProps={{ accessibilityLabel: 'Loại khách hàng', placeholder: 'Loại khách hàng' }}
+          />
         </VStack>
         <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />
         <Center>

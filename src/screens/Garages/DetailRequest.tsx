@@ -3,7 +3,7 @@ import { Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-ba
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import { DefaultCar } from '@assets/images';
 
-const Label: React.FC = (props: any) => {
+const Label: React.FC<{ name: string }> = (props) => {
   return (
     <Text
       style={{

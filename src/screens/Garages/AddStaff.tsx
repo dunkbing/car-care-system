@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeBaseProvider, Box, VStack, Button } from 'native-base';
-import FormInput from '@components/FormInput';
+import FormInput from '@components/form/FormInput';
 
 const AddStaff: React.FC = () => {
   return (

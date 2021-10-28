@@ -47,11 +47,7 @@ const FormInput: React.FC<Props> = ({
         secureTextEntry={secureTextEntry}
       />
       <Center>
-        {
-          <FormControl.ErrorMessage _text={{ fontSize: 'xs', color: 'error.500', fontWeight: 500 }}>
-            {errorMessage}
-          </FormControl.ErrorMessage>
-        }
+        <FormControl.ErrorMessage _text={{ fontSize: 'xs', color: 'error.500', fontWeight: 500 }}>{errorMessage}</FormControl.ErrorMessage>
       </Center>
     </FormControl>
   );

@@ -186,6 +186,26 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
           visible={false}
         />
+        {mapState.rescueRoute && (
+          <MapboxGL.ShapeSource
+            id='line1'
+            shape={{
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  properties: { color: 'green' },
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: [...mapState.rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
+                  },
+                },
+              ],
+            }}
+          >
+            <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 5, lineJoin: 'bevel', lineColor: '#2884d4' }} />
+          </MapboxGL.ShapeSource>
+        )}
         <MapboxGL.PointAnnotation
           key='pointAnnotation'
           id='pointAnnotation'
@@ -205,26 +225,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
             }}
           />
         </MapboxGL.PointAnnotation>
-        {mapState.rescueRoute && (
-          <MapboxGL.ShapeSource
-            id='line1'
-            shape={{
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: { color: 'green' },
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: [...mapState.rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
-                  },
-                },
-              ],
-            }}
-          >
-            <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 5, lineJoin: 'bevel', lineColor: 'red' }} />
-          </MapboxGL.ShapeSource>
-        )}
         <MapboxGL.Camera
           ref={cameraRef}
           zoomLevel={10}

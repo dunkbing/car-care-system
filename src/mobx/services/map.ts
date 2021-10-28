@@ -1,14 +1,26 @@
 import axios, { AxiosResponse } from 'axios';
 import { ServiceResult } from './config';
-import { DetailPlaceRequestParams, DetailPlaceResponse, PlacesRequestParams, PlacesResponse } from '@models/map';
+import {
+  DetailPlaceRequestParams,
+  DetailPlaceResponse,
+  DirectionsRequestParams,
+  DirectionsResponse,
+  PlacesRequestParams,
+  PlacesResponse,
+} from '@models/map';
+import { dialogStore } from '@mobx/stores/dialog';
 
 const baseURL = 'https://rsapi.goong.io';
-const path = 'Place';
+const placesPath = 'Place';
+const directionsPath = 'Direction';
 
 class MapService {
   public async getPlaces(params: PlacesRequestParams): Promise<ServiceResult<PlacesResponse>> {
     try {
-      const response = await axios.get<PlacesRequestParams, AxiosResponse<PlacesResponse>>(`${path}/AutoComplete`, { baseURL, params });
+      const response = await axios.get<PlacesRequestParams, AxiosResponse<PlacesResponse>>(`${placesPath}/AutoComplete`, {
+        baseURL,
+        params,
+      });
       const result = response.data;
       return { result, error: null };
     } catch (error) {
@@ -18,7 +30,23 @@ class MapService {
 
   public async getPlaceDetail(params: DetailPlaceRequestParams): Promise<ServiceResult<DetailPlaceResponse>> {
     try {
-      const response = await axios.get<DetailPlaceRequestParams, AxiosResponse<DetailPlaceResponse>>(`${path}/Detail`, {
+      dialogStore.openProgressDialog({ title: 'Vui lòng đợi' });
+      const response = await axios.get<DetailPlaceRequestParams, AxiosResponse<DetailPlaceResponse>>(`${placesPath}/Detail`, {
+        baseURL,
+        params,
+      });
+      const result = response.data;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    } finally {
+      dialogStore.closeProgressDialog();
+    }
+  }
+
+  public async getDirections(params: DirectionsRequestParams): Promise<ServiceResult<DirectionsResponse>> {
+    try {
+      const response = await axios.get<DirectionsRequestParams, AxiosResponse<DirectionsResponse>>(`${directionsPath}`, {
         baseURL,
         params,
       });

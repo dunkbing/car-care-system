@@ -38,6 +38,12 @@ const Payment: React.FC = () => {
             </Text>
             <Text fontSize='lg'>Trắng</Text>
           </HStack>
+          <HStack space={2}>
+            <Text bold fontSize='lg'>
+              Mã số thuế:
+            </Text>
+            <Text fontSize='lg'>0102859048</Text>
+          </HStack>
         </VStack>
         <Text mt='5' bold fontSize='xl'>
           Thiết bị

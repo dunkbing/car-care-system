@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Link, Button, Text, Image } from 'native-base';
+import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
@@ -15,7 +16,7 @@ import { STATES } from '@utils/constants';
 type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
 const GarageLogin: React.FC<Props> = ({ navigation }) => {
-  const authStore = useContext(AuthStore);
+  const authStore = Container.get(AuthStore);
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values);
 

@@ -1,10 +1,12 @@
 import { CarModelModel } from '@models/car-model';
 import axios, { AxiosResponse } from 'axios';
+import { Service } from 'typedi';
 import { ServiceResult, ResponsePlural } from './config';
 
 const path = 'models';
 
-class CarModelService {
+@Service()
+export default class CarModelService {
   /**
    * get car models by brand id.
    * @param brandId
@@ -20,5 +22,3 @@ class CarModelService {
     }
   }
 }
-
-export const modelService = new CarModelService();

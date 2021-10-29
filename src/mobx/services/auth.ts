@@ -1,10 +1,12 @@
 import { ResponseSingular, ServiceResult } from './config';
 import { RegisterQueryModel, LoginQueryModel, LoginResponseModel, RegisterResponseModel } from '@models/customer';
 import axios, { AxiosResponse } from 'axios';
+import { Service } from 'typedi';
 
 const path = 'auth/customers';
 
-class AuthService {
+@Service()
+export default class AuthService {
   public async login(loginData: LoginQueryModel): Promise<ServiceResult<LoginResponseModel>> {
     try {
       const response = await axios.post<LoginQueryModel, AxiosResponse<ResponseSingular<LoginResponseModel>>>(`${path}/login`, loginData);
@@ -28,5 +30,3 @@ class AuthService {
     }
   }
 }
-
-export const authService = new AuthService();

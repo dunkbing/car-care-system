@@ -7,6 +7,7 @@ import CarStore from '@mobx/stores/car';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { StackScreenProps } from '@react-navigation/stack';
 import { STATES } from '@utils/constants';
+import { Container } from 'typedi';
 
 const CarView: React.FC<Pick<CarModel, 'modelName' | 'licenseNumber' | 'imageUrl'>> = ({ modelName, licenseNumber, imageUrl }) => {
   return (
@@ -42,7 +43,7 @@ const CarView: React.FC<Pick<CarModel, 'modelName' | 'licenseNumber' | 'imageUrl
 type Props = StackScreenProps<ProfileStackParams, 'SearchGarage'>;
 
 const CarStatus: React.FC<Props> = ({ navigation }) => {
-  const carStore = React.useContext(CarStore);
+  const carStore = Container.get(CarStore);
   function createCar() {
     navigation.navigate('DefineCarModel', { loggedIn: true });
   }

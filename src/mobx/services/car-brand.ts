@@ -1,10 +1,12 @@
 import { CarBrandModel } from '@models/car-brand';
 import axios, { AxiosResponse } from 'axios';
+import { Service } from 'typedi';
 import { ServiceResult, ResponsePlural } from './config';
 
 const path = 'brands';
 
-class BrandService {
+@Service()
+export default class BrandService {
   public async getBrands(): Promise<ServiceResult<CarBrandModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarBrandModel>>>(`${path}`);
@@ -15,5 +17,3 @@ class BrandService {
     }
   }
 }
-
-export const brandService = new BrandService();

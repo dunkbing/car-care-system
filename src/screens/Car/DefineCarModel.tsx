@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { NativeBaseProvider, Box, VStack, Button, ScrollView } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
@@ -8,13 +8,14 @@ import CarStore from '@mobx/stores/car';
 import FormInput from '@components/form/FormInput';
 import { CarRequestModel } from '@models/car';
 import FormSelect from '@components/form/FormSelect';
+import { Container } from 'typedi';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
 
 const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
-  const carBrandStore = useContext(CarBrandStore);
-  const carModelStore = useContext(CarModelStore);
-  const carStore = useContext(CarStore);
+  const carBrandStore = Container.get(CarBrandStore);
+  const carModelStore = Container.get(CarModelStore);
+  const carStore = Container.get(CarStore);
   const [brand, setBrand] = useState('');
 
   const [car, setCar] = useState<CarRequestModel>({

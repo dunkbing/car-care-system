@@ -38,6 +38,7 @@ module.exports = {
           '@screens': './src/screens',
         }
       }
-    ]
+    ],
+    ['@babel/plugin-proposal-decorators', { 'legacy': true }],
   ],
 };

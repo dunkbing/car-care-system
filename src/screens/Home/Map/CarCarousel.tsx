@@ -1,5 +1,5 @@
 import { VStack, Text, View, Spinner } from 'native-base';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Dimensions, ListRenderItemInfo, StyleSheet } from 'react-native';
 import SmoothPicker from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -7,6 +7,7 @@ import CarStore from '@mobx/stores/car';
 import { CarModel } from '@models/car';
 import { observer } from 'mobx-react';
 import { STATES } from '@utils/constants';
+import { Container } from 'typedi';
 
 const { width } = Dimensions.get('screen');
 
@@ -57,7 +58,7 @@ const ItemToRender = ({ item, index }: ListRenderItemInfo<CarModel>, indexSelect
 };
 
 function CarCarousel() {
-  const carStore = useContext(CarStore);
+  const carStore = Container.get(CarStore);
   const cars = carStore.cars;
 
   useEffect(() => {

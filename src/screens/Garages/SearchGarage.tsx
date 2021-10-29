@@ -1,6 +1,6 @@
 import { GarageModel } from '@models/garage';
 import { Button, HStack, Link, ScrollView, Spinner, Text, View, VStack } from 'native-base';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '@components/SearchBar';
 import { Rating } from 'react-native-ratings';
@@ -12,9 +12,10 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { customerService } from '@mobx/services/customer';
+import { Container } from 'typedi';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
-  const garageStore = useContext(GarageStore);
+  const garageStore = Container.get(GarageStore);
   const bgColor = garageStore.defaultGarage?.id === id ? '#E9F7FF' : 'white';
   const tintColor = garageStore.defaultGarage?.id === id ? '#E9F7FF' : '#f2efe6';
   return (
@@ -42,7 +43,7 @@ const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
 type ScreenProps = StackScreenProps<ProfileStackParams | AuthStackParams, 'SearchGarage'>;
 
 const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
-  const garageStore = useContext(GarageStore);
+  const garageStore = Container.get(GarageStore);
   const onRefresh = React.useCallback(() => {
     void garageStore.searchGarage('');
   }, [garageStore]);

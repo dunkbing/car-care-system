@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Text, View, VStack } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -9,6 +9,7 @@ import { rootNavigation } from '@screens/Navigation/roots';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import GarageStore from '@mobx/stores/garage';
 import { observer } from 'mobx-react';
+import { Container } from 'typedi';
 
 const OptionItem: React.FC<{ text: string; icon?: JSX.Element; onPress?: () => void }> = ({ text, icon, onPress }) => {
   return (
@@ -43,7 +44,7 @@ const OptionItem: React.FC<{ text: string; icon?: JSX.Element; onPress?: () => v
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileOverview'>;
 
 const ProfileSettings: React.FC<Props> = () => {
-  const garageStore = useContext(GarageStore);
+  const garageStore = Container.get(GarageStore);
   return (
     <SafeAreaView>
       <ScrollView style={{ margin: 20 }}>

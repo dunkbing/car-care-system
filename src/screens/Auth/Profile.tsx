@@ -1,7 +1,8 @@
+import React, { useState } from 'react';
 import FormInput from '@components/form/FormInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Avatar, Box, Button, Center, HStack, ScrollView, VStack } from 'native-base';
-import React, { useContext, useState } from 'react';
+import { Container } from 'typedi';
 import AntIcon from 'react-native-vector-icons/AntDesign';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
@@ -12,7 +13,7 @@ type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
 const Profile: React.FC<Props> = () => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
-  const authStore = useContext(AuthStore);
+  const authStore = Container.get(AuthStore);
   const [user, setUser] = useState({ ...authStore.user });
   return (
     <ScrollView

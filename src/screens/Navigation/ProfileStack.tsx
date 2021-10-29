@@ -8,6 +8,7 @@ import RescueHistory from '@screens/Garages/RescueHistory';
 import { ChangePassword } from '@screens/Auth';
 import { navHeaderStyle } from './roots';
 import SearchGarage from '@screens/Garages/SearchGarage';
+import DefineCarModel from '@screens/Car/DefineCarModel';
 
 const ProfileStackNav = createNativeStackNavigator<ProfileStackParams>();
 
@@ -17,7 +18,8 @@ export const ProfileStack: React.FC<Props> = () => {
   return (
     <ProfileStackNav.Navigator>
       <ProfileStackNav.Screen name='ProfileInfo' component={Profile} options={{ headerShown: false }} />
-      <ProfileStackNav.Screen name='CarInfo' component={CarStatus} options={{ headerShown: false }} />
+      <ProfileStackNav.Screen name='CarInfo' component={CarStatus} options={{ title: 'Danh sách xe', ...navHeaderStyle }} />
+      <ProfileStackNav.Screen name='DefineCarModel' component={DefineCarModel} options={{ title: 'Danh sách xe', ...navHeaderStyle }} />
       <ProfileStackNav.Screen
         name='DefaultGarage'
         component={DefaultGarage}

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl, Select, CheckIcon } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl } from 'native-base';
 import FormInput from '@components/form/FormInput';
 import { RegisterQueryModel, registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
@@ -9,6 +9,7 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { authService } from '@mobx/services/auth';
 import DialogStore from '@mobx/stores/dialog';
 import toast from '@utils/toast';
+import FormSelect from '@components/form/FormSelect';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
@@ -35,7 +36,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
         }}
       >
         <Box safeArea flex={1} p={2} w='90%' mx='auto'>
-          <VStack space={2} mt={-5}>
+          <VStack space={2}>
             <Formik
               validationSchema={registerValidationSchema}
               initialValues={{ firstName: '', lastName: '', phoneNumber: '', email: '', password: '', confirmPassword: '' }}
@@ -110,25 +111,22 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     onBlur={handleBlur('confirmPassword')}
                     errorMessage={errors.password}
                   />
+                  <FormSelect
+                    label='Loại khách hàng'
+                    value={typeCustomer}
+                    items={[
+                      { label: 'Cá nhân', value: 'Cá nhân' },
+                      { label: 'Doanh nghiệp', value: 'Doanh nghiệp' },
+                    ]}
+                    onValueChange={(value) => setTypeCustomer(value)}
+                    selectProps={{
+                      accessibilityLabel: 'Loại khách hàng',
+                      placeholder: 'Loại khách hàng',
+                    }}
+                  />
                   <FormControl.Label>
                     <Text bold>Loại khách hàng</Text>
                   </FormControl.Label>
-                  <Select
-                    selectedValue={typeCustomer}
-                    minWidth='200'
-                    accessibilityLabel='Loại khách hàng'
-                    placeholder='Loại khách hàng'
-                    _selectedItem={{
-                      bg: 'teal.600',
-                      endIcon: <CheckIcon size='5' />,
-                    }}
-                    mb={1}
-                    mt={-2}
-                    onValueChange={(itemValue) => setTypeCustomer(itemValue)}
-                  >
-                    <Select.Item label='Cá nhân' value='cá nhân' />
-                    <Select.Item label='Doanh nghiệp' value='doanh nghiệp' />
-                  </Select>
                   <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
                     <Button

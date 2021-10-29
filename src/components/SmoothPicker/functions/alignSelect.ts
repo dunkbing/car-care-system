@@ -12,12 +12,22 @@ export default function (
   try {
     if (option) {
       let newPosition;
-      if (itemIndex === 0) {
-        newPosition = horizontal ? option.left + 1.5 * option.layout.width : option.top + 1.5 * option.layout.width;
-      } else if (itemIndex === totalItems - 1) {
-        newPosition = horizontal ? option.left - option.layout.width / 2 : option.top - option.layout.width / 2;
+      if (totalItems >= 3) {
+        if (itemIndex === 0) {
+          newPosition = horizontal ? option.left + 1.5 * option.layout.width : option.top + 1.5 * option.layout.width;
+        } else if (itemIndex === totalItems - 1) {
+          newPosition = horizontal ? option.left - option.layout.width / 2 : option.top - option.layout.width / 2;
+        } else {
+          newPosition = horizontal ? option.left + option.layout.width / 2 : option.top + option.layout.width / 2;
+        }
+      } else if (totalItems === 2) {
+        if (itemIndex === 0) {
+          newPosition = horizontal ? option.left + option.layout.width : option.top + option.layout.width / 2;
+        } else {
+          newPosition = horizontal ? option.layout.width : option.top - option.layout.width / 2;
+        }
       } else {
-        newPosition = horizontal ? option.left + option.layout.width / 2 : option.top + option.layout.width / 2;
+        newPosition = horizontal ? option.layout.width / 2 : option.top;
       }
       if (refFlatlist.current !== null) {
         refFlatlist.current.scrollToOffset({

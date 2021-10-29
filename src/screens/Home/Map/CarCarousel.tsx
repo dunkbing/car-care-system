@@ -1,8 +1,12 @@
-import { VStack, Text, View } from 'native-base';
-import React from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
+import { VStack, Text, View, Spinner } from 'native-base';
+import React, { useContext, useEffect } from 'react';
+import { Dimensions, ListRenderItemInfo, StyleSheet } from 'react-native';
 import SmoothPicker from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
+import CarStore from '@mobx/stores/car';
+import { CarModel } from '@models/car';
+import { observer } from 'mobx-react';
+import { STATES } from '@utils/constants';
 
 const { width } = Dimensions.get('screen');
 
@@ -24,21 +28,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const data = [
-  { name: 'Toyota', license: '30-T8 1147' },
-  { name: 'Mazda', license: '30-T8 3045' },
-  { name: 'Chevrolet', license: '30-T8 2159' },
-  // { name: 'Chevrolet', license: '29-T8 2159' },
-];
-
-const Item = React.memo(({ selected, name, license }: any) => {
+const Item = React.memo(({ selected, name, license, width }: any) => {
   const color = selected ? '#3F87F2' : 'grey';
   return (
     <VStack
       style={[
         styles.optionWrapper,
         {
-          width: (width * 0.9) / 3,
+          width,
         },
       ]}
     >
@@ -53,13 +50,20 @@ const Item = React.memo(({ selected, name, license }: any) => {
   );
 });
 
-const ItemToRender = ({ item, index }: any, indexSelected: number) => {
+const ItemToRender = ({ item, index }: ListRenderItemInfo<CarModel>, indexSelected: number, width: number) => {
   const selected = index === indexSelected;
 
-  return <Item selected={selected} name={item.name} license={item.license} />;
+  return <Item selected={selected} name={item.brandName} license={item.licenseNumber} width={width} />;
 };
 
-export default function CarCarousel() {
+function CarCarousel() {
+  const carStore = useContext(CarStore);
+  const cars = carStore.cars;
+
+  useEffect(() => {
+    void carStore.getCars();
+  }, [carStore]);
+
   function handleChange(index: number) {
     setSelected(index);
   }
@@ -68,22 +72,30 @@ export default function CarCarousel() {
 
   return (
     <View py='2' style={styles.wrapperVertical}>
-      <SmoothPicker
-        initialScrollToIndex={selected}
-        scrollEnabled={data.length > 3}
-        onScrollToIndexFailed={() => {}}
-        keyExtractor={(_, index) => index.toString()}
-        showsVerticalScrollIndicator={false}
-        data={data}
-        scrollAnimation
-        onSelected={({ index }) => handleChange(index)}
-        renderItem={(option) => ItemToRender(option, selected)}
-        magnet
-        selectOnPress
-        horizontal
-        startMargin={0}
-        endMargin={0}
-      />
+      {carStore.state === STATES.LOADING ? (
+        <Spinner />
+      ) : (
+        <SmoothPicker
+          initialScrollToIndex={selected}
+          scrollEnabled={cars.length > 3}
+          onScrollToIndexFailed={() => {}}
+          keyExtractor={(_, index) => index.toString()}
+          showsVerticalScrollIndicator={false}
+          data={cars}
+          scrollAnimation
+          onSelected={({ index }) => handleChange(index)}
+          renderItem={(option: ListRenderItemInfo<CarModel>) =>
+            ItemToRender(option, selected, (width * 0.9) / (cars.length <= 3 ? cars.length : 3))
+          }
+          magnet
+          selectOnPress
+          horizontal
+          startMargin={0}
+          endMargin={0}
+        />
+      )}
     </View>
   );
 }
+
+export default observer(CarCarousel);

@@ -1,7 +1,14 @@
-import React from 'react';
-import { NativeBaseProvider, Box, HStack, Button, Text, VStack, ScrollView, Image, View } from 'native-base';
+import React, { useEffect } from 'react';
+import { NativeBaseProvider, Box, HStack, Button, Text, VStack, ScrollView, Image, View, Spinner } from 'native-base';
 import { DefaultCar } from '@assets/images';
-const CarView: React.FC = () => {
+import { observer } from 'mobx-react';
+import { CarModel } from '@models/car';
+import CarStore from '@mobx/stores/car';
+import { ProfileStackParams } from '@screens/Navigation/params';
+import { StackScreenProps } from '@react-navigation/stack';
+import { STATES } from '@utils/constants';
+
+const CarView: React.FC<Pick<CarModel, 'modelName' | 'licenseNumber' | 'imageUrl'>> = ({ modelName, licenseNumber, imageUrl }) => {
   return (
     <View
       marginTop={2}
@@ -22,17 +29,29 @@ const CarView: React.FC = () => {
       }}
     >
       <HStack space={2} mt={1} style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-        <Image source={DefaultCar} alt='Alternate Text' size={'sm'} mt={-1} mr={-10} />
+        <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='Alternate Text' size={'sm'} mt={-1} mr={-10} />
         <VStack space={2}>
-          <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>Mercedes C300 - 2019</Text>
-          <Text style={{ marginLeft: 10 }}>30A 13045</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>{modelName}</Text>
+          <Text style={{ marginLeft: 10 }}>{licenseNumber}</Text>
         </VStack>
       </HStack>
     </View>
   );
 };
 
-const CarStatus: React.FC = () => {
+type Props = StackScreenProps<ProfileStackParams, 'SearchGarage'>;
+
+const CarStatus: React.FC<Props> = ({ navigation }) => {
+  const carStore = React.useContext(CarStore);
+  function createCar() {
+    navigation.navigate('DefineCarModel', { loggedIn: true });
+  }
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', () => {
+      void carStore.getCars();
+    });
+    return unsub;
+  }, [carStore, navigation]);
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' mx='auto'>
@@ -40,14 +59,16 @@ const CarStatus: React.FC = () => {
           _contentContainerStyle={{
             px: '20px',
             mb: '4',
+            pt: '4',
           }}
         >
-          <CarView />
-          <CarView />
-          <CarView />
-          <CarView />
-          <CarView />
-          <Button style={{ alignSelf: 'center', width: '40%', height: 40, marginTop: 10 }} colorScheme='green' _text={{ color: 'white' }}>
+          {carStore.state === STATES.LOADING ? <Spinner size='lg' /> : carStore.cars.map((car) => <CarView key={car.id} {...car} />)}
+          <Button
+            onPress={createCar}
+            style={{ alignSelf: 'center', width: '40%', height: 40, marginTop: 10 }}
+            colorScheme='green'
+            _text={{ color: 'white' }}
+          >
             Thêm xe
           </Button>
         </ScrollView>
@@ -56,4 +77,4 @@ const CarStatus: React.FC = () => {
   );
 };
 
-export default CarStatus;
+export default observer(CarStatus);

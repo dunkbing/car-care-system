@@ -25,6 +25,7 @@ export type ProfileStackParams = {
   ProfileOverview: undefined;
   ProfileInfo: undefined;
   CarInfo: undefined;
+  DefineCarModel: { loggedIn: boolean };
   DefaultGarage: undefined;
   SearchGarage: undefined;
   RescueHistory: undefined;

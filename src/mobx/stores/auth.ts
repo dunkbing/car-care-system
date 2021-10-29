@@ -26,7 +26,7 @@ class AuthStore {
       runInAction(() => {
         this.user = user;
         this.state = STATES.SUCCESS;
-        setHeader('Authorization', this.user?.accessToken as string);
+        setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
       });
   }
 }

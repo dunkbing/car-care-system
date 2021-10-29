@@ -48,14 +48,16 @@ const FormSelect: React.FC<Props> = ({
           <Select.Item key={`${item.label}-${item.value}`} label={item.label} value={item.value} />
         ))}
       </Select>
-      <Center>
-        <FormControl.ErrorMessage
-          _text={{ fontSize: 'xs', color: 'error.500', fontWeight: 500 }}
-          leftIcon={<WarningOutlineIcon size='xs' />}
-        >
-          {errorMessage}
-        </FormControl.ErrorMessage>
-      </Center>
+      {errorMessage && (
+        <Center>
+          <FormControl.ErrorMessage
+            _text={{ fontSize: 'xs', color: 'error.500', fontWeight: 500 }}
+            leftIcon={<WarningOutlineIcon size='xs' />}
+          >
+            {errorMessage}
+          </FormControl.ErrorMessage>
+        </Center>
+      )}
     </FormControl>
   );
 };

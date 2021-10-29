@@ -1,10 +1,11 @@
 import React from 'react';
+import { NativeBaseProvider } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
-import { NativeBaseProvider } from 'native-base';
-import { AuthStack, HomeStack, ProfileStack, rootNavigation, RootStack } from './screens/Navigation';
-import Dialog from '@components/dialog';
 import axios from 'axios';
+
+import { AuthStack, HomeStack, ProfileStack, rootNavigation, RootStack } from '@screens/Navigation';
+import Dialog from '@components/dialog';
 import { API_URL } from '@env';
 
 axios.defaults.baseURL = API_URL;

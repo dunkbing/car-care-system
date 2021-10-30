@@ -1,10 +1,12 @@
+import 'reflect-metadata';
 import { GarageModel } from '@models/garage';
-import { garageService } from '@mobx/services/garage';
+import GarageService from '@mobx/services/garage';
 import { STATES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { createContext } from 'react';
+import Container, { Service } from 'typedi';
 
-class GarageStore {
+@Service()
+export default class GarageStore {
   constructor() {
     makeObservable(this, {
       state: observable,
@@ -13,6 +15,8 @@ class GarageStore {
       searchGarage: action,
     });
   }
+
+  private readonly garageService = Container.get(GarageService);
 
   state: STATES = STATES.IDLE;
   defaultGarage: GarageModel | null = null;
@@ -26,7 +30,7 @@ class GarageStore {
 
   public async searchGarage(keyword: string) {
     this.state = STATES.LOADING;
-    const { result, error } = await garageService.searchGarages(keyword);
+    const { result, error } = await this.garageService.searchGarages(keyword);
 
     if (error) {
       runInAction(() => {
@@ -41,5 +45,3 @@ class GarageStore {
     }
   }
 }
-
-export default createContext(new GarageStore());

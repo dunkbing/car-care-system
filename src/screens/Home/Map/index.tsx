@@ -20,6 +20,7 @@ import { mapService } from '@mobx/services/map';
 import { RescueStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
 import Marker from './Marker';
+import { Container } from 'typedi';
 
 Logger.setLogCallback((log) => {
   const { message } = log;
@@ -62,7 +63,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     rescueState: RescueState.IDLE,
   });
   const [places, setPlaces] = useState<Place[]>([]);
-  const garageStore = useContext(GarageStore);
+  const garageStore = Container.get(GarageStore);
   const dialogStore = useContext(DialogStore);
 
   useEffect(() => {

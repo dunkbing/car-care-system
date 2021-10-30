@@ -1,22 +1,24 @@
 import { LoginQueryModel, User } from '@models/customer';
-import { authService } from '@mobx/services/auth';
+import AuthService from '@mobx/services/auth';
 import { STATES } from '@utils/constants';
 import { makeObservable, observable, runInAction } from 'mobx';
-import { createContext } from 'react';
 import { setHeader, withProgress } from '@mobx/services/config';
+import Container, { Service } from 'typedi';
 
-class AuthStore {
+@Service()
+export default class AuthStore {
   constructor() {
     makeObservable(this, {
       state: observable,
       user: observable,
     });
   }
+  private readonly authService = Container.get(AuthService);
   state: STATES = STATES.IDLE;
   user: User | null = null;
 
   public async login(loginQuery: LoginQueryModel) {
-    const { result: user, error } = await withProgress(authService.login(loginQuery));
+    const { result: user, error } = await withProgress(this.authService.login(loginQuery));
     if (error) {
       runInAction(() => {
         this.user = null;
@@ -30,7 +32,3 @@ class AuthStore {
       });
   }
 }
-
-export { AuthStore };
-
-export default createContext(new AuthStore());

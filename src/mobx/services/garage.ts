@@ -1,10 +1,13 @@
+import 'reflect-metadata';
 import { GarageModel } from '@models/garage';
 import axios, { AxiosResponse } from 'axios';
+import { Service } from 'typedi';
 import { WithPagination, ResponseSingular, ServiceResult } from './config';
 
 const path = 'garages';
 
-class GarageService {
+@Service()
+export default class GarageService {
   public async getGarageById(id: number): Promise<ServiceResult<GarageModel>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponseSingular<GarageModel>>>(`${path}/${id}`);
@@ -38,5 +41,3 @@ class GarageService {
 
   }
 }
-
-export const garageService = new GarageService();

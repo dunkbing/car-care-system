@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Button, Center, HStack, Image, ScrollView, Text, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -10,6 +10,7 @@ import { GarageModel } from '@models/garage';
 import { observer } from 'mobx-react';
 import { Linking, TouchableOpacity } from 'react-native';
 import { headerColor } from '@screens/shared/colors';
+import Container from 'typedi';
 
 const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber }) => {
   return (
@@ -64,7 +65,7 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
 type Props = StackScreenProps<ProfileStackParams, 'DefaultGarage'>;
 
 const DefaultGarage: React.FC<Props> = ({ navigation }) => {
-  const { defaultGarage } = useContext(GarageStore);
+  const { defaultGarage } = Container.get(GarageStore);
   function changeDefaultGarage() {
     navigation.navigate('SearchGarage');
   }

@@ -1,10 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 import { ResponsePlural, ResponseSingular, ServiceResult } from './config';
 import { CarModel, CarRequestModel, CarResponseModel } from '@models/car';
+import { Service } from 'typedi';
 
 const path = 'cars';
 
-class CarService {
+@Service()
+export default class CarService {
   public async getCars(): Promise<ServiceResult<CarResponseModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarResponseModel>>>(`${path}`);
@@ -32,5 +34,3 @@ class CarService {
     }
   }
 }
-
-export const carService = new CarService();

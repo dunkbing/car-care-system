@@ -1,9 +1,11 @@
-import { modelService } from '@mobx/services/car-model';
+import CarModelService from '@mobx/services/car-model';
 import { CarModelModel } from '@models/car-model';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { createContext } from 'react';
+import Container, { Service } from 'typedi';
 
-class CarModelStore {
+@Service()
+export default class CarModelStore {
+  private readonly modelService = Container.get(CarModelService);
   constructor() {
     makeObservable(this, {
       models: observable,
@@ -14,7 +16,7 @@ class CarModelStore {
   models: Array<CarModelModel> = [];
 
   public async getModels(brandId: number) {
-    const { error, result } = await modelService.getModels(brandId);
+    const { error, result } = await this.modelService.getModels(brandId);
 
     if (error) {
       runInAction(() => {
@@ -28,5 +30,3 @@ class CarModelStore {
     }
   }
 }
-
-export default createContext(new CarModelStore());

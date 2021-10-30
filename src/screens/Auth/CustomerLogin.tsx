@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
+import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
 import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
@@ -15,8 +16,7 @@ import { STATES } from '@utils/constants';
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 
 const CustomerLogin: React.FC<Props> = ({ navigation }) => {
-  // const [login, { isLoading: isLoggingIn, isError, error }] = useLoginMutation();
-  const authStore = useContext(AuthStore);
+  const authStore = Container.get(AuthStore);
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values);
 

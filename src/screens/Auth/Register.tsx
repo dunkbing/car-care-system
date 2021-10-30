@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView, FormControl } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
 import { RegisterQueryModel, registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
@@ -124,9 +124,6 @@ const Register: React.FC<Props> = ({ navigation }) => {
                       placeholder: 'Loại khách hàng',
                     }}
                   />
-                  <FormControl.Label>
-                    <Text bold>Loại khách hàng</Text>
-                  </FormControl.Label>
                   <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
                     <Button

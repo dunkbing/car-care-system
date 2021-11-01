@@ -1,62 +1,32 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
-import { Text, View, VStack } from 'native-base';
+import { VStack } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { rootNavigation } from '@screens/Navigation/roots';
-import { ProfileStackParams } from '@screens/Navigation/params';
+import { CustomerTabParams } from '@screens/Navigation/params';
 import GarageStore from '@mobx/stores/garage';
 import { observer } from 'mobx-react';
 import { Container } from 'typedi';
+import OptionProfile from './OptionProfile';
+import OptionItem from './OptionItem';
+import AuthStore from '@mobx/stores/auth';
 
-const OptionItem: React.FC<{ text: string; icon?: JSX.Element; onPress?: () => void }> = ({ text, icon, onPress }) => {
-  return (
-    <View
-      style={{
-        marginLeft: 10,
-        marginRight: 10,
-        borderBottomColor: 'rgba(0, 0, 0, .2)',
-        borderBottomWidth: 1,
-      }}
-    >
-      <TouchableOpacity onPress={onPress}>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-          }}
-        >
-          {icon}
-          <Text bold style={{ flex: 1, marginLeft: 10, marginBottom: 15, marginTop: 15 }}>
-            {text}
-          </Text>
-          <Text bold style={{ color: '#4c85e0', marginBottom: 15, marginTop: 15, alignSelf: 'flex-end', textAlign: 'right' }}>
-            {'>'}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-};
+type Props = NativeStackScreenProps<CustomerTabParams, 'ProfileHome'>;
 
-type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileOverview'>;
-
-const ProfileSettings: React.FC<Props> = () => {
+const CustomerSettings: React.FC<Props> = () => {
   const garageStore = Container.get(GarageStore);
+  const authStore = Container.get(AuthStore);
   return (
     <SafeAreaView>
       <ScrollView style={{ margin: 20 }}>
         <VStack mt='10'>
+          <OptionProfile />
           <OptionItem
             text='Thông tin cá nhân'
-            onPress={() =>
-              rootNavigation.navigate('Profile', {
-                screen: 'ProfileInfo',
-              })
-            }
-            icon={<MatCommuIcon name='account' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
+            onPress={() => rootNavigation.navigate('Profile', { screen: 'ProfileInfo' })}
+            icon={<MatCommuIcon name='account-circle-outline' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
           <OptionItem
             text='Danh sách xe'
@@ -94,7 +64,7 @@ const ProfileSettings: React.FC<Props> = () => {
           />
           <OptionItem
             text='Đăng xuất'
-            onPress={() => rootNavigation.navigate('Auth', { screen: 'ChooseMethod' })}
+            onPress={() => authStore.logout()}
             icon={<MatCommuIcon name='logout' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
         </VStack>
@@ -103,4 +73,4 @@ const ProfileSettings: React.FC<Props> = () => {
   );
 };
 
-export default observer(ProfileSettings);
+export default observer(CustomerSettings);

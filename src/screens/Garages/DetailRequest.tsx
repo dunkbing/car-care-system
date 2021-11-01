@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import { DefaultCar } from '@assets/images';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
 const Label: React.FC<{ name: string }> = (props) => {
   return (
@@ -16,7 +18,9 @@ const Label: React.FC<{ name: string }> = (props) => {
   );
 };
 
-const DetailRequest: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
+
+const DetailRequest: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <VStack
@@ -69,8 +73,12 @@ const DetailRequest: React.FC = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Button style={{ width: 130, backgroundColor: '#34A853' }}>Chấp nhận</Button>
-          <Button style={{ width: 130, backgroundColor: '#EA4335' }}>Từ chối</Button>
+          <Button onPress={() => navigation.navigate('ManageStaffs', { rescue: true })} style={{ width: 130, backgroundColor: '#34A853' }}>
+            Chọn nhân viên
+          </Button>
+          <Button onPress={() => navigation.navigate('RejectRequest')} style={{ width: 130, backgroundColor: '#EA4335' }}>
+            Từ chối
+          </Button>
         </View>
       </VStack>
     </NativeBaseProvider>

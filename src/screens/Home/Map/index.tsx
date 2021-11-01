@@ -21,6 +21,7 @@ import { RescueStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
 import Marker from './Marker';
 import { Container } from 'typedi';
+import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 
 Logger.setLogCallback((log) => {
   const { message } = log;
@@ -39,6 +40,7 @@ const { height } = Dimensions.get('screen');
 export enum RescueState {
   IDLE,
   ACCEPTED,
+  PENDING,
   REJECTED,
 }
 
@@ -46,7 +48,7 @@ type MapState = {
   userLocation: { latitude: number; longitude: number };
   rescueLocation?: { latitude: number; longitude: number } | Location;
   garageLocation?: { latitude: number; longitude: number } | Location;
-  rescueRoute?: [number, number][];
+  rescueRoute?: [number, number][] | null;
   garage: GarageModel | null;
   rescueState: RescueState;
 };
@@ -106,54 +108,73 @@ const Map: React.FC<Props> = ({ navigation }) => {
     }
   }
 
+  function acceptSos() {
+    dialogStore.openMsgDialog({
+      message: `${garageStore.defaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
+      type: DIALOG_TYPE.CONFIRM,
+      onAgreed: () => {
+        const { rescueLocation } = mapState;
+        const { location: garaLocation } = garageStore.defaultGarage as GarageModel;
+        if (rescueLocation) {
+          cameraRef.current?.fitBounds(
+            [rescueLocation.longitude, rescueLocation.latitude],
+            [garaLocation.longitude, garaLocation.latitude],
+            150,
+            1.5,
+          );
+          void mapService
+            .getDirections({
+              api_key: GOONG_API_KEY,
+              origin: `${rescueLocation.latitude},${rescueLocation.longitude}`,
+              destination: `${garaLocation.latitude},${garaLocation.longitude}`,
+            })
+            .then(({ result }) => {
+              if (result?.routes && result.routes.length > 0) {
+                setMapState({
+                  ...mapState,
+                  rescueState: RescueState.ACCEPTED,
+                  rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
+                });
+              }
+            });
+          setMapState({
+            ...mapState,
+            rescueState: RescueState.ACCEPTED,
+          });
+          setTimeout(() => {
+            setMapState({
+              ...mapState,
+              rescueState: RescueState.IDLE,
+              rescueRoute: null,
+            });
+          }, 10000);
+        }
+      },
+    });
+  }
   /**
    * when sos button is clicked.
    */
   function handleSos() {
     if (!garageStore.defaultGarage) {
-      dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', onAgreed: () => {} });
+      dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', type: DIALOG_TYPE.CONFIRM, onAgreed: () => {} });
       return;
     }
     navigation.navigate('DefineCarStatus', {
       onConfirm: () => {
+        const id = setTimeout(() => {
+          acceptSos();
+        }, 5000);
         dialogStore.openMsgDialog({
-          message: `${garageStore.defaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
-          onAgreed: () => {
-            const { rescueLocation } = mapState;
-            const { location: garaLocation } = garageStore.defaultGarage as GarageModel;
-            if (rescueLocation) {
-              cameraRef.current?.fitBounds(
-                [rescueLocation.longitude, rescueLocation.latitude],
-                [garaLocation.longitude, garaLocation.latitude],
-                150,
-                1.5,
-              );
-              void mapService
-                .getDirections({
-                  api_key: GOONG_API_KEY,
-                  origin: `${rescueLocation.latitude},${rescueLocation.longitude}`,
-                  destination: `${garaLocation.latitude},${garaLocation.longitude}`,
-                })
-                .then(({ result }) => {
-                  if (result?.routes && result.routes.length > 0) {
-                    setMapState({
-                      ...mapState,
-                      rescueState: RescueState.ACCEPTED,
-                      rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
-                    });
-                  }
-                });
-              setMapState({
-                ...mapState,
-                rescueState: RescueState.ACCEPTED,
-              });
-              setTimeout(() => {
-                setMapState({
-                  ...mapState,
-                  rescueState: RescueState.IDLE,
-                });
-              }, 10000);
-            }
+          title: 'Chờ garage phản hồi',
+          message: 'Quý khách vui lòng chờ garage phản hồi',
+          type: DIALOG_TYPE.CANCEL,
+          onRefused: () => {
+            clearTimeout(id);
+            setMapState({
+              ...mapState,
+              rescueState: RescueState.REJECTED,
+            });
           },
         });
       },
@@ -270,10 +291,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
                 longitude: result?.result.geometry.location.lng || rescueLocation?.longitude || userLocation.longitude,
               },
             });
-            // cameraRef.current?.fitBounds(
-            //   [result?.result.geometry.location.lng as number, result?.result.geometry.location.lat as number],
-            //   [mapState.userLocation.longitude, mapState.userLocation.latitude],
-            // );
           }}
         />
       </Box>

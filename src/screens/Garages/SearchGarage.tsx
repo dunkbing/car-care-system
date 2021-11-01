@@ -3,23 +3,21 @@ import { Button, HStack, Link, ScrollView, Spinner, Text, View, VStack } from 'n
 import React, { useEffect } from 'react';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '@components/SearchBar';
-import { Rating } from 'react-native-ratings';
+import { AirbnbRating } from 'react-native-ratings';
 import GarageStore from '@mobx/stores/garage';
 import { observer } from 'mobx-react';
 import { STATES } from '@utils/constants';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
-import { rootNavigation } from '@screens/Navigation/roots';
 import { customerService } from '@mobx/services/customer';
 import { Container } from 'typedi';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   const garageStore = Container.get(GarageStore);
   const bgColor = garageStore.defaultGarage?.id === id ? '#E9F7FF' : 'white';
-  const tintColor = garageStore.defaultGarage?.id === id ? '#E9F7FF' : '#f2efe6';
   return (
-    <View mb='5' style={{ backgroundColor: bgColor }} px='3' py='1' rounded='md' shadow='2'>
+    <View mb='5' style={{ backgroundColor: bgColor }} px='3' py='1' rounded='md'>
       <VStack width='100%' mx='3' space={2}>
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
           <Text bold fontSize='lg' style={{ flex: 2 }}>
@@ -32,7 +30,7 @@ const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
         </HStack>
         <HStack alignItems='center' space={2}>
           <Text fontSize='md'>3</Text>
-          <Rating ratingCount={5} imageSize={15} startingValue={3} ratingBackgroundColor='primary.500' tintColor={tintColor} />
+          <AirbnbRating count={5} size={15} defaultRating={3} isDisabled showRating={false} />
           <Text fontSize='md'>(59)</Text>
         </HStack>
       </VStack>
@@ -54,7 +52,7 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
 
   function onDone() {
     if (route.params?.skip) {
-      rootNavigation.navigate('Home');
+      navigation.pop(3);
     } else {
       navigation.goBack();
     }
@@ -73,7 +71,7 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
         placeholder='Tìm garage'
         timeout={500}
         width='90%'
-        onSearch={(text) => {
+        onSearch={(text: string) => {
           void garageStore.searchGarage(text);
         }}
         mt='5'

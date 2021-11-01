@@ -2,7 +2,9 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type StackParams = {
   Auth: NavigatorScreenParams<AuthStackParams>;
-  Home: NavigatorScreenParams<HomeStackParams> | undefined;
+  CustomerHomeTab: NavigatorScreenParams<CustomerTabParams> | undefined;
+  GarageHomeTab: NavigatorScreenParams<GarageTabParams> | undefined;
+  GarageHomeOptions: NavigatorScreenParams<GarageHomeOptionStackParams> | undefined;
   Profile: NavigatorScreenParams<ProfileStackParams>;
   Rescue: NavigatorScreenParams<RescueStackParams>;
 };
@@ -25,16 +27,40 @@ export type ProfileStackParams = {
   ProfileOverview: undefined;
   ProfileInfo: undefined;
   CarInfo: undefined;
+  CarDetail: { carId: number };
   DefineCarModel: { loggedIn: boolean };
   DefaultGarage: undefined;
   SearchGarage: undefined;
   RescueHistory: undefined;
+  EditFeedback: undefined | { username: string };
   ChangePassword: undefined;
 };
 
-export type HomeStackParams = {
+export type CustomerTabParams = {
   RescueHome: undefined;
   ProfileHome: undefined;
+};
+
+export type GarageTabParams = {
+  GarageHome: undefined;
+  PendingRequestHome: undefined;
+  ProfileHome: undefined;
+};
+
+export type GarageHomeOptionStackParams = {
+  GarageOptions: undefined;
+  MyGarage: undefined;
+  ManageStaffs: undefined | { rescue: boolean };
+  AddStaff: undefined;
+  EditStaff: undefined;
+  ManageCustomers: undefined;
+  CustomerCarStatus: undefined;
+  RescueHistory: undefined;
+  DetailHistory: undefined;
+  PendingRescueRequest: undefined;
+  DetailRequest: undefined;
+  DetailAssignedRequest: undefined;
+  RejectRequest: undefined;
 };
 
 export type RescueStackParams = {

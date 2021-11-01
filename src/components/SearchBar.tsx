@@ -4,8 +4,7 @@ import React, { useCallback, useState } from 'react';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import AntIcon from 'react-native-vector-icons/AntDesign';
 import { FlatListProps, ListRenderItemInfo, TextInputProps, TouchableHighlight } from 'react-native';
-import { WidthProps } from 'styled-system';
-import { SpaceProps } from 'native-base/lib/typescript/components/types/SpaceProps';
+import { SpaceProps, WidthProps } from 'styled-system';
 
 type Props = {
   timeout?: number;

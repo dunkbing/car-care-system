@@ -5,3 +5,9 @@ export enum STATES {
   SUCCESS,
   ERROR,
 }
+
+export enum USER_TYPES {
+  CUSTOMER,
+  GARAGE_MANAGER,
+  GARAGE_STAFF,
+}

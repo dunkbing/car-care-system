@@ -1,5 +1,5 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { CarModel, CarRequestModel } from '@models/car';
+import { CarModel, CreateCarRequestModel } from '@models/car';
 import CarService from '@mobx/services/car';
 import { STATES } from '@utils/constants';
 import { withProgress } from '@mobx/services/config';
@@ -21,10 +21,12 @@ export default class CarStore {
 
   public async getCars() {
     this.state = STATES.LOADING;
-    const { result, error } = await this.carService.getCars();
+    const { result, error } = await this.carService.find();
 
     if (error) {
-      this.state = STATES.ERROR;
+      runInAction(() => {
+        this.state = STATES.ERROR;
+      });
     } else {
       const cars = result || [];
       runInAction(() => {
@@ -34,9 +36,9 @@ export default class CarStore {
     }
   }
 
-  public async createCar(car: CarRequestModel) {
+  public async createCar(car: CreateCarRequestModel) {
     this.state = STATES.LOADING;
-    const { error } = await withProgress(this.carService.createCar(car));
+    const { error } = await withProgress(this.carService.create(car));
 
     runInAction(() => {
       this.state = error ? STATES.ERROR : STATES.SUCCESS;

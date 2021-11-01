@@ -1,20 +1,22 @@
 import React, { useContext } from 'react';
 import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
-import { RegisterQueryModel, registerValidationSchema } from '@models/customer';
+import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
 import { GoogleLogo } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
-import { authService } from '@mobx/services/auth';
+import AuthService from '@mobx/services/auth';
 import DialogStore from '@mobx/stores/dialog';
 import toast from '@utils/toast';
 import FormSelect from '@components/form/FormSelect';
+import Container from 'typedi';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
 const Register: React.FC<Props> = ({ navigation }) => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
+  const authService = Container.get(AuthService);
   const dialogStore = useContext(DialogStore);
   async function onRegisterSubmit(values: RegisterQueryModel) {
     dialogStore.openProgressDialog();
@@ -39,7 +41,17 @@ const Register: React.FC<Props> = ({ navigation }) => {
           <VStack space={2}>
             <Formik
               validationSchema={registerValidationSchema}
-              initialValues={{ firstName: '', lastName: '', phoneNumber: '', email: '', password: '', confirmPassword: '' }}
+              initialValues={{
+                firstName: '',
+                lastName: '',
+                phoneNumber: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+                address: 'a',
+                typeCustomer: '',
+                gender: Gender.Male,
+              }}
               // eslint-disable-next-line @typescript-eslint/require-await
               onSubmit={onRegisterSubmit}
             >

@@ -1,3 +1,5 @@
 import Map from './Map';
-import ProfileSettings from './ProfileSettings';
-export { Map, ProfileSettings };
+import GarageHome from './GarageHome';
+import CustomerSettings from './ProfileSettings/CustomerSettings';
+import GarageSettings from './ProfileSettings/GarageSettings';
+export { Map, CustomerSettings, GarageSettings, GarageHome };

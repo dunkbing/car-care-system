@@ -8,8 +8,15 @@ import { ProfileStackParams } from '@screens/Navigation/params';
 import { StackScreenProps } from '@react-navigation/stack';
 import { STATES } from '@utils/constants';
 import { Container } from 'typedi';
+import { RefreshControl, TouchableOpacity } from 'react-native';
 
-const CarView: React.FC<Pick<CarModel, 'modelName' | 'licenseNumber' | 'imageUrl'>> = ({ modelName, licenseNumber, imageUrl }) => {
+const CarView: React.FC<Pick<CarModel, 'modelName' | 'brandName' | 'licenseNumber' | 'imageUrl'> & { onPress: OnPress }> = ({
+  modelName,
+  brandName,
+  licenseNumber,
+  imageUrl,
+  onPress,
+}) => {
   return (
     <View
       marginTop={2}
@@ -29,30 +36,40 @@ const CarView: React.FC<Pick<CarModel, 'modelName' | 'licenseNumber' | 'imageUrl
         elevation: 6,
       }}
     >
-      <HStack space={2} mt={1} style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-        <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='Alternate Text' size={'sm'} mt={-1} mr={-10} />
-        <VStack space={2}>
-          <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>{modelName}</Text>
-          <Text style={{ marginLeft: 10 }}>{licenseNumber}</Text>
-        </VStack>
-      </HStack>
+      <TouchableOpacity onPress={onPress}>
+        <HStack space={2} mt={1} style={{ flexDirection: 'row' }}>
+          <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='Alternate Text' w={20} h={20} mt={-1} />
+          <VStack space={2}>
+            <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>
+              {brandName} {modelName}
+            </Text>
+            <Text style={{ marginLeft: 10 }}>{licenseNumber}</Text>
+          </VStack>
+        </HStack>
+      </TouchableOpacity>
     </View>
   );
 };
 
-type Props = StackScreenProps<ProfileStackParams, 'SearchGarage'>;
+type Props = StackScreenProps<ProfileStackParams, 'CarInfo'>;
 
 const CarStatus: React.FC<Props> = ({ navigation }) => {
   const carStore = Container.get(CarStore);
   function createCar() {
     navigation.navigate('DefineCarModel', { loggedIn: true });
   }
+
+  const onRefresh = React.useCallback(() => {
+    void carStore.getCars();
+  }, [carStore]);
+
   useEffect(() => {
     const unsub = navigation.addListener('focus', () => {
       void carStore.getCars();
     });
     return unsub;
-  }, [carStore, navigation]);
+  }, []);
+
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' mx='auto'>
@@ -62,8 +79,21 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
             mb: '4',
             pt: '4',
           }}
+          refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
         >
-          {carStore.state === STATES.LOADING ? <Spinner size='lg' /> : carStore.cars.map((car) => <CarView key={car.id} {...car} />)}
+          {carStore.state === STATES.LOADING ? (
+            <Spinner size='lg' />
+          ) : (
+            carStore.cars.map((car) => (
+              <CarView
+                key={car.id}
+                {...car}
+                onPress={() => {
+                  navigation.navigate('CarDetail', { carId: car.id });
+                }}
+              />
+            ))
+          )}
           <Button
             onPress={createCar}
             style={{ alignSelf: 'center', width: '40%', height: 40, marginTop: 10 }}

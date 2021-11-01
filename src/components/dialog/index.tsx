@@ -13,6 +13,7 @@ const Dialog = () => {
       <MessageDialog
         title={msgDialogState.title}
         message={msgDialogState.message}
+        type={msgDialogState.type}
         state={msgDialogState.state}
         onRefused={msgDialogState.onRefused}
         onAgreed={msgDialogState.onAgreed}

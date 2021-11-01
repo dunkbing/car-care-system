@@ -1,6 +1,8 @@
 import React from 'react';
 import { NativeBaseProvider, Box, HStack, Button, Text, VStack, ScrollView, Image, View } from 'native-base';
 import { DefaultCar } from '@assets/images';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 const CarView: React.FC = () => {
   return (
     <View
@@ -32,7 +34,9 @@ const CarView: React.FC = () => {
   );
 };
 
-const CustomerCarStatus: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'CustomerCarStatus'>;
+
+const CustomerCarStatus: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' mx='auto'>
@@ -60,6 +64,9 @@ const CustomerCarStatus: React.FC = () => {
           <CarView />
           <CarView />
           <Button
+            onPress={() => {
+              navigation.navigate('RescueHistory');
+            }}
             style={{ alignSelf: 'center', width: '100%', height: 40, marginTop: 15 }}
             backgroundColor='#1F87FE'
             _text={{ color: 'white' }}

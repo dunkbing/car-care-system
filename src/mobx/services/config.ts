@@ -20,8 +20,8 @@ export type ResponseError = {
 };
 
 export type Response = {
-  executeStatus: string;
-  executeMessage: string;
+  executeStatus: 'Success' | 'failed';
+  executeMessage: string | null;
   executeCode: number;
 };
 
@@ -77,7 +77,7 @@ export function setHeader(key: string, value: string) {
  * @param promise async openration.
  * @returns promise result
  */
-export async function withProgress<T = any>(promise: Promise<ServiceResult<T>>) {
+export async function withProgress<T = any>(promise: Promise<T>) {
   dialogStore.openProgressDialog({ title: 'Vui lòng đợi' });
   const result = await promise;
   dialogStore.closeProgressDialog();

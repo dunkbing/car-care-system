@@ -24,13 +24,13 @@ export const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) 
         <AlertDialog.Body>
           <Spinner size='lg' accessibilityLabel='Updating department' />
         </AlertDialog.Body>
-        <AlertDialog.Footer>
+        {/* <AlertDialog.Footer>
           <Button.Group space={2}>
             <Button variant='solid' colorScheme='secondary' onPress={onClosed}>
               Hủy
             </Button>
           </Button.Group>
-        </AlertDialog.Footer>
+        </AlertDialog.Footer> */}
       </AlertDialog.Content>
     </AlertDialog>
   );

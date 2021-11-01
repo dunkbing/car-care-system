@@ -4,11 +4,17 @@ import { AlertDialog, Button, Center, Text } from 'native-base';
 import { DialogState } from './ProgressDialog';
 import DialogStore from '@mobx/stores/dialog';
 
+export enum DIALOG_TYPE {
+  CANCEL,
+  CONFIRM,
+  BOTH,
+}
+
 export type MessageDialogProps = {
   title?: any;
   message: any;
   state?: DialogState;
-  cancel?: boolean;
+  type?: DIALOG_TYPE;
   onClosed?: () => void;
   onAgreed?: () => void;
   onRefused?: () => void;
@@ -19,7 +25,7 @@ export enum MessageDialogResult {
   CANCEL,
 }
 
-export function MessageDialog({ title, message, state, cancel, onRefused, onAgreed, onClosed }: MessageDialogProps): ReactElement {
+export function MessageDialog({ title, message, state, type, onRefused, onAgreed, onClosed }: MessageDialogProps): ReactElement {
   const cancelRef = React.useRef<TouchableOpacity>(null);
   const dialogStore = useContext(DialogStore);
   function handleClose(close: (() => void) | undefined) {
@@ -30,7 +36,7 @@ export function MessageDialog({ title, message, state, cancel, onRefused, onAgre
   }
 
   const buttons = () => {
-    if (cancel) {
+    if (type === DIALOG_TYPE.BOTH) {
       return (
         <Button.Group space={2}>
           <Button variant='solid' colorScheme='secondary' onPress={handleClose(onRefused)}>
@@ -41,20 +47,32 @@ export function MessageDialog({ title, message, state, cancel, onRefused, onAgre
           </Button>
         </Button.Group>
       );
-    }
-    return (
-      <Center>
-        <Button variant='solid' colorScheme='primary' onPress={handleClose(onAgreed)} ref={cancelRef}>
-          Xác nhận
+    } else if (type === DIALOG_TYPE.CANCEL) {
+      return (
+        <Button variant='solid' colorScheme='secondary' onPress={handleClose(onRefused)} ref={cancelRef}>
+          Hủy
         </Button>
-      </Center>
-    );
+      );
+    } else {
+      return (
+        <Center>
+          <Button variant='solid' colorScheme='primary' onPress={handleClose(onAgreed)} ref={cancelRef}>
+            Xác nhận
+          </Button>
+        </Center>
+      );
+    }
   };
+
   return (
     <AlertDialog leastDestructiveRef={cancelRef} isOpen={state === DialogState.OPEN} onClose={handleClose(onClosed)}>
       <AlertDialog.Content backgroundColor='white'>
         {/* <AlertDialog.CloseButton /> */}
-        {title && <AlertDialog.Header>{title}</AlertDialog.Header>}
+        {title && (
+          <Center>
+            <AlertDialog.Header>{title}</AlertDialog.Header>
+          </Center>
+        )}
         <AlertDialog.Body>
           <Text fontSize='24' textAlign='center'>
             {message}

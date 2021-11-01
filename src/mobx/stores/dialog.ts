@@ -1,4 +1,4 @@
-import { MessageDialogProps } from '@components/dialog/MessageDialog';
+import { DIALOG_TYPE, MessageDialogProps } from '@components/dialog/MessageDialog';
 import { DialogState, ProgressDialogProps } from '@components/dialog/ProgressDialog';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
@@ -18,6 +18,7 @@ class DialogStore {
     title: '',
     message: '',
     state: DialogState.CLOSE,
+    type: DIALOG_TYPE.CANCEL,
   };
   progressDialogState: ProgressDialogProps = {
     title: 'Vui lòng đợi',
@@ -30,7 +31,7 @@ class DialogStore {
         (this.msgDialogState = {
           title: config.title,
           message: config.message,
-          cancel: config.cancel,
+          type: config.type,
           onAgreed: config.onAgreed,
           onClosed: config.onClosed,
           onRefused: config.onRefused,

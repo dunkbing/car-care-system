@@ -11,6 +11,7 @@ export default class BrandStore {
       brands: observable,
       getBrands: action,
     });
+    void this.getBrands();
   }
 
   brands: Array<CarBrandModel> = [];

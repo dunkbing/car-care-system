@@ -1,8 +1,10 @@
 import React from 'react';
 import { Text, ScrollView, View, VStack, Center, Button } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
-const RescueRequest: React.FC = ({ customerName, address, phoneNumber }: any) => {
+const RescueRequest: React.FC = ({ customerName, address, phoneNumber, onPress }: any) => {
   return (
     <View
       style={{
@@ -53,6 +55,7 @@ const RescueRequest: React.FC = ({ customerName, address, phoneNumber }: any) =>
         style={{
           backgroundColor: '#34A853',
         }}
+        onPress={onPress}
       >
         Xem chi tiết yêu cầu
       </Button>
@@ -60,7 +63,9 @@ const RescueRequest: React.FC = ({ customerName, address, phoneNumber }: any) =>
   );
 };
 
-const PendingRequest: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'PendingRescueRequest'>;
+
+const PendingRequest: React.FC<Props> = ({ navigation }) => {
   return (
     <ScrollView p={5}>
       <View
@@ -83,11 +88,18 @@ const PendingRequest: React.FC = () => {
         </Center>
       </View>
       <VStack mb={10}>
-        <RescueRequest customerName='Nam Nguyen' address='Km29 Đại lộ Thăng Long, Hà Nội' phoneNumber='0912345678' />
-        <RescueRequest customerName='Nam Nguyen' address='Km29 Đại lộ Thăng Long, Hà Nội' phoneNumber='0912345678' />
-        <RescueRequest customerName='Nam Nguyen' address='Km29 Đại lộ Thăng Long, Hà Nội' phoneNumber='0912345678' />
-        <RescueRequest customerName='Nam Nguyen' address='Km29 Đại lộ Thăng Long, Hà Nội' phoneNumber='0912345678' />
-        <RescueRequest customerName='Nam Nguyen' address='Km29 Đại lộ Thăng Long, Hà Nội' phoneNumber='0912345678' />
+        <RescueRequest
+          onPress={() => navigation.navigate('DetailRequest')}
+          customerName='Nam Nguyen'
+          address='Km29 Đại lộ Thăng Long, Hà Nội'
+          phoneNumber='0912345678'
+        />
+        <RescueRequest
+          onPress={() => navigation.navigate('DetailRequest')}
+          customerName='Nam Nguyen'
+          address='Km29 Đại lộ Thăng Long, Hà Nội'
+          phoneNumber='0912345678'
+        />
       </VStack>
     </ScrollView>
   );

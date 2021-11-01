@@ -4,3 +4,8 @@ export { default as CurrentLocation } from './current-location.png';
 export { default as GoogleLogo } from './google-logo.png';
 export { default as DefaultCar } from './default-car.png';
 export { default as AvatarStaff } from './avatar-staff.png';
+export { default as ScrewDriverWrench } from './screwdriver-and-wrench.png';
+export { default as Customer } from './customer.png';
+export { default as Employees } from './employees.png';
+export { default as ListImg } from './list.png';
+export { default as RequestImg } from './request.png';

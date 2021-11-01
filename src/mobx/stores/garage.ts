@@ -30,7 +30,7 @@ export default class GarageStore {
 
   public async searchGarage(keyword: string) {
     this.state = STATES.LOADING;
-    const { result, error } = await this.garageService.searchGarages(keyword);
+    const { result, error } = await this.garageService.find(keyword);
 
     if (error) {
       runInAction(() => {
@@ -41,6 +41,22 @@ export default class GarageStore {
       runInAction(() => {
         this.state = STATES.SUCCESS;
         this.garages = [...garages];
+      });
+    }
+  }
+
+  public async getOne(id: number) {
+    this.state = STATES.LOADING;
+    const { result, error } = await this.garageService.findOne(id);
+    if (error) {
+      runInAction(() => {
+        this.state = STATES.ERROR;
+      });
+    } else {
+      const garage = result;
+      runInAction(() => {
+        this.state = STATES.SUCCESS;
+        this.setDefaultGarage(garage as GarageModel);
       });
     }
   }

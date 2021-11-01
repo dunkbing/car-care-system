@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, Link, Button, Text, Image } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button } from 'native-base';
 import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -7,7 +7,6 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
-import { GoogleLogo } from '@assets/images';
 import { LoginQueryModel } from '@models/customer';
 import AuthStore from '@mobx/stores/auth';
 import toast from '@utils/toast';
@@ -83,12 +82,6 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
           >
             Quên mật khẩu?
           </Link>
-        </VStack>
-        <VStack alignItems='center'>
-          <Text fontSize='md' mt={10}>
-            Hoặc đăng nhập với
-          </Text>
-          <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
         </VStack>
       </Box>
     </NativeBaseProvider>

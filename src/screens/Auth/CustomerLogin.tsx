@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image, Center } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
@@ -7,7 +7,6 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel, loginValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import { GoogleLogo } from '@assets/images';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
@@ -95,12 +94,6 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
             </Link>
           </HStack>
         </Center>
-        <VStack alignItems='center'>
-          <Text fontSize='md' mt={10}>
-            Hoặc đăng nhập với
-          </Text>
-          <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
-        </VStack>
       </Box>
     </NativeBaseProvider>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, ScrollView, Text, HStack } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
 import CarModelStore from '@mobx/stores/car-model';
@@ -9,6 +9,7 @@ import FormInput from '@components/form/FormInput';
 import { CarRequestModel } from '@models/car';
 import FormSelect from '@components/form/FormSelect';
 import { Container } from 'typedi';
+import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
 
@@ -46,7 +47,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
       >
         <Box safeArea flex={1} p={2} mt={1} w='90%' mx='auto'>
           <VStack space={2}>
-            <VStack space={2} mt={10}>
+            <VStack space={2} mt={7}>
               <FormSelect
                 label='Hãng xe'
                 value={brand}
@@ -91,6 +92,12 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                 label='Năm sản xuất'
                 placeholder='Nhập năm sản xuất'
               />
+              <Button style={{ backgroundColor: '#FFFFFF', marginBottom: 10, borderColor: '#8C8C8C', borderWidth: 1 }}>
+                <HStack space={1}>
+                  <FAFIcon name='upload' size={20} color='#000000' />
+                  <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
+                </HStack>
+              </Button>
               <Button
                 onPress={route.params?.loggedIn ? createCar : chooseGarage}
                 style={{ alignSelf: 'center', width: '40%', height: 40 }}

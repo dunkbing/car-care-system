@@ -11,18 +11,28 @@ import { observer } from 'mobx-react';
 import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
 import { STATES } from '@utils/constants';
+import GarageStore from '@mobx/stores/garage';
+import GarageService from '@mobx/services/garage';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 
 const CustomerLogin: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
+  const garageStore = Container.get(GarageStore);
+  const garageService = Container.get(GarageService);
   async function onLoginSubmit(values: LoginQueryModel) {
-    await authStore.login(values);
+    await authStore.login(values).then(() => {
+      if (authStore.user?.defaultGarageId) {
+        void garageService.findOne(authStore.user.defaultGarageId).then(({ result: garage }) => {
+          garageStore.setDefaultGarage(garage as any);
+        });
+      }
+    });
 
     if (authStore.state === STATES.ERROR) {
       toast.show('Đăng nhập thất bại');
     } else {
-      rootNavigation.navigate('Home');
+      rootNavigation.navigate('CustomerHomeTab');
     }
   }
   return (
@@ -56,7 +66,6 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
                   errorMessage={errors.password}
-                  // keyboardType='visible-password'
                 />
                 <VStack space={2}>
                   <Button
@@ -64,7 +73,6 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
                     colorScheme='green'
                     _text={{ color: 'white' }}
                     onPress={handleSubmit}
-                    // disabled={!isValid || isLoggingIn}
                   >
                     Đăng nhập
                   </Button>

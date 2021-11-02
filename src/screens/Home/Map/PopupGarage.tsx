@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, HStack, Image, Text, VStack } from 'native-base';
-import { Rating } from 'react-native-ratings';
+import { AirbnbRating } from 'react-native-ratings';
 import { TouchableOpacity } from 'react-native';
 
 type Props = {
@@ -30,7 +30,7 @@ const PopupGarage = ({ name, active: activeStatus, rating, totalRating, handleSo
             <Text fontSize='sm'>{activeStatus ? 'Đang hoạt động' : 'Không hoạt động'}</Text>
             <HStack alignItems='center' space={2}>
               <Text fontSize='md'>{rating}</Text>
-              <Rating ratingCount={5} imageSize={15} startingValue={rating} ratingBackgroundColor='primary.500' />
+              <AirbnbRating count={5} size={15} defaultRating={rating} isDisabled showRating={false} />
               <Text fontSize='md'>({totalRating})</Text>
             </HStack>
           </VStack>

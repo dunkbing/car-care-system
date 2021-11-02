@@ -1,47 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, ScrollView, HStack, Text } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, ScrollView, Center, HStack, Text } from 'native-base';
+import FaIcon from 'react-native-vector-icons/FontAwesome';
 import { StackScreenProps } from '@react-navigation/stack';
-import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
+import { ProfileStackParams } from '@screens/Navigation/params';
 import CarModelStore from '@mobx/stores/car-model';
 import CarBrandStore from '@mobx/stores/car-brand';
-import CarStore from '@mobx/stores/car';
 import FormInput from '@components/form/FormInput';
-import { CreateCarRequestModel } from '@models/car';
+import { CarDetailModel } from '@models/car';
 import FormSelect from '@components/form/FormSelect';
 import { Container } from 'typedi';
+import { observer } from 'mobx-react';
+import CarService from '@mobx/services/car';
+import { withProgress } from '@mobx/services/config';
 import { launchImageLibrary } from 'react-native-image-picker';
-import FaIcon from 'react-native-vector-icons/FontAwesome';
 
-type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
+type Props = StackScreenProps<ProfileStackParams, 'CarDetail'>;
 
-const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
+const CarDetail: React.FC<Props> = ({ navigation, route }) => {
   const carBrandStore = Container.get(CarBrandStore);
   const carModelStore = Container.get(CarModelStore);
-  const carStore = Container.get(CarStore);
-  const [brand, setBrand] = useState('');
+  const carService = Container.get(CarService);
 
   useEffect(() => {
     void carBrandStore.getBrands();
-  }, [carBrandStore]);
+    void carService.findOne(route.params.carId).then(({ result }) => {
+      void carModelStore.getModels(result?.brand.id as number);
+      setCar(result as CarDetailModel);
+    });
+  }, [carBrandStore, carModelStore, carService, route.params.carId]);
 
-  const [car, setCar] = useState<CreateCarRequestModel>({
-    modelId: -1,
-    color: '',
-    licenseNumber: '',
-    year: 0,
+  const [car, setCar] = useState<CarDetailModel>({
+    id: 1,
+    brand: {
+      id: 1,
+      name: 'Ford',
+    },
+    model: {
+      id: 1,
+      name: 'Ranger XLT 2.2L 4X4 AT',
+    },
+    year: 2019,
+    color: '#2acaea',
+    licenseNumber: '75A-14519',
+    imageUrl: null,
   });
-  function chooseGarage() {
-    navigation.navigate('SearchGarage', { skip: true });
-  }
 
-  function createCar() {
-    void carStore.createCar(car).then(() => navigation.goBack());
-  }
-
-  function onSelectBrand(brandId: string | number) {
-    setBrand(brandId.toString());
-    void carModelStore.getModels(brandId as number);
-  }
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -50,14 +53,17 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
           mb: '4',
         }}
       >
-        <Box safeArea flex={1} p={2} w='90%' mx='auto'>
+        <Box safeArea flex={1} p={2} mt={1} w='90%' mx='auto'>
           <VStack space={2}>
-            <VStack space={2} mt={5}>
+            <VStack space={2} mt={10}>
               <FormSelect
                 label='Hãng xe'
-                value={brand}
+                value={car.brand.id.toString()}
                 items={carBrandStore.brands.map((brand) => ({ label: brand.name, value: brand.id.toString() }))}
-                onValueChange={onSelectBrand}
+                onValueChange={(value) => {
+                  setCar({ ...car, brand: { id: 1, name: car.brand.name } });
+                  void carModelStore.getModels(Number(value));
+                }}
                 selectProps={{
                   accessibilityLabel: 'Hãng xe',
                   placeholder: 'Chọn hãng xe',
@@ -65,17 +71,28 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
               />
               <FormSelect
                 label='Mẫu xe'
-                value={car.modelId.toString()}
+                value={car.model.id.toString()}
                 items={carModelStore.models.map((model) => ({ label: model.modelName, value: model.id.toString() }))}
                 onValueChange={(value) => {
-                  setCar({ ...car, modelId: Number(value) });
+                  setCar({
+                    ...car,
+                    model: {
+                      id: Number(value),
+                      name: car.model.name,
+                    },
+                  });
                 }}
                 selectProps={{
                   accessibilityLabel: 'Mẫu xe',
                   placeholder: 'Chọn mẫu xe',
                 }}
               />
-              <FormInput onChangeText={(value) => setCar({ ...car, licenseNumber: value })} label='Biển số' placeholder='Nhập biển số' />
+              <FormInput
+                value={car.licenseNumber}
+                onChangeText={(value) => setCar({ ...car, licenseNumber: value })}
+                label='Biển số'
+                placeholder='Nhập biển số'
+              />
               <FormSelect
                 label='Màu xe'
                 value={car.color}
@@ -97,12 +114,6 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                 label='Năm sản xuất'
                 placeholder='Nhập năm sản xuất'
               />
-              <Button style={{ backgroundColor: '#FFFFFF', marginBottom: 10, borderColor: '#8C8C8C', borderWidth: 1 }}>
-                <HStack space={1}>
-                  <FaIcon name='upload' size={20} color='#000000' />
-                  <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
-                </HStack>
-              </Button>
               <Button
                 onPress={() => {
                   launchImageLibrary({ mediaType: 'photo' }, (response) => {
@@ -128,15 +139,38 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                   <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
                 </HStack>
               </Button>
-              <Button
-                mt='1'
-                onPress={route.params?.loggedIn ? createCar : chooseGarage}
-                style={{ alignSelf: 'center', width: '40%', height: 40 }}
-                colorScheme='green'
-                _text={{ color: 'white' }}
-              >
-                {route.params?.loggedIn ? 'Thêm' : 'Tiếp tục'}
-              </Button>
+              <Center>
+                <HStack space={10} mt={5} mb={5}>
+                  <Button
+                    onPress={async () => {
+                      await withProgress(
+                        carService.update({
+                          id: car.id,
+                          modelId: car.model.id,
+                          licenseNumber: car.licenseNumber,
+                          color: car.color,
+                          year: car.year,
+                          avatar: car.avatar,
+                        }),
+                      );
+                      navigation.goBack();
+                    }}
+                    style={{ alignSelf: 'center', width: '40%', height: 40 }}
+                    colorScheme='green'
+                    _text={{ color: 'white' }}
+                  >
+                    Lưu
+                  </Button>
+                  <Button
+                    onPress={() => navigation.goBack()}
+                    style={{ alignSelf: 'center', width: '40%', height: 40 }}
+                    bgColor='#EA4335'
+                    _text={{ color: 'white' }}
+                  >
+                    Hủy
+                  </Button>
+                </HStack>
+              </Center>
             </VStack>
           </VStack>
         </Box>
@@ -145,4 +179,4 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-export default DefineCarModel;
+export default observer(CarDetail);

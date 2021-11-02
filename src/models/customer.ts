@@ -53,6 +53,7 @@ export const registerValidationSchema = yup.object({
     .string()
     .required('Vui lòng xác nhận mật khẩu')
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
+  address: yup.string().required('Không được bỏ trống'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -91,4 +92,6 @@ export type RegisterResponseModel = {
 
 export type User = LoginResponseModel;
 
-export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema>;
+export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
+  gender: Gender;
+};

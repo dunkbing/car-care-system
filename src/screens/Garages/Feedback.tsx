@@ -1,19 +1,31 @@
+import AuthStore from '@mobx/stores/auth';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ProfileStackParams } from '@screens/Navigation/params';
+import { USER_TYPES } from '@utils/constants';
+import { observer } from 'mobx-react';
 import { Button, Center, Text, View, VStack } from 'native-base';
 import React from 'react';
 import { TextInput } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
+import Container from 'typedi';
 
-const Feedback: React.FC = () => {
+type Props = StackScreenProps<ProfileStackParams, 'EditFeedback'>;
+
+const Feedback: React.FC<Props> = ({ navigation, route }) => {
+  const authStore = Container.get(AuthStore);
+  const title = authStore.userType === USER_TYPES.CUSTOMER ? 'Đánh giá dịch vụ đã sử dụng' : 'Gửi góp ý cho khách hàng';
+  const user = authStore.userType === USER_TYPES.CUSTOMER ? 'Garage' : 'Tên khách hàng';
+
   return (
     <VStack>
       <View paddingX={5} paddingY={2}>
         <Center>
           <Text fontSize={'lg'} mb={4} style={{ fontWeight: 'bold' }}>
-            Gửi góp ý cho khách hàng
+            {title}
           </Text>
         </Center>
         <Text fontWeight='bold'>
-          Khách hàng: <Text> John Doe </Text>
+          {user}: <Text>{route.params?.username}</Text>
         </Text>
         <Center>
           <View marginY={10}>
@@ -45,12 +57,15 @@ const Feedback: React.FC = () => {
           />
 
           <Button
+            onPress={() => {
+              navigation.goBack();
+            }}
             style={{
               marginVertical: 50,
               width: '70%',
             }}
           >
-            Gửi đánh giá
+            Gửi phản hồi
           </Button>
         </Center>
       </View>
@@ -58,4 +73,4 @@ const Feedback: React.FC = () => {
   );
 };
 
-export default Feedback;
+export default observer(Feedback);

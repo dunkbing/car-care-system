@@ -8,6 +8,7 @@ import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import AuthStore from '@mobx/stores/auth';
 import FormSelect from '@components/form/FormSelect';
+import { USER_TYPES } from '@utils/constants';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
@@ -65,19 +66,21 @@ const Profile: React.FC<Props> = () => {
             label='Ngày sinh'
             placeholder='Ngày sinh'
             keyboardType='ascii-capable'
-            defaultValue={user?.dateOfBirth || ''}
+            defaultValue={user?.dateOfBirth?.slice(0, 10) || ''}
           />
           <FormInput isRequired label='Địa chỉ' placeholder='Địa chỉ' keyboardType='ascii-capable' defaultValue={user?.address || ''} />
-          <FormSelect
-            label='Loại khách hàng'
-            value={typeCustomer}
-            items={[
-              { value: 'Cá nhân', label: 'Cá nhân' },
-              { value: 'Doanh nghiệp', label: 'Doanh nghiệp' },
-            ]}
-            onValueChange={(value) => setTypeCustomer(value)}
-            selectProps={{ accessibilityLabel: 'Loại khách hàng', placeholder: 'Loại khách hàng' }}
-          />
+          {authStore.userType === USER_TYPES.CUSTOMER && (
+            <FormSelect
+              label='Loại khách hàng'
+              value={typeCustomer}
+              items={[
+                { value: 'Cá nhân', label: 'Cá nhân' },
+                { value: 'Doanh nghiệp', label: 'Doanh nghiệp' },
+              ]}
+              onValueChange={(value) => setTypeCustomer(value)}
+              selectProps={{ accessibilityLabel: 'Loại khách hàng', placeholder: 'Loại khách hàng' }}
+            />
+          )}
         </VStack>
         <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />
         <Center>

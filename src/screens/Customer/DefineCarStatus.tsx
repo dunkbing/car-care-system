@@ -9,8 +9,9 @@ type Props = StackScreenProps<RescueStackParams, 'DefineCarStatus'>;
 
 const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
   const [carStatus, setCarStatus] = React.useState('');
+  const [carStatusDescription, setCarStatusDescription] = React.useState('');
   function handleConfirm() {
-    if (carStatus === '6') {
+    if (carStatus === '6' && !carStatusDescription) {
       toast.show('Vui lòng mô tả tình trạng xe');
       return;
     }
@@ -49,6 +50,8 @@ const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
           onValueChange={(value) => setCarStatus(value)}
         />
         <TextArea
+          value={carStatusDescription}
+          onChangeText={(value) => setCarStatusDescription(value)}
           placeholder={'Nhập mô tả'}
           placeholderTextColor={'#AEA0A0'}
           multiline

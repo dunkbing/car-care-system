@@ -2,19 +2,26 @@ import React from 'react';
 import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
 import SearchBar from '@components/SearchBar';
+import { TouchableOpacity } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
-const Customer: React.FC = () => {
+const Customer: React.FC<{ onPress: () => void }> = ({ onPress }) => {
   return (
-    <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-      <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
-      <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-        Nguyễn Văn Thiện
-      </Text>
-    </HStack>
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
+        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Nguyễn Văn Thiện
+        </Text>
+      </HStack>
+    </TouchableOpacity>
   );
 };
 
-const ManageCustomer: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageCustomers'>;
+
+const ManageCustomer: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -22,6 +29,7 @@ const ManageCustomer: React.FC = () => {
           px: '20px',
           mb: '4',
         }}
+        backgroundColor='#fff'
       >
         <Box pt={5}>
           <SearchBar placeholder='Tìm kiếm khách hàng' />
@@ -30,13 +38,13 @@ const ManageCustomer: React.FC = () => {
           Danh sách khách hàng
         </Heading>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
-          <Customer />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
+          <Customer onPress={() => navigation.navigate('CustomerCarStatus')} />
         </Box>
       </ScrollView>
     </NativeBaseProvider>

@@ -8,3 +8,5 @@ declare module '*.png' {
   const value: any;
   export = value;
 }
+
+declare type OnPress = () => void;

@@ -1,6 +1,6 @@
 import { LoginQueryModel, User } from '@models/customer';
 import AuthService from '@mobx/services/auth';
-import { STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATES, USER_TYPES } from '@utils/constants';
 import { makeObservable, observable, runInAction } from 'mobx';
 import { setHeader, withProgress } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
@@ -16,7 +16,7 @@ export default class AuthStore {
   }
   private readonly authService = Container.get(AuthService);
   // private readonly garageStore = Container.get(GarageStore);
-  state: STATES = STATES.IDLE;
+  state: STORE_STATES = STORE_STATES.IDLE;
   user: User | null = null;
   userType: USER_TYPES = USER_TYPES.CUSTOMER;
 
@@ -25,7 +25,7 @@ export default class AuthStore {
     if (error) {
       runInAction(() => {
         this.user = null;
-        this.state = STATES.ERROR;
+        this.state = STORE_STATES.ERROR;
       });
     } else {
       // if (user?.defaultGarageId) {
@@ -33,7 +33,7 @@ export default class AuthStore {
       // }
       runInAction(() => {
         this.user = user;
-        this.state = STATES.SUCCESS;
+        this.state = STORE_STATES.SUCCESS;
         this.userType = userType;
         setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
       });
@@ -43,7 +43,7 @@ export default class AuthStore {
   public logout() {
     runInAction(() => {
       this.user = null;
-      this.state = STATES.IDLE;
+      this.state = STORE_STATES.IDLE;
     });
   }
 }

@@ -10,7 +10,7 @@ import { observer } from 'mobx-react';
 import { RescueModel } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
-import { STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATES, USER_TYPES } from '@utils/constants';
 import AuthStore from '@mobx/stores/auth';
 
 const HistoryView: React.FC<{ onPress: OnPress } & Pick<RescueModel, 'garage' | 'rescueCase' | 'createAt'>> = ({
@@ -106,7 +106,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
         height='60%'
         refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
-        {rescueStore.state === STATES.LOADING ? (
+        {rescueStore.state === STORE_STATES.LOADING ? (
           <Spinner size='lg' />
         ) : (
           rescueStore.rescues.map((rescue) => (

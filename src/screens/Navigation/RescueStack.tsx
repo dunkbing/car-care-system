@@ -6,6 +6,7 @@ import DefineCarStatus from '@screens/Customer/DefineCarStatus';
 import { Map } from '@screens/Home';
 import DetailRescueRequest from '@screens/Customer/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
+import DefaultGarage from '@screens/Garages/DefaultGarage';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -34,6 +35,14 @@ export const RescueStack: React.FC = () => {
         component={CancelRescueRequest}
         options={{
           title: 'Tình trạng xe',
+          ...navHeaderStyle,
+        }}
+      />
+      <RescueStackNav.Screen
+        name='GarageDetail'
+        component={DefaultGarage}
+        options={{
+          title: 'Thông tin garage',
           ...navHeaderStyle,
         }}
       />

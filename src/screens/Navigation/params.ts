@@ -1,3 +1,4 @@
+import { GarageModel } from '@models/garage';
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type StackParams = {
@@ -78,4 +79,5 @@ export type RescueStackParams = {
     | {
         onCancel: (() => void) | undefined;
       };
+  GarageDetail: undefined | { garage: GarageModel };
 };

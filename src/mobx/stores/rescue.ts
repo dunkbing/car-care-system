@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import RescueService from '@mobx/services/rescue';
@@ -18,21 +18,21 @@ export default class RescueStore {
 
   private readonly garageService = Container.get(RescueService);
 
-  state: STATES = STATES.IDLE;
+  state: STORE_STATES = STORE_STATES.IDLE;
   rescues: Array<RescueModel> = [];
 
   public async getMany(keyword: string) {
-    this.state = STATES.LOADING;
-    const { result, error } = await this.garageService.getMany(keyword);
+    this.state = STORE_STATES.LOADING;
+    const { result, error } = await this.garageService.find(keyword);
 
     if (error) {
       runInAction(() => {
-        this.state = STATES.ERROR;
+        this.state = STORE_STATES.ERROR;
       });
     } else {
       const rescues = result || [];
       runInAction(() => {
-        this.state = STATES.SUCCESS;
+        this.state = STORE_STATES.SUCCESS;
         this.rescues = [...rescues];
       });
     }

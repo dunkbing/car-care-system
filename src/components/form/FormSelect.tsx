@@ -11,6 +11,7 @@ type Props = {
   items: {
     label: string;
     value: string;
+    endIcon?: any;
   }[];
   onValueChange?: (value: string) => void;
   selectProps?: ISelectProps;
@@ -45,7 +46,7 @@ const FormSelect: React.FC<Props> = ({
         onValueChange={onValueChange}
       >
         {items.map((item) => (
-          <Select.Item key={`${item.label}-${item.value}`} label={item.label} value={item.value} />
+          <Select.Item key={`${item.label}-${item.value}`} label={item.label} value={item.value} endIcon={item.endIcon} />
         ))}
       </Select>
       {errorMessage && (

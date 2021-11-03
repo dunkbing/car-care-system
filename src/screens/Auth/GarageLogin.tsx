@@ -10,7 +10,7 @@ import { Formik } from 'formik';
 import { LoginQueryModel } from '@models/customer';
 import AuthStore from '@mobx/stores/auth';
 import toast from '@utils/toast';
-import { STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATES, USER_TYPES } from '@utils/constants';
 
 type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
@@ -19,7 +19,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values, USER_TYPES.GARAGE_MANAGER);
 
-    if (authStore.state === STATES.ERROR) {
+    if (authStore.state === STORE_STATES.ERROR) {
       toast.show('Đăng nhập thất bại');
     } else {
       rootNavigation.navigate('GarageHomeTab');

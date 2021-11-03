@@ -17,7 +17,7 @@ export default class BrandStore {
   brands: Array<CarBrandModel> = [];
 
   public async getBrands() {
-    const { error, result } = await this.brandService.getBrands();
+    const { error, result } = await this.brandService.find();
 
     if (error) {
       runInAction(() => {

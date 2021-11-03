@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { GarageModel } from '@models/garage';
 import GarageService from '@mobx/services/garage';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 
@@ -18,7 +18,7 @@ export default class GarageStore {
 
   private readonly garageService = Container.get(GarageService);
 
-  state: STATES = STATES.IDLE;
+  state: STORE_STATES = STORE_STATES.IDLE;
   defaultGarage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
 
@@ -29,33 +29,33 @@ export default class GarageStore {
   }
 
   public async searchGarage(keyword: string) {
-    this.state = STATES.LOADING;
+    this.state = STORE_STATES.LOADING;
     const { result, error } = await this.garageService.find(keyword);
 
     if (error) {
       runInAction(() => {
-        this.state = STATES.ERROR;
+        this.state = STORE_STATES.ERROR;
       });
     } else {
       const garages = result || [];
       runInAction(() => {
-        this.state = STATES.SUCCESS;
+        this.state = STORE_STATES.SUCCESS;
         this.garages = [...garages];
       });
     }
   }
 
   public async getOne(id: number) {
-    this.state = STATES.LOADING;
+    this.state = STORE_STATES.LOADING;
     const { result, error } = await this.garageService.findOne(id);
     if (error) {
       runInAction(() => {
-        this.state = STATES.ERROR;
+        this.state = STORE_STATES.ERROR;
       });
     } else {
       const garage = result;
       runInAction(() => {
-        this.state = STATES.SUCCESS;
+        this.state = STORE_STATES.SUCCESS;
         this.setDefaultGarage(garage as GarageModel);
       });
     }

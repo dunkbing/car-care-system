@@ -13,6 +13,7 @@ import { observer } from 'mobx-react';
 import CarService from '@mobx/services/car';
 import { withProgress } from '@mobx/services/config';
 import { launchImageLibrary } from 'react-native-image-picker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Props = StackScreenProps<ProfileStackParams, 'CarDetail'>;
 
@@ -97,12 +98,12 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                 label='Màu xe'
                 value={car.color}
                 items={[
-                  { label: 'Đỏ', value: '#ff0000' },
-                  { label: 'Đen', value: '#000000' },
-                  { label: 'Trắng', value: '#ffffff' },
-                  { label: 'Xám', value: '#808080' },
-                  { label: 'Lục', value: '#00ff00' },
-                  { label: 'Lam', value: '#0000ff' },
+                  { label: 'Đỏ', value: '#ff0000', endIcon: <Ionicons name='color-fill' color='#ff0000' size={20} /> },
+                  { label: 'Đen', value: '#000000', endIcon: <Ionicons name='color-fill' color='#000000' size={20} /> },
+                  { label: 'Trắng', value: '#ffffff', endIcon: <Ionicons name='color-fill' color='#ffffff' size={20} /> },
+                  { label: 'Xám', value: '#808080', endIcon: <Ionicons name='color-fill' color='#808080' size={20} /> },
+                  { label: 'Lục', value: '#00ff00', endIcon: <Ionicons name='color-fill' color='#00ff00' size={20} /> },
+                  { label: 'Lam', value: '#0000ff', endIcon: <Ionicons name='color-fill' color='#0000ff' size={20} /> },
                   { label: 'Khác', value: 'undefined' },
                 ]}
                 onValueChange={(value) => setCar({ ...car, color: value })}

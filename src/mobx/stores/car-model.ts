@@ -16,7 +16,7 @@ export default class CarModelStore {
   models: Array<CarModelModel> = [];
 
   public async getModels(brandId: number) {
-    const { error, result } = await this.modelService.getModels(brandId);
+    const { error, result } = await this.modelService.find(brandId);
 
     if (error) {
       runInAction(() => {

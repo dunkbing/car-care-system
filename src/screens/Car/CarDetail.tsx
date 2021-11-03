@@ -115,62 +115,15 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                 label='Năm sản xuất'
                 placeholder='Nhập năm sản xuất'
               />
-              <Button
-                onPress={() => {
-                  launchImageLibrary({ mediaType: 'photo' }, (response) => {
-                    if (response.didCancel) {
-                      return;
-                    }
-                    if (response.assets?.length) {
-                      setCar({
-                        ...car,
-                        avatar: {
-                          uri: response.assets[0].uri as string,
-                          type: response.assets[0].type as string,
-                          name: response.assets[0].fileName as string,
-                        },
-                      });
-                    }
-                  });
-                }}
-                style={{ backgroundColor: '#FFFFFF', marginBottom: 10, borderColor: '#8C8C8C', borderWidth: 1 }}
-              >
-                <HStack space={1}>
-                  <FaIcon name='upload' size={20} color='#000000' />
-                  <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
-                </HStack>
-              </Button>
               <Center>
-                <HStack space={10} mt={5} mb={5}>
-                  <Button
-                    onPress={async () => {
-                      await withProgress(
-                        carService.update({
-                          id: car.id,
-                          modelId: car.model.id,
-                          licenseNumber: car.licenseNumber,
-                          color: car.color,
-                          year: car.year,
-                          avatar: car.avatar,
-                        }),
-                      );
-                      navigation.goBack();
-                    }}
-                    style={{ alignSelf: 'center', width: '40%', height: 40 }}
-                    colorScheme='green'
-                    _text={{ color: 'white' }}
-                  >
-                    Lưu
-                  </Button>
-                  <Button
-                    onPress={() => navigation.goBack()}
-                    style={{ alignSelf: 'center', width: '40%', height: 40 }}
-                    bgColor='#EA4335'
-                    _text={{ color: 'white' }}
-                  >
-                    Hủy
-                  </Button>
-                </HStack>
+                <Button
+                  onPress={() => navigation.goBack()}
+                  style={{ alignSelf: 'center', width: '100%', height: 40 }}
+                  bgColor='#EA4335'
+                  _text={{ color: 'white' }}
+                >
+                  Xóa
+                </Button>
               </Center>
             </VStack>
           </VStack>

@@ -97,12 +97,6 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                 label='Năm sản xuất'
                 placeholder='Nhập năm sản xuất'
               />
-              <Button style={{ backgroundColor: '#FFFFFF', marginBottom: 10, borderColor: '#8C8C8C', borderWidth: 1 }}>
-                <HStack space={1}>
-                  <FaIcon name='upload' size={20} color='#000000' />
-                  <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
-                </HStack>
-              </Button>
               <Button
                 onPress={() => {
                   launchImageLibrary({ mediaType: 'photo' }, (response) => {

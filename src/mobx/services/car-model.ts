@@ -1,18 +1,19 @@
-import { CarModelModel } from '@models/car-model';
 import axios, { AxiosResponse } from 'axios';
 import { Service } from 'typedi';
+import { CarModelModel } from '@models/car-model';
+import { BaseService } from './base-service';
 import { ServiceResult, ResponsePlural } from './config';
 
 const path = 'models';
 
 @Service()
-export default class CarModelService {
+export default class CarModelService extends BaseService {
   /**
    * get car models by brand id.
    * @param brandId
    * @returns car models
    */
-  public async getModels(brandId: number): Promise<ServiceResult<CarModelModel[]>> {
+  public async find(brandId: number): Promise<ServiceResult<CarModelModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarModelModel>>>(`${path}/${brandId}`);
       const result = response.data.data.result;

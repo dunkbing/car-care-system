@@ -6,7 +6,7 @@ import SearchBar from '@components/SearchBar';
 import { AirbnbRating } from 'react-native-ratings';
 import GarageStore from '@mobx/stores/garage';
 import { observer } from 'mobx-react';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
@@ -83,7 +83,7 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
         height='60%'
         refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
-        {garageStore.state === STATES.LOADING ? (
+        {garageStore.state === STORE_STATES.LOADING ? (
           <Spinner size='lg' />
         ) : (
           garageStore.garages.map((garage) => (

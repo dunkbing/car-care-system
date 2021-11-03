@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import { CarModel, CreateCarRequestModel } from '@models/car';
 import CarService from '@mobx/services/car';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import { withProgress } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
 
@@ -17,31 +17,31 @@ export default class CarStore {
   private readonly carService = Container.get(CarService);
 
   cars: CarModel[] = [];
-  state: STATES = STATES.IDLE;
+  state: STORE_STATES = STORE_STATES.IDLE;
 
   public async getCars() {
-    this.state = STATES.LOADING;
+    this.state = STORE_STATES.LOADING;
     const { result, error } = await this.carService.find();
 
     if (error) {
       runInAction(() => {
-        this.state = STATES.ERROR;
+        this.state = STORE_STATES.ERROR;
       });
     } else {
       const cars = result || [];
       runInAction(() => {
-        this.state = STATES.SUCCESS;
+        this.state = STORE_STATES.SUCCESS;
         this.cars = [...cars];
       });
     }
   }
 
   public async createCar(car: CreateCarRequestModel) {
-    this.state = STATES.LOADING;
+    this.state = STORE_STATES.LOADING;
     const { error } = await withProgress(this.carService.create(car));
 
     runInAction(() => {
-      this.state = error ? STATES.ERROR : STATES.SUCCESS;
+      this.state = error ? STORE_STATES.ERROR : STORE_STATES.SUCCESS;
     });
   }
 }

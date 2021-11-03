@@ -7,6 +7,9 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { Location } from 'react-native-location';
 import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import polyline from '@mapbox/polyline';
+import BottomSheet from 'reanimated-bottom-sheet';
+import Animated from 'react-native-reanimated';
+import styled from 'styled-components/native';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
@@ -22,6 +25,7 @@ import SearchBar from '@components/SearchBar';
 import Marker from './Marker';
 import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
+import { RESCUE_STATES } from '@utils/constants';
 
 Logger.setLogCallback((log) => {
   const { message } = log;
@@ -37,12 +41,21 @@ Logger.setLogCallback((log) => {
 
 const { height } = Dimensions.get('screen');
 
-export enum RescueState {
-  IDLE,
-  ACCEPTED,
-  PENDING,
-  REJECTED,
-}
+const OpacityView = styled(Animated.View)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(147, 148, 153, 0.5);
+  z-index: 1;
+`;
+const fall = new Animated.Value(1);
+
+const animatedShadowOpacity = Animated.interpolateNode(fall, {
+  inputRange: [0, 1],
+  outputRange: [0.5, 0],
+});
 
 type MapState = {
   userLocation: { latitude: number; longitude: number };
@@ -50,7 +63,7 @@ type MapState = {
   garageLocation?: { latitude: number; longitude: number } | Location;
   rescueRoute?: [number, number][] | null;
   garage: GarageModel | null;
-  rescueState: RescueState;
+  rescueState: RESCUE_STATES;
 };
 
 type Props = StackScreenProps<RescueStackParams, 'Map'>;
@@ -62,11 +75,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
       longitude: 105.8342,
     },
     garage: null,
-    rescueState: RescueState.IDLE,
+    rescueState: RESCUE_STATES.IDLE,
   });
   const [places, setPlaces] = useState<Place[]>([]);
   const garageStore = Container.get(GarageStore);
   const dialogStore = useContext(DialogStore);
+  const sheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     MapboxGL.setAccessToken(GOONG_API_KEY);
@@ -98,6 +112,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
         ...mapState,
         garage,
       });
+      sheetRef.current?.snapTo(0);
     };
   }
 
@@ -132,19 +147,19 @@ const Map: React.FC<Props> = ({ navigation }) => {
               if (result?.routes && result.routes.length > 0) {
                 setMapState({
                   ...mapState,
-                  rescueState: RescueState.ACCEPTED,
+                  rescueState: RESCUE_STATES.ACCEPTED,
                   rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
                 });
               }
             });
           setMapState({
             ...mapState,
-            rescueState: RescueState.ACCEPTED,
+            rescueState: RESCUE_STATES.ACCEPTED,
           });
           setTimeout(() => {
             setMapState({
               ...mapState,
-              rescueState: RescueState.IDLE,
+              rescueState: RESCUE_STATES.IDLE,
               rescueRoute: null,
             });
           }, 10000);
@@ -173,7 +188,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             clearTimeout(id);
             setMapState({
               ...mapState,
-              rescueState: RescueState.REJECTED,
+              rescueState: RESCUE_STATES.REJECTED,
             });
           },
         });
@@ -184,19 +199,39 @@ const Map: React.FC<Props> = ({ navigation }) => {
   function viewDetailRescueRequest() {
     navigation.navigate('DetailRescueRequest', {
       onCancel: () => {
-        setMapState({ ...mapState, rescueState: RescueState.REJECTED });
+        setMapState({ ...mapState, rescueState: RESCUE_STATES.REJECTED });
       },
     });
   }
 
   return (
     <Box style={{ ...StyleSheet.absoluteFillObject, height: '100%', width: '100%' }}>
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={[190, 0]}
+        initialSnap={1}
+        borderRadius={20}
+        callbackNode={fall}
+        enabledGestureInteraction={true}
+        enabledContentTapInteraction={false}
+        onCloseEnd={() => {}}
+        renderContent={() => (
+          <PopupGarage
+            garage={mapState.garage as any}
+            handleSos={handleSos}
+            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: mapState.garage as GarageModel })}
+          />
+        )}
+      />
+      <OpacityView
+        pointerEvents={'none'}
+        style={{
+          opacity: animatedShadowOpacity,
+        }}
+      />
       <MapboxGL.MapView
         style={{ ...StyleSheet.absoluteFillObject }}
         styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAP_TILE_KEY}`}
-        onTouchStart={() => {
-          setMapState({ ...mapState, garage: null });
-        }}
       >
         <MapboxGL.UserLocation
           onUpdate={(location) => {
@@ -294,12 +329,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
         />
       </Box>
-      {mapState.garage && (
-        <Center pt={50}>
-          <PopupGarage name={mapState.garage.name} active rating={3.5} totalRating={59} handleSos={handleSos} />
-        </Center>
-      )}
-      {mapState.rescueState !== RescueState.ACCEPTED ? (
+      {mapState.rescueState !== RESCUE_STATES.ACCEPTED ? (
         <Box pt={height * 0.65} position='absolute' alignSelf='center'>
           <Center>
             <CarCarousel />

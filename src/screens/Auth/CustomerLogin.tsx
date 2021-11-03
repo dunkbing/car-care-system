@@ -10,7 +10,7 @@ import { Formik } from 'formik';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import GarageStore from '@mobx/stores/garage';
 import GarageService from '@mobx/services/garage';
 
@@ -29,7 +29,7 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
       }
     });
 
-    if (authStore.state === STATES.ERROR) {
+    if (authStore.state === STORE_STATES.ERROR) {
       toast.show('Đăng nhập thất bại');
     } else {
       rootNavigation.navigate('CustomerHomeTab');

@@ -4,7 +4,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { AirbnbRating } from 'react-native-ratings';
 import { StackScreenProps } from '@react-navigation/stack';
-import { ProfileStackParams } from '@screens/Navigation/params';
+import { ProfileStackParams, RescueStackParams } from '@screens/Navigation/params';
 import GarageStore from '@mobx/stores/garage';
 import { GarageModel } from '@models/garage';
 import { observer } from 'mobx-react';
@@ -66,10 +66,11 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
   );
 };
 
-type Props = StackScreenProps<ProfileStackParams, 'DefaultGarage'>;
+type Props = StackScreenProps<ProfileStackParams & RescueStackParams, 'GarageDetail'>;
 
-const DefaultGarage: React.FC<Props> = ({ navigation }) => {
+const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
   const { defaultGarage } = Container.get(GarageStore);
+  const garage = route.params?.garage || defaultGarage;
   const authStore = Container.get(AuthStore);
   function changeDefaultGarage() {
     navigation.navigate('SearchGarage');
@@ -80,7 +81,7 @@ const DefaultGarage: React.FC<Props> = ({ navigation }) => {
         <Center w='100%' h={height / 3.5} bg='primary.500' rounded='md' shadow={3}>
           <Image
             source={{
-              uri: defaultGarage?.imageUrl || 'https://pixerpaints.com/wp-content/uploads/2021/02/product-default.jpg',
+              uri: garage?.imageUrl || 'https://pixerpaints.com/wp-content/uploads/2021/02/product-default.jpg',
             }}
             alt='garage'
             width='100%'
@@ -88,7 +89,7 @@ const DefaultGarage: React.FC<Props> = ({ navigation }) => {
           />
         </Center>
         <Center w='100%' mt='3'>
-          <GarageInfo name={defaultGarage?.name} address={defaultGarage?.address} phoneNumber={defaultGarage?.phoneNumber} />
+          <GarageInfo name={garage?.name} address={garage?.address} phoneNumber={garage?.phoneNumber} />
         </Center>
         <Center w='80%' rounded='md' mt='3'>
           <VStack space={2}>
@@ -105,7 +106,7 @@ const DefaultGarage: React.FC<Props> = ({ navigation }) => {
           </VStack>
         </Center>
       </ScrollView>
-      {authStore.userType === USER_TYPES.CUSTOMER && (
+      {authStore.userType === USER_TYPES.CUSTOMER && route.params?.garage && (
         <Center w='80%' mb={30}>
           <Button onPress={changeDefaultGarage} colorScheme='green' width='100%'>
             Thay đổi garage cứu hộ mặc định

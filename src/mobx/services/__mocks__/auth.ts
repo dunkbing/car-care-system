@@ -1,8 +1,8 @@
 import { Gender, LoginQueryModel, User } from '@models/customer';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 
 class AuthService {
-  state: STATES = STATES.IDLE;
+  state: STORE_STATES = STORE_STATES.IDLE;
   user: User = {
     id: 1,
     email: 'email@example.com',

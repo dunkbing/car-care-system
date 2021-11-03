@@ -6,7 +6,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import CarStore from '@mobx/stores/car';
 import { CarModel } from '@models/car';
 import { observer } from 'mobx-react';
-import { STATES } from '@utils/constants';
+import { STORE_STATES } from '@utils/constants';
 import { Container } from 'typedi';
 
 const { width } = Dimensions.get('screen');
@@ -73,7 +73,7 @@ function CarCarousel() {
 
   return (
     <View py='2' style={styles.wrapperVertical}>
-      {carStore.state === STATES.LOADING ? (
+      {carStore.state === STORE_STATES.LOADING ? (
         <Spinner />
       ) : (
         <SmoothPicker

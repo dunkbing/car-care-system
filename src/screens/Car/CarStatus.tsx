@@ -40,10 +40,10 @@ const CarView: React.FC<Pick<CarModel, 'modelName' | 'brandName' | 'licenseNumbe
         <HStack space={2} mt={1} style={{ flexDirection: 'row' }}>
           <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='Alternate Text' w={20} h={20} mt={-1} />
           <VStack space={2}>
-            <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 12, marginTop: 1, marginLeft: 10 }}>
               {brandName} {modelName}
             </Text>
-            <Text style={{ marginLeft: 10 }}>{licenseNumber}</Text>
+            <Text style={{ fontSize: 11, marginLeft: 10 }}>{licenseNumber}</Text>
           </VStack>
         </HStack>
       </TouchableOpacity>

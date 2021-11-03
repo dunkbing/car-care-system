@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Text, Image, Center } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Center, Text, Image } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
@@ -7,13 +7,13 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel, loginValidationSchema } from '@models/customer';
 import { Formik } from 'formik';
-import { GoogleLogo } from '@assets/images';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
 import { STORE_STATES } from '@utils/constants';
 import GarageStore from '@mobx/stores/garage';
 import GarageService from '@mobx/services/garage';
+import { GoogleLogo } from '@assets/images';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 

@@ -10,7 +10,8 @@ export default class GarageStore {
   constructor() {
     makeObservable(this, {
       state: observable,
-      defaultGarage: observable,
+      customerDefaultGarage: observable,
+      garage: observable,
       garages: observable,
       searchGarage: action,
     });
@@ -19,18 +20,27 @@ export default class GarageStore {
   private readonly garageService = Container.get(GarageService);
 
   state: STORE_STATES = STORE_STATES.IDLE;
-  defaultGarage: GarageModel | null = null;
+  // customer default garage
+  customerDefaultGarage: GarageModel | null = null;
+
+  garage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
 
-  public setDefaultGarage(garage: GarageModel) {
+  public setCustomerDefaultGarage(garage: GarageModel) {
     runInAction(() => {
-      this.defaultGarage = garage;
+      this.customerDefaultGarage = garage;
+    });
+  }
+
+  public setGarage(garage: GarageModel) {
+    runInAction(() => {
+      this.garage = garage;
     });
   }
 
   public async searchGarage(keyword: string) {
     this.state = STORE_STATES.LOADING;
-    const { result, error } = await this.garageService.find(keyword);
+    const { result, error } = await this.garageService.findCustomerHistories(keyword);
 
     if (error) {
       runInAction(() => {
@@ -56,7 +66,7 @@ export default class GarageStore {
       const garage = result;
       runInAction(() => {
         this.state = STORE_STATES.SUCCESS;
-        this.setDefaultGarage(garage as GarageModel);
+        this.setCustomerDefaultGarage(garage as GarageModel);
       });
     }
   }

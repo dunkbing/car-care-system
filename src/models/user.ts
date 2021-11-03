@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 import { orRegex, regexes } from '@utils/regex';
+import { GarageModel } from './garage';
+import { USER_TYPES } from '@utils/constants';
 
 export type CustomerModel = {
   id: number;
@@ -62,7 +64,18 @@ export enum Gender {
   Female,
 }
 
-export type LoginResponseModel = {
+export type RescuedCustomerModel = {
+  id: 1;
+  firstName: 'Long';
+  lastName: 'Nguyen';
+  type: 0;
+  gender: 0;
+  address: 'Mỹ Đình, Nam Từ Liêm, Hà Nội';
+  taxCode: '8574778478';
+  avatarUrl: 'http://www.seslendirme.org/wp-content/uploads/2019/03/keanu-reeves.jpg';
+};
+
+export type CustomerLoginResponseModel = {
   id: 1;
   phoneNumber: string;
   email: string;
@@ -74,6 +87,21 @@ export type LoginResponseModel = {
   avatarUrl: string;
   isVerified: boolean;
   defaultGarageId?: number;
+  accessToken: string;
+};
+
+export type GarageLoginResponseModel = {
+  id: number;
+  phoneNumber: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  dateOfBirth: string;
+  accountType: USER_TYPES;
+  isAvailable: boolean;
+  avatarUrl: string;
+  garage: GarageModel;
   accessToken: string;
 };
 
@@ -90,7 +118,7 @@ export type RegisterResponseModel = {
   accessToken: string | null;
 };
 
-export type User = LoginResponseModel;
+export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
   gender: Gender;

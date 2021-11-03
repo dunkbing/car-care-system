@@ -5,7 +5,7 @@ import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
 import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
-import { LoginQueryModel, loginValidationSchema } from '@models/customer';
+import { CustomerLoginResponseModel, LoginQueryModel, loginValidationSchema } from '@models/user';
 import { Formik } from 'formik';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
@@ -23,9 +23,10 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
   const garageService = Container.get(GarageService);
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values).then(() => {
-      if (authStore.user?.defaultGarageId) {
-        void garageService.findOne(authStore.user.defaultGarageId).then(({ result: garage }) => {
-          garageStore.setDefaultGarage(garage as any);
+      const user = authStore.user as CustomerLoginResponseModel;
+      if (user?.defaultGarageId) {
+        void garageService.findOne(user.defaultGarageId).then(({ result: garage }) => {
+          garageStore.setCustomerDefaultGarage(garage as any);
         });
       }
     });

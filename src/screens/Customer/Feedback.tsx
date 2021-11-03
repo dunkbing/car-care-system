@@ -1,31 +1,26 @@
-import AuthStore from '@mobx/stores/auth';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { USER_TYPES } from '@utils/constants';
+import { ProfileStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
 import { Button, Center, Text, View, VStack } from 'native-base';
 import React from 'react';
 import { TextInput } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
-import Container from 'typedi';
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'Feedback'>;
+type Props = StackScreenProps<ProfileStackParams, 'EditFeedback'>;
 
 const Feedback: React.FC<Props> = ({ navigation, route }) => {
-  const authStore = Container.get(AuthStore);
-  const title = authStore.userType === USER_TYPES.CUSTOMER ? 'Đánh giá dịch vụ đã sử dụng' : 'Gửi góp ý cho khách hàng';
-  const user = authStore.userType === USER_TYPES.CUSTOMER ? 'Garage' : 'Tên khách hàng';
-
+  const { rescue } = route.params;
   return (
     <VStack mt='3'>
       <View paddingX={5} paddingY={2}>
-        <Center>
-          <Text fontSize={'lg'} mb={4} style={{ fontWeight: 'bold' }}>
-            {title}
-          </Text>
-        </Center>
+        <Text fontSize={'lg'} mb={4} style={{ fontWeight: 'bold' }}>
+          {rescue.garage.name}
+        </Text>
         <Text fontWeight='bold'>
-          {user}: <Text>{route.params?.username}</Text>
+          Nhân viên:{' '}
+          <Text>
+            {rescue.staff?.lastName} {rescue.staff?.firstName}
+          </Text>
         </Text>
         <Center>
           <View marginY={10}>

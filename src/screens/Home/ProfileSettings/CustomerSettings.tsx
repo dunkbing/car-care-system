@@ -40,7 +40,7 @@ const CustomerSettings: React.FC<Props> = () => {
           <OptionItem
             text='Garage cứu hộ mặc định'
             onPress={() => {
-              if (!garageStore.defaultGarage) {
+              if (!garageStore.customerDefaultGarage) {
                 rootNavigation.navigate('Profile', {
                   screen: 'SearchGarage',
                 });

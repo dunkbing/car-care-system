@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, HStack, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
+import { Button, Center, HStack, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import { GarageLocation } from '@assets/images';
 import { CurrentLocation } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -13,31 +13,27 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
   }
   return (
     <NativeBaseProvider>
-      <VStack
-        style={{
-          padding: 20,
-        }}
-      >
-        <View
+      <VStack px='4' pt='3'>
+        <Center
           style={{
             flexDirection: 'row',
             marginBottom: 40,
           }}
         >
-          <View style={{ paddingHorizontal: 25 }}>
-            <HStack space={5} mb={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
+          <View w='90%'>
+            <HStack space={5} mb={5} mt={5} style={{ justifyContent: 'space-between' }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>
                 Nhân viên
               </Text>
-              <Text style={{ fontWeight: 'normal', fontSize: 20 }} numberOfLines={1}>
+              <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1} textAlign='right'>
                 Nguyễn Ngọc Đức
               </Text>
             </HStack>
-            <HStack space={5} mb={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
+            <HStack space={5} mb={5} style={{ justifyContent: 'space-between' }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>
                 Số điện thoại
               </Text>
-              <Text style={{ fontWeight: 'normal', fontSize: 20 }} numberOfLines={1}>
+              <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1}>
                 0912345678
               </Text>
             </HStack>
@@ -45,7 +41,6 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               space={3}
               mt={5}
               style={{
-                flexDirection: 'row',
                 height: 50,
                 backgroundColor: '#F2F2F2',
                 borderColor: '#7E7979',
@@ -65,7 +60,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               <Text
                 style={{
                   fontWeight: 'normal',
-                  fontSize: 12,
+                  fontSize: 15,
                   textAlignVertical: 'center',
                 }}
               >
@@ -94,14 +89,14 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               }}
             >
               <Image source={CurrentLocation} alt='Alternate Text' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
-              <Text style={{ fontWeight: 'normal', fontSize: 12, textAlignVertical: 'center' }}>Lotteria Cầu Giấy</Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}>Lotteria Cầu Giấy</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Thời gian ước tính:</Text>
-              <Text style={{ fontWeight: 'normal', fontSize: 20 }}>15 phút</Text>
+              <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Thời gian ước tính:</Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 18 }}>15 phút</Text>
             </HStack>
           </View>
-        </View>
+        </Center>
         <Button onPress={cancelRequest} style={{ width: 130, backgroundColor: '#EA4335', alignSelf: 'center' }}>
           Hủy yêu cầu
         </Button>

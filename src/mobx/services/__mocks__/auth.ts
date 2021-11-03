@@ -1,4 +1,4 @@
-import { Gender, LoginQueryModel, User } from '@models/customer';
+import { Gender, LoginQueryModel, User } from '@models/user';
 import { STORE_STATES } from '@utils/constants';
 
 class AuthService {

@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { Location } from './common';
 
 export type GarageModel = {
   id: number;
@@ -8,10 +9,7 @@ export type GarageModel = {
   phoneNumber: string;
   email: string;
   imageUrl: string;
-  location: {
-    longitude: number;
-    latitude: number;
-  };
+  location: Location;
 };
 
 export const loginValidationSchema = yup.object({

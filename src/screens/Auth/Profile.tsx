@@ -3,19 +3,25 @@ import FormInput from '@components/form/FormInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Avatar, Box, Button, Center, HStack, ScrollView, VStack } from 'native-base';
 import { Container } from 'typedi';
-import AntIcon from 'react-native-vector-icons/AntDesign';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import AuthStore from '@mobx/stores/auth';
 import FormSelect from '@components/form/FormSelect';
 import { USER_TYPES } from '@utils/constants';
+import { AvatarStaff } from '@assets/images';
+import { CustomerLoginResponseModel, GarageLoginResponseModel } from '@models/user';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
 const Profile: React.FC<Props> = () => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
   const authStore = Container.get(AuthStore);
-  const [user, setUser] = useState({ ...authStore.user });
+  const currentUser =
+    authStore.userType === USER_TYPES.CUSTOMER
+      ? (authStore.user as CustomerLoginResponseModel)
+      : (authStore.user as GarageLoginResponseModel);
+  const [user, setUser] = useState({ ...currentUser });
+
   return (
     <ScrollView
       _contentContainerStyle={{
@@ -28,16 +34,12 @@ const Profile: React.FC<Props> = () => {
       <Box safeArea flex={1} p={2} w='90%' mx='auto'>
         <VStack space={2} mt={5}>
           <Center>
-            <Avatar
-              size='xl'
-              bg='lightBlue.400'
-              source={{
-                uri: 'https://alpha.nativebase.io/img/native-base-icon.png',
-              }}
-            >
+            <Avatar size='xl' bg='lightBlue.400' source={user.avatarUrl ? { uri: user.avatarUrl } : AvatarStaff}>
               NB
-              <AntIcon name='camera' size={24} />
             </Avatar>
+            {/* <Button size='xs' mt='1.5' leftIcon={<Ionicons name='cloud-upload-outline' size={15} />}>
+              Thay đổi avatar
+            </Button> */}
           </Center>
           <FormInput
             isRequired
@@ -68,7 +70,13 @@ const Profile: React.FC<Props> = () => {
             keyboardType='ascii-capable'
             defaultValue={user?.dateOfBirth?.slice(0, 10) || ''}
           />
-          <FormInput isRequired label='Địa chỉ' placeholder='Địa chỉ' keyboardType='ascii-capable' defaultValue={user?.address || ''} />
+          <FormInput
+            isRequired
+            label='Địa chỉ'
+            placeholder='Địa chỉ'
+            keyboardType='ascii-capable'
+            defaultValue={(user as any)?.address || ''}
+          />
           {authStore.userType === USER_TYPES.CUSTOMER && (
             <FormSelect
               label='Loại khách hàng'

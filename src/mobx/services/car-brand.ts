@@ -8,7 +8,7 @@ const path = 'brands';
 
 @Service()
 export default class BrandService extends BaseService {
-  public async find(): Promise<ServiceResult<CarBrandModel[]>> {
+  public async findCustomerHistories(): Promise<ServiceResult<CarBrandModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarBrandModel>>>(`${path}`);
       const result = response.data.data.result;

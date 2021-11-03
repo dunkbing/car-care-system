@@ -5,10 +5,10 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import { GarageTabParams, CustomerTabParams } from './params';
 import CustomerSettings from '@screens/Home/ProfileSettings/CustomerSettings';
 import GarageSettings from '@screens/Home/ProfileSettings/GarageSettings';
-import { GarageOptionsStack } from './GarageOptionsStack';
 import { RescueStack } from './RescueStack';
 import PendingRequest from '@screens/Garages/PendingRequest';
 import { navHeaderStyle } from './roots';
+import { GarageHome } from '@screens/Home';
 
 const CustomerTab = createBottomTabNavigator<CustomerTabParams>();
 const GarageTab = createBottomTabNavigator<GarageTabParams>();
@@ -62,7 +62,7 @@ export const GarageHomeTab: React.FC = () => {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <GarageTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='GarageHome' component={GarageOptionsStack} />
+      <GarageTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='GarageHome' component={GarageHome} />
       <GarageTab.Screen
         options={{ tabBarShowLabel: false, title: 'Yêu cầu cứu hộ', ...(navHeaderStyle as any) }}
         name='PendingRequestHome'

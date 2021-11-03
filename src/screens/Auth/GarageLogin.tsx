@@ -7,7 +7,7 @@ import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { loginValidationSchema } from '@models/garage';
 import { Formik } from 'formik';
-import { LoginQueryModel } from '@models/customer';
+import { LoginQueryModel } from '@models/user';
 import AuthStore from '@mobx/stores/auth';
 import toast from '@utils/toast';
 import { STORE_STATES, USER_TYPES } from '@utils/constants';

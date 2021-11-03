@@ -1,40 +1,61 @@
 import 'reflect-metadata';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATES, USER_TYPES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import RescueService from '@mobx/services/rescue';
-import { RescueModel } from '@models/rescue';
+import { CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
+import AuthStore from './auth';
 
 @Service()
 export default class RescueStore {
   constructor() {
     makeObservable(this, {
       state: observable,
-      rescues: observable,
-      getMany: action,
+      customerRescueHistories: observable,
+      garageRescueHistories: observable,
+      find: action,
     });
-    void this.getMany('');
+    void this.find('');
   }
 
   private readonly garageService = Container.get(RescueService);
+  private readonly authStore = Container.get(AuthStore);
 
   state: STORE_STATES = STORE_STATES.IDLE;
-  rescues: Array<RescueModel> = [];
+  customerRescueHistories: Array<CustomerRescueHistoryModel> = [];
+  garageRescueHistories: Array<GarageRescueHistoryModel> = [];
 
-  public async getMany(keyword: string) {
+  public async find(keyword: string, userType: USER_TYPES = USER_TYPES.CUSTOMER) {
     this.state = STORE_STATES.LOADING;
-    const { result, error } = await this.garageService.find(keyword);
 
-    if (error) {
-      runInAction(() => {
-        this.state = STORE_STATES.ERROR;
-      });
+    if (userType === USER_TYPES.CUSTOMER) {
+      const { result, error } = await this.garageService.findCustomerHistories(keyword);
+
+      if (error) {
+        runInAction(() => {
+          this.state = STORE_STATES.ERROR;
+        });
+      } else {
+        const rescues = result || [];
+        runInAction(() => {
+          this.state = STORE_STATES.SUCCESS;
+          this.customerRescueHistories = [...rescues];
+        });
+      }
     } else {
-      const rescues = result || [];
-      runInAction(() => {
-        this.state = STORE_STATES.SUCCESS;
-        this.rescues = [...rescues];
-      });
+      const { result, error } = await this.garageService.findGarageHistories(keyword);
+
+      if (error) {
+        runInAction(() => {
+          this.state = STORE_STATES.ERROR;
+        });
+      } else {
+        const rescues = result || [];
+        runInAction(() => {
+          this.state = STORE_STATES.SUCCESS;
+          this.garageRescueHistories = [...rescues];
+        });
+      }
     }
   }
 }

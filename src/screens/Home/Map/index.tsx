@@ -125,11 +125,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   function acceptSos() {
     dialogStore.openMsgDialog({
-      message: `${garageStore.defaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
+      message: `${garageStore.customerDefaultGarage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
       type: DIALOG_TYPE.CONFIRM,
       onAgreed: () => {
         const { rescueLocation } = mapState;
-        const { location: garaLocation } = garageStore.defaultGarage as GarageModel;
+        const { location: garaLocation } = garageStore.customerDefaultGarage as GarageModel;
+        sheetRef.current?.snapTo(1);
         if (rescueLocation) {
           cameraRef.current?.fitBounds(
             [rescueLocation.longitude, rescueLocation.latitude],
@@ -171,7 +172,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
    * when sos button is clicked.
    */
   function handleSos() {
-    if (!garageStore.defaultGarage) {
+    if (!garageStore.customerDefaultGarage) {
       dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', type: DIALOG_TYPE.CONFIRM, onAgreed: () => {} });
       return;
     }

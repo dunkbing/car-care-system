@@ -15,7 +15,7 @@ import { Container } from 'typedi';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   const garageStore = Container.get(GarageStore);
-  const bgColor = garageStore.defaultGarage?.id === id ? '#E9F7FF' : 'white';
+  const bgColor = garageStore.customerDefaultGarage?.id === id ? '#E9F7FF' : 'white';
   return (
     <View mb='5' style={{ backgroundColor: bgColor }} px='3' py='1' rounded='md'>
       <VStack width='100%' mx='3' space={2}>
@@ -60,7 +60,7 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
 
   function onSelectGarage(garage: GarageModel) {
     return function () {
-      garageStore.setDefaultGarage(garage);
+      garageStore.setCustomerDefaultGarage(garage);
       void customerService.setDefaultGarage(garage?.id);
     };
   }

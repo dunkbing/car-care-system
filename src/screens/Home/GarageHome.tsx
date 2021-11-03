@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Center, HStack, Image, Text, VStack } from 'native-base';
 import { Customer, Employees, ListImg, RequestImg, ScrewDriverWrench } from '@assets/images';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
@@ -9,8 +9,7 @@ import AuthStore from '@mobx/stores/auth';
 import { USER_TYPES } from '@utils/constants';
 import { TouchableOpacity } from 'react-native';
 import GarageStore from '@mobx/stores/garage';
-import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { rootNavigation } from '@screens/Navigation/roots';
 
 const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPress?: () => void }) => {
   return (
@@ -27,9 +26,7 @@ const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPr
   );
 };
 
-type OptionProps = { navigation: StackNavigationProp<GarageHomeOptionStackParams, 'GarageOptions'> };
-
-const ManagerOption: React.FC<OptionProps> = ({ navigation }) => {
+const ManagerOption: React.FC = () => {
   return (
     <VStack pt='3'>
       <Center>
@@ -38,14 +35,14 @@ const ManagerOption: React.FC<OptionProps> = ({ navigation }) => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              navigation.navigate('MyGarage');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage' });
             }}
           />
           <OptionItem
-            name='Quản lý nhân viên'
-            imgSrc={Employees}
+            name='Yêu cầu cứu hộ'
+            imgSrc={RequestImg}
             onPress={() => {
-              navigation.navigate('ManageStaffs');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'PendingRescueRequest' });
             }}
           />
         </HStack>
@@ -54,23 +51,33 @@ const ManagerOption: React.FC<OptionProps> = ({ navigation }) => {
             name='Quản lý khách hàng'
             imgSrc={Customer}
             onPress={() => {
-              navigation.navigate('ManageCustomers');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'ManageCustomers' });
             }}
           />
+          <OptionItem
+            name='Quản lý nhân viên'
+            imgSrc={Employees}
+            onPress={() => {
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'ManageStaffs' });
+            }}
+          />
+        </HStack>
+        <HStack space={6} mt='6'>
           <OptionItem
             name='Lịch sử cứu hộ'
             imgSrc={ListImg}
             onPress={() => {
-              navigation.navigate('RescueHistory');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'RescueHistory' });
             }}
           />
+          <Box w='40%' pt='1' pb='1' />
         </HStack>
       </Center>
     </VStack>
   );
 };
 
-const StaffOption: React.FC<OptionProps> = ({ navigation }) => {
+const StaffOption: React.FC = () => {
   return (
     <VStack pt='3'>
       <Center>
@@ -79,34 +86,33 @@ const StaffOption: React.FC<OptionProps> = ({ navigation }) => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              navigation.navigate('MyGarage');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage' });
             }}
           />
           <OptionItem
             name='Yêu cầu cứu hộ'
-            imgSrc={ListImg}
+            imgSrc={RequestImg}
             onPress={() => {
-              navigation.navigate('PendingRescueRequest');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'PendingRescueRequest' });
             }}
           />
         </HStack>
         <HStack space={6} mt='6'>
           <OptionItem
             name='Lịch sử cứu hộ'
-            imgSrc={RequestImg}
+            imgSrc={ListImg}
             onPress={() => {
-              navigation.navigate('RescueHistory');
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'RescueHistory' });
             }}
           />
+          <Box w='40%' pt='1' pb='1' />
         </HStack>
       </Center>
     </VStack>
   );
 };
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'GarageOptions'>;
-
-const GarageHome: React.FC<Props> = ({ navigation }) => {
+const GarageHome: React.FC = () => {
   const authStore = Container.get(AuthStore);
   const garageStore = Container.get(GarageStore);
   // useEffect(() => {
@@ -120,18 +126,14 @@ const GarageHome: React.FC<Props> = ({ navigation }) => {
     <VStack>
       <Center pb='8' pt='8'>
         <Text bold fontSize='2xl' pb='3'>
-          Garage ô tô Hùng Lý
+          {garageStore.garage?.name}
         </Text>
         <HStack width='80%' justifyContent='center' alignItems='center' space={2}>
           <FaIcon name='map-marker' size={24} color={headerColor} />
-          <Text fontSize='lg'>QL23, Vân Nội, Đông Anh, Hà Nội</Text>
+          <Text fontSize='lg'>{garageStore.garage?.address}</Text>
         </HStack>
       </Center>
-      {authStore.userType === USER_TYPES.GARAGE_MANAGER ? (
-        <ManagerOption navigation={navigation} />
-      ) : (
-        <StaffOption navigation={navigation} />
-      )}
+      {authStore.userType === USER_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
     </VStack>
   );
 };

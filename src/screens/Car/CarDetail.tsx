@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, ScrollView, Center, HStack, Text } from 'native-base';
-import FaIcon from 'react-native-vector-icons/FontAwesome';
+import { NativeBaseProvider, Box, VStack, Button, ScrollView, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import CarModelStore from '@mobx/stores/car-model';
@@ -11,11 +10,9 @@ import FormSelect from '@components/form/FormSelect';
 import { Container } from 'typedi';
 import { observer } from 'mobx-react';
 import CarService from '@mobx/services/car';
-import { withProgress } from '@mobx/services/config';
-import { launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-type Props = StackScreenProps<ProfileStackParams, 'CarDetail'>;
+type Props = StackScreenProps<ProfileStackParams, 'EditCarDetail'>;
 
 const CarDetail: React.FC<Props> = ({ navigation, route }) => {
   const carBrandStore = Container.get(CarBrandStore);
@@ -24,11 +21,11 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
 
   useEffect(() => {
     void carBrandStore.getBrands();
-    void carService.findOne(route.params.carId).then(({ result }) => {
+    void carService.findOne(route.params.car.id).then(({ result }) => {
       void carModelStore.getModels(result?.brand.id as number);
       setCar(result as CarDetailModel);
     });
-  }, [carBrandStore, carModelStore, carService, route.params.carId]);
+  }, [carBrandStore, carModelStore, carService, route.params.car.id]);
 
   const [car, setCar] = useState<CarDetailModel>({
     id: 1,

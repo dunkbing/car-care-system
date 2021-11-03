@@ -2,9 +2,17 @@ import React from 'react';
 import { Text, ScrollView, View, VStack, Center, Button } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { GarageHomeOptionStackParams, GarageTabParams } from '@screens/Navigation/params';
+import { rootNavigation } from '@screens/Navigation/roots';
 
-const RescueRequest: React.FC = ({ customerName, address, phoneNumber, onPress }: any) => {
+type RescueRequestProps = {
+  customerName: string;
+  address: string;
+  phoneNumber: string;
+  onPress: OnPress;
+};
+
+const RescueRequest: React.FC<RescueRequestProps> = ({ customerName, address, phoneNumber, onPress }) => {
   return (
     <View
       style={{
@@ -63,9 +71,9 @@ const RescueRequest: React.FC = ({ customerName, address, phoneNumber, onPress }
   );
 };
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'PendingRescueRequest'>;
+type Props = StackScreenProps<GarageHomeOptionStackParams & GarageTabParams, 'PendingRescueRequest'>;
 
-const PendingRequest: React.FC<Props> = ({ navigation }) => {
+const PendingRequest: React.FC<Props> = () => {
   return (
     <ScrollView p={5}>
       <View
@@ -89,13 +97,13 @@ const PendingRequest: React.FC<Props> = ({ navigation }) => {
       </View>
       <VStack mb={10}>
         <RescueRequest
-          onPress={() => navigation.navigate('DetailRequest')}
+          onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest' })}
           customerName='Nam Nguyen'
           address='Km29 Đại lộ Thăng Long, Hà Nội'
           phoneNumber='0912345678'
         />
         <RescueRequest
-          onPress={() => navigation.navigate('DetailRequest')}
+          onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest' })}
           customerName='Nam Nguyen'
           address='Km29 Đại lộ Thăng Long, Hà Nội'
           phoneNumber='0912345678'

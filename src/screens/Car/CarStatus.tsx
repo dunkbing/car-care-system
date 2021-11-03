@@ -68,7 +68,7 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
       void carStore.getCars();
     });
     return unsub;
-  }, []);
+  }, [carStore, navigation]);
 
   return (
     <NativeBaseProvider>
@@ -89,7 +89,7 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
                 key={car.id}
                 {...car}
                 onPress={() => {
-                  navigation.navigate('CarDetail', { carId: car.id });
+                  navigation.navigate('CarHistory', { car });
                 }}
               />
             ))

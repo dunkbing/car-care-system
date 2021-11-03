@@ -7,13 +7,12 @@ import ManageCustomer from '@screens/Garages/ManageCustomer';
 import ManageStaff from '@screens/Garages/ManageStaff';
 import RescueHistory from '@screens/Garages/RescueHistory';
 import { navHeaderStyle } from './roots';
-import { GarageHome } from '@screens/Home';
 import PendingRequest from '@screens/Garages/PendingRequest';
 import AddStaff from '@screens/Garages/AddStaff';
 import EditStaff from '@screens/Garages/EditStaff';
 import { TouchableOpacity } from 'react-native';
 import CustomerCarStatus from '@screens/Garages/CustomerCarStatus';
-import DetailHistory from '@screens/Garages/DetailHistory';
+import HistoryDetail from '@screens/Garages/HistoryDetail';
 import DetailRequest from '@screens/Garages/DetailRequest';
 import RejectRequest from '@screens/Garages/RejectRequest';
 import DetailAssignRequest from '@screens/Garages/DetailAssignRequest';
@@ -23,13 +22,6 @@ const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 export const GarageOptionsStack: React.FC = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name='GarageOptions'
-        component={GarageHome}
-        options={{
-          headerShown: false,
-        }}
-      />
       <Stack.Screen
         name='MyGarage'
         component={DefaultGarage}
@@ -56,7 +48,7 @@ export const GarageOptionsStack: React.FC = () => {
       <Stack.Screen name='ManageCustomers' component={ManageCustomer} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
       <Stack.Screen name='CustomerCarStatus' component={CustomerCarStatus} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
       <Stack.Screen name='RescueHistory' component={RescueHistory} options={{ title: 'Lịch sử cứu hộ', ...navHeaderStyle }} />
-      <Stack.Screen name='DetailHistory' component={DetailHistory} options={{ title: 'Chi tiết lịch sử', ...navHeaderStyle }} />
+      <Stack.Screen name='HistoryDetail' component={HistoryDetail} options={{ title: 'Chi tiết lịch sử', ...navHeaderStyle }} />
       <Stack.Screen name='PendingRescueRequest' component={PendingRequest} options={{ title: 'Yêu cầu cứu hộ', ...navHeaderStyle }} />
       <Stack.Screen name='DetailRequest' component={DetailRequest} options={{ title: 'Chi tiết yêu cầu', ...navHeaderStyle }} />
       <Stack.Screen

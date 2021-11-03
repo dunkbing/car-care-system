@@ -4,25 +4,30 @@ import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SearchBar from '@components/SearchBar';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { ProfileStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
-import { GarageRescueHistoryModel } from '@models/rescue';
+import { CustomerRescueHistoryModel } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATES } from '@utils/constants';
 import { to12HoursTime, toHourAndMinute } from '@utils/time';
-import AuthStore from '@mobx/stores/auth';
 
-const HistoryView: React.FC<
-  { onPress: OnPress } & Pick<GarageRescueHistoryModel, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>
-> = ({ onPress, staff, customer, createAt }) => {
+const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistoryModel, 'car' | 'garage' | 'rescueCase' | 'createAt'>> = ({
+  onPress,
+  car,
+  garage,
+  createAt,
+}) => {
   const rescueDate = new Date(createAt as string);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
         <View width='100%'>
-          <Text mb={4} bold={true} fontSize={20}>
-            {staff?.lastName} {staff?.firstName}
+          <Text mb={3} bold={true} fontSize={17}>
+            {garage.name}
+          </Text>
+          <Text mb={3} bold={true} fontSize={17}>
+            {car.brandName} {car.modelName}
           </Text>
         </View>
         <View>
@@ -34,7 +39,7 @@ const HistoryView: React.FC<
             }}
           >
             <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-            <Text style={{ flex: 1, marginLeft: 10 }}>{customer?.address}</Text>
+            <Text style={{ flex: 1, marginLeft: 10 }}>{garage.address}</Text>
           </View>
           <View
             style={{
@@ -54,19 +59,18 @@ const HistoryView: React.FC<
   );
 };
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'RescueHistory'>;
+type Props = StackScreenProps<ProfileStackParams, 'RescueHistory'>;
 
 const RescueHistory: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
-  const authStore = Container.get(AuthStore);
 
   const onRefresh = React.useCallback(() => {
-    void rescueStore.find('', authStore.userType as any);
-  }, [authStore.userType, rescueStore]);
+    void rescueStore.find('');
+  }, [rescueStore]);
 
   useEffect(() => {
-    void rescueStore.find('', authStore.userType as any);
-  }, [authStore.userType, rescueStore]);
+    void rescueStore.find('');
+  }, [rescueStore]);
 
   return (
     <VStack width='100%'>
@@ -89,15 +93,14 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
         {rescueStore.state === STORE_STATES.LOADING ? (
           <Spinner size='lg' />
         ) : (
-          rescueStore.garageRescueHistories.map((rescue) => (
+          rescueStore.customerRescueHistories.map((rescue) => (
             <HistoryView
               key={rescue.id}
               onPress={() => {
                 navigation.navigate('HistoryDetail', { rescue });
               }}
               car={rescue.car}
-              staff={rescue.staff}
-              customer={rescue.customer}
+              garage={rescue.garage}
               rescueCase={rescue.rescueCase}
               createAt={rescue.createAt}
             />

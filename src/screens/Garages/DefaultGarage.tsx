@@ -69,7 +69,7 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
 type Props = StackScreenProps<ProfileStackParams & RescueStackParams, 'GarageDetail'>;
 
 const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
-  const { defaultGarage } = Container.get(GarageStore);
+  const { customerDefaultGarage: defaultGarage } = Container.get(GarageStore);
   const garage = route.params?.garage || defaultGarage;
   const authStore = Container.get(AuthStore);
   function changeDefaultGarage() {

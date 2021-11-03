@@ -2,8 +2,13 @@ import { Box, HStack, Image, NativeBaseProvider, ScrollView, Text, View, VStack 
 import React from 'react';
 import { DefaultCar } from '@assets/images';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
+import { StackScreenProps } from '@react-navigation/stack';
+import { ProfileStackParams } from '@screens/Navigation/params';
 
-const CarHistory: React.FC = () => {
+type Props = StackScreenProps<ProfileStackParams, 'CarHistory'>;
+
+const CarHistory: React.FC<Props> = ({ route }) => {
+  const { car } = route.params;
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} w='100%' mx='auto' backgroundColor='white'>
@@ -14,10 +19,12 @@ const CarHistory: React.FC = () => {
           }}
         >
           <HStack space={2} mt={7} mb={3}>
-            <Image source={DefaultCar} alt='Alternate Text' size={'sm'} mr={1} />
+            <Image source={car.imageUrl ? { uri: car.imageUrl } : DefaultCar} alt='Alternate Text' size={'sm'} mr={1} />
             <VStack space={2}>
-              <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 1, marginLeft: 10 }}>Mercedes C300 - 2019</Text>
-              <Text style={{ fontSize: 14, marginLeft: 10 }}>30A-13045</Text>
+              <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 1, marginLeft: 10 }}>
+                {car.brandName} {car.modelName}
+              </Text>
+              <Text style={{ fontSize: 14, marginLeft: 10 }}>{car.licenseNumber}</Text>
             </VStack>
           </HStack>
           <View

@@ -1,15 +1,37 @@
 import { ResponseSingular, ServiceResult } from './config';
-import { RegisterQueryModel, LoginQueryModel, LoginResponseModel, RegisterResponseModel } from '@models/customer';
+import {
+  RegisterQueryModel,
+  LoginQueryModel,
+  CustomerLoginResponseModel,
+  RegisterResponseModel,
+  GarageLoginResponseModel,
+} from '@models/user';
 import axios, { AxiosResponse } from 'axios';
 import { Service } from 'typedi';
 
-const path = 'auth/customers';
+const path = 'auth';
 
 @Service()
 export default class AuthService {
-  public async login(loginData: LoginQueryModel): Promise<ServiceResult<LoginResponseModel>> {
+  public async customerLogin(loginData: LoginQueryModel): Promise<ServiceResult<CustomerLoginResponseModel>> {
     try {
-      const response = await axios.post<LoginQueryModel, AxiosResponse<ResponseSingular<LoginResponseModel>>>(`${path}/login`, loginData);
+      const response = await axios.post<LoginQueryModel, AxiosResponse<ResponseSingular<CustomerLoginResponseModel>>>(
+        `${path}/customers/login`,
+        loginData,
+      );
+      const result = response.data.data.result;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    }
+  }
+
+  public async garageLogin(loginData: LoginQueryModel): Promise<ServiceResult<GarageLoginResponseModel>> {
+    try {
+      const response = await axios.post<LoginQueryModel, AxiosResponse<ResponseSingular<GarageLoginResponseModel>>>(
+        `${path}/staffs/login`,
+        loginData,
+      );
       const result = response.data.data.result;
       return { result, error: null };
     } catch (error) {

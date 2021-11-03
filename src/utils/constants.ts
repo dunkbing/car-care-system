@@ -7,9 +7,9 @@ export enum STORE_STATES {
 }
 
 export enum USER_TYPES {
-  CUSTOMER,
-  GARAGE_MANAGER,
-  GARAGE_STAFF,
+  CUSTOMER = 0,
+  GARAGE_MANAGER = 1,
+  GARAGE_STAFF = 2,
 }
 
 export enum RESCUE_STATES {

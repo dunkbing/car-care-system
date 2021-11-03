@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Button, Center, NativeBaseProvider, Select, Text, TextArea, VStack, View } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { rootNavigation } from '@screens/Navigation';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
 
-const RejectRequest: React.FC<Props> = ({ navigation }) => {
+const RejectRequest: React.FC<Props> = () => {
   const [reason, setReason] = useState('');
 
   return (
@@ -66,7 +67,7 @@ const RejectRequest: React.FC<Props> = ({ navigation }) => {
           />
           <Button
             onPress={() => {
-              navigation.pop(2);
+              rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
             }}
             style={{
               backgroundColor: '#34A853',

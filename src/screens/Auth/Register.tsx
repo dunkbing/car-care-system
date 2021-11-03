@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
-import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/customer';
+import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/user';
 import { Formik } from 'formik';
 import { GoogleLogo } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';

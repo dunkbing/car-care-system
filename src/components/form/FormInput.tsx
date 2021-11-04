@@ -5,6 +5,7 @@ import { Center, FormControl, IFormControlProps, Input } from 'native-base';
 type Props = {
   isRequired?: boolean;
   isInvalid?: boolean;
+  isDisabled?: boolean;
   label: string;
   value?: string;
   defaultValue?: string;
@@ -24,6 +25,7 @@ const FormInput: React.FC<Props> = ({
   label,
   isRequired,
   isInvalid,
+  isDisabled,
   errorMessage,
   leftIcon,
   secureTextEntry,
@@ -47,6 +49,7 @@ const FormInput: React.FC<Props> = ({
         InputLeftElement={leftIcon}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
+        isDisabled={isDisabled}
       />
       {errorMessage && (
         <Center>

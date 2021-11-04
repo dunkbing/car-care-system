@@ -220,7 +220,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           <PopupGarage
             garage={mapState.garage as any}
             handleSos={handleSos}
-            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: mapState.garage as GarageModel })}
+            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: mapState.garage as GarageModel, isRescueStack: true })}
           />
         )}
       />

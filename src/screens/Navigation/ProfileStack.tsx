@@ -27,7 +27,7 @@ export const ProfileStack: React.FC<Props> = () => {
   const authStore = Container.get(AuthStore);
   return (
     <ProfileStackNav.Navigator>
-      <ProfileStackNav.Screen name='ProfileInfo' component={Profile} options={{ headerShown: false }} />
+      <ProfileStackNav.Screen name='ProfileInfo' component={Profile} options={{ title: 'Thông tin cá nhân', ...navHeaderStyle }} />
       <ProfileStackNav.Screen name='CarInfo' component={CarStatus} options={{ title: 'Danh sách xe', ...navHeaderStyle }} />
       <ProfileStackNav.Screen
         name='CarHistory'

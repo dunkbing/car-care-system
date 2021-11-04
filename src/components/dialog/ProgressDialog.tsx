@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertDialog, Button, Spinner } from 'native-base';
+import { AlertDialog, Spinner } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 export enum DialogState {

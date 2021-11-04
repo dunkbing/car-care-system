@@ -45,7 +45,7 @@ export const ProfileStack: React.FC<Props> = () => {
         })}
       />
       <ProfileStackNav.Screen name='EditCarDetail' component={CarDetail} options={{ title: 'Thông tin xe', ...navHeaderStyle }} />
-      <ProfileStackNav.Screen name='DefineCarModel' component={DefineCarModel} options={{ title: 'Danh sách xe', ...navHeaderStyle }} />
+      <ProfileStackNav.Screen name='DefineCarModel' component={DefineCarModel} options={{ title: 'Thêm xe', ...navHeaderStyle }} />
       <ProfileStackNav.Screen
         name='DefaultGarage'
         component={DefaultGarage}

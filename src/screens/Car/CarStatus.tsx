@@ -72,7 +72,7 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
 
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} w='100%' mx='auto'>
+      <Box safeArea flex={1} p={2} w='100%' mx='auto' style={{ backgroundColor: 'white' }}>
         <ScrollView
           _contentContainerStyle={{
             px: '20px',

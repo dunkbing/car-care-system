@@ -1,8 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { AlertDialog, Button, Center, Text } from 'native-base';
 import { DialogState } from './ProgressDialog';
 import DialogStore from '@mobx/stores/dialog';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
 
 export enum DIALOG_TYPE {
   CANCEL,
@@ -25,9 +27,9 @@ export enum MessageDialogResult {
   CANCEL,
 }
 
-export function MessageDialog({ title, message, state, type, onRefused, onAgreed, onClosed }: MessageDialogProps): ReactElement {
+function MessageDialog({ title, message, state, type, onRefused, onAgreed, onClosed }: MessageDialogProps): ReactElement {
   const cancelRef = React.useRef<TouchableOpacity>(null);
-  const dialogStore = useContext(DialogStore);
+  const dialogStore = Container.get(DialogStore);
   function handleClose(close: (() => void) | undefined) {
     return function () {
       close?.();
@@ -85,3 +87,5 @@ export function MessageDialog({ title, message, state, type, onRefused, onAgreed
     </AlertDialog>
   );
 }
+
+export default observer(MessageDialog);

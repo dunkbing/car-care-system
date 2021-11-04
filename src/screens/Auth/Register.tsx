@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { NativeBaseProvider, Box, VStack, Button, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
 import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/user';
@@ -16,7 +16,7 @@ type Props = StackScreenProps<AuthStackParams, 'Register'>;
 const Register: React.FC<Props> = ({ navigation }) => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
   const authService = Container.get(AuthService);
-  const dialogStore = useContext(DialogStore);
+  const dialogStore = Container.get(DialogStore);
   async function onRegisterSubmit(values: RegisterQueryModel) {
     dialogStore.openProgressDialog();
     const { error } = await authService.register(values);

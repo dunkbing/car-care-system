@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { ResponsePlural, ResponseSingular, ServiceResult } from './config';
+import { ResponseError, ResponsePlural, ResponseSingular, ServiceResult } from './config';
 import { CarDetailModel, CreateCarRequestModel, CarResponseModel, UpdateCarRequestModel } from '@models/car';
 import { Service } from 'typedi';
 import { BaseService } from './base-service';
@@ -28,7 +28,10 @@ export default class CarService extends BaseService {
     }
   }
 
-  public async create(car: CreateCarRequestModel): Promise<boolean> {
+  public async create(
+    car: CreateCarRequestModel,
+    cb: null | ((errors: Array<ResponseError> | Array<any>) => void) = null,
+  ): Promise<boolean> {
     const formData = new FormData();
     for (const [key, value] of Object.entries(car)) {
       formData.append(key, value);
@@ -37,8 +40,17 @@ export default class CarService extends BaseService {
       const response = await axios.post<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return response.data.executeMessage === 'Success';
+      if (response.data.errors.length) {
+        cb?.(response.data.errors);
+        return false;
+      }
+      return response.data.executeStatus === 'Success';
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        cb?.(error.response?.data?.errors);
+        return false;
+      }
+      cb?.([error]);
       return false;
     }
   }

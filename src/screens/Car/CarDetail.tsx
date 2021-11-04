@@ -56,6 +56,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                   accessibilityLabel: 'Hãng xe',
                   placeholder: 'Chọn hãng xe',
                 }}
+                isDisabled
               />
               <FormSelect
                 label='Mẫu xe'
@@ -74,12 +75,14 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                   accessibilityLabel: 'Mẫu xe',
                   placeholder: 'Chọn mẫu xe',
                 }}
+                isDisabled
               />
               <FormInput
                 value={car.licenseNumber}
                 onChangeText={(value) => setCar({ ...car, licenseNumber: value })}
                 label='Biển số'
                 placeholder='Nhập biển số'
+                isDisabled
               />
               <FormSelect
                 label='Màu xe'
@@ -95,12 +98,14 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                 ]}
                 onValueChange={(value) => setCar({ ...car, color: value })}
                 selectProps={{ accessibilityLabel: 'Chọn màu xe', placeholder: 'Chọn màu xe' }}
+                isDisabled
               />
               <FormInput
                 value={car.year.toString() || ''}
                 onChangeText={(value) => setCar({ ...car, year: Number(value) })}
                 label='Năm sản xuất'
                 placeholder='Nhập năm sản xuất'
+                isDisabled
               />
               <Center>
                 <Button

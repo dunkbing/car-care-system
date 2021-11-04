@@ -7,6 +7,7 @@ type Props = {
   labelStyle?: IFormControlLabelProps;
   isRequired?: boolean;
   isInvalid?: boolean;
+  isDisabled?: boolean;
   errorMessage?: string;
   items: {
     label: string;
@@ -21,6 +22,7 @@ const FormSelect: React.FC<Props> = ({
   value,
   isRequired,
   isInvalid,
+  isDisabled,
   errorMessage,
   label,
   labelStyle,
@@ -44,6 +46,7 @@ const FormSelect: React.FC<Props> = ({
         }}
         mt='1'
         onValueChange={onValueChange}
+        isDisabled={isDisabled}
       >
         {items.map((item) => (
           <Select.Item key={`${item.label}-${item.value}`} label={item.label} value={item.value} endIcon={item.endIcon} />

@@ -21,7 +21,7 @@ export default class CarStore {
 
   public async getCars() {
     this.state = STORE_STATES.LOADING;
-    const { result, error } = await this.carService.findCustomerHistories();
+    const { result, error } = await this.carService.find();
 
     if (error) {
       runInAction(() => {
@@ -41,7 +41,16 @@ export default class CarStore {
     const success = await withProgress(this.carService.create(car));
 
     runInAction(() => {
-      this.state = success ? STORE_STATES.ERROR : STORE_STATES.SUCCESS;
+      this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
+    });
+  }
+
+  public async deleteCar(carId: number) {
+    this.state = STORE_STATES.LOADING;
+    const success = await withProgress(this.carService.delete(carId));
+
+    runInAction(() => {
+      this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
     });
   }
 }

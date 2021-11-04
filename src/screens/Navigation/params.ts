@@ -1,4 +1,4 @@
-import { CarModel } from '@models/car';
+import { CarDetailModel, CarModel } from '@models/car';
 import { GarageModel } from '@models/garage';
 import { CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -30,8 +30,8 @@ export type ProfileStackParams = {
   ProfileOverview: undefined;
   ProfileInfo: undefined;
   CarInfo: undefined;
-  CarHistory: { car: CarModel };
-  EditCarDetail: { car: CarModel };
+  CarHistory: { car: CarDetailModel };
+  EditCarDetail: { car: CarDetailModel };
   DefineCarModel: { loggedIn: boolean };
   DefaultGarage: undefined;
   SearchGarage: undefined;

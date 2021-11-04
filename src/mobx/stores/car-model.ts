@@ -1,4 +1,5 @@
 import CarModelService from '@mobx/services/car-model';
+import { withProgress } from '@mobx/services/config';
 import { CarModelModel } from '@models/car-model';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
@@ -16,7 +17,7 @@ export default class CarModelStore {
   models: Array<CarModelModel> = [];
 
   public async getModels(brandId: number) {
-    const { error, result } = await this.modelService.findCustomerHistories(brandId);
+    const { error, result } = await withProgress(this.modelService.find(brandId));
 
     if (error) {
       runInAction(() => {

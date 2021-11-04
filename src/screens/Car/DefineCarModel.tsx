@@ -11,6 +11,7 @@ import FormSelect from '@components/form/FormSelect';
 import { Container } from 'typedi';
 import { launchImageLibrary } from 'react-native-image-picker';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
 
@@ -18,12 +19,12 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   const carBrandStore = Container.get(CarBrandStore);
   const carModelStore = Container.get(CarModelStore);
   const carStore = Container.get(CarStore);
-  const [brand, setBrand] = useState('');
 
   useEffect(() => {
     void carBrandStore.getBrands();
   }, [carBrandStore]);
 
+  const [brand, setBrand] = useState('');
   const [car, setCar] = useState<CreateCarRequestModel>({
     modelId: -1,
     color: '',
@@ -49,6 +50,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
           px: '20px',
           mb: '4',
           backgroundColor: 'white',
+          flexGrow: 1,
         }}
       >
         <Box safeArea flex={1} p={2} w='90%' mx='auto'>
@@ -81,12 +83,12 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                 label='Màu xe'
                 value={car.color}
                 items={[
-                  { label: 'Đỏ', value: '#ff0000' },
-                  { label: 'Đen', value: '#000000' },
-                  { label: 'Trắng', value: '#ffffff' },
-                  { label: 'Xám', value: '#808080' },
-                  { label: 'Lục', value: '#00ff00' },
-                  { label: 'Lam', value: '#0000ff' },
+                  { label: 'Đỏ', value: '#ff0000', endIcon: <Ionicons name='color-fill' color='#ff0000' size={20} /> },
+                  { label: 'Đen', value: '#000000', endIcon: <Ionicons name='color-fill' color='#000000' size={20} /> },
+                  { label: 'Trắng', value: '#ffffff', endIcon: <Ionicons name='color-fill' color='#ffffff' size={20} /> },
+                  { label: 'Xám', value: '#808080', endIcon: <Ionicons name='color-fill' color='#808080' size={20} /> },
+                  { label: 'Lục', value: '#00ff00', endIcon: <Ionicons name='color-fill' color='#00ff00' size={20} /> },
+                  { label: 'Lam', value: '#0000ff', endIcon: <Ionicons name='color-fill' color='#0000ff' size={20} /> },
                   { label: 'Khác', value: 'undefined' },
                 ]}
                 onValueChange={(value) => setCar({ ...car, color: value })}

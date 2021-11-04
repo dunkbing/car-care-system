@@ -56,6 +56,7 @@ export const registerValidationSchema = yup.object({
     .required('Vui lòng xác nhận mật khẩu')
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
   address: yup.string().required('Không được bỏ trống'),
+  typeCustomer: yup.string().required('Không được bỏ trống'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;

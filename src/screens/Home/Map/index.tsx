@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
 import { Box, Button, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
@@ -79,7 +79,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   });
   const [places, setPlaces] = useState<Place[]>([]);
   const garageStore = Container.get(GarageStore);
-  const dialogStore = useContext(DialogStore);
+  const dialogStore = Container.get(DialogStore);
   const sheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
@@ -220,7 +220,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           <PopupGarage
             garage={mapState.garage as any}
             handleSos={handleSos}
-            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: mapState.garage as GarageModel })}
+            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: mapState.garage as GarageModel, isRescueStack: true })}
           />
         )}
       />

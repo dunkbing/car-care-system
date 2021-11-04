@@ -1,5 +1,6 @@
-import { dialogStore } from '@mobx/stores/dialog';
+import DialogStore from '@mobx/stores/dialog';
 import axios, { Method } from 'axios';
+import Container from 'typedi';
 
 export type RequestError = {
   status?: number;
@@ -78,6 +79,7 @@ export function setHeader(key: string, value: string) {
  * @returns promise result
  */
 export async function withProgress<T = any>(promise: Promise<T>) {
+  const dialogStore = Container.get(DialogStore);
   dialogStore.openProgressDialog({ title: 'Vui lòng đợi' });
   const result = await promise;
   dialogStore.closeProgressDialog();

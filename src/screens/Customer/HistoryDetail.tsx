@@ -77,7 +77,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
               fontSize: 17,
             }}
           >
-            {rescue.car.brandName} {rescue.car.modelName}
+            {rescue.car?.brandName || 'null'} {rescue.car?.modelName || 'null'}
           </Text>
         </View>
         <View

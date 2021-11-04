@@ -62,7 +62,7 @@ function CarCarousel() {
   const cars = carStore.cars;
 
   useEffect(() => {
-    void carStore.getCars();
+    void carStore.find();
   }, [carStore]);
 
   function handleChange(index: number) {

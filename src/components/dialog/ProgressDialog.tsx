@@ -1,6 +1,7 @@
 import React from 'react';
-import { AlertDialog, Button, Spinner } from 'native-base';
+import { AlertDialog, Spinner } from 'native-base';
 import { TouchableOpacity } from 'react-native';
+import { observer } from 'mobx-react';
 
 export enum DialogState {
   OPEN,
@@ -13,7 +14,7 @@ export type ProgressDialogProps = {
   onClosed?: () => void;
 };
 
-export const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) => {
+const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) => {
   const cancelRef = React.useRef<TouchableOpacity>(null);
 
   return (
@@ -35,3 +36,5 @@ export const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) 
     </AlertDialog>
   );
 };
+
+export default observer(ProgressDialog);

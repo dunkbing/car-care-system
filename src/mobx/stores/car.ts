@@ -1,26 +1,29 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { CarModel, CreateCarRequestModel } from '@models/car';
+import { CarDetailModel, CarModel, CreateCarRequestModel } from '@models/car';
 import CarService from '@mobx/services/car';
 import { STORE_STATES } from '@utils/constants';
 import { withProgress } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
+import CarModelStore from './car-model';
 
 @Service()
 export default class CarStore {
   constructor() {
     makeObservable(this, {
       cars: observable,
-      getCars: action,
+      find: action,
     });
   }
 
   private readonly carService = Container.get(CarService);
+  private readonly carModelStore = Container.get(CarModelStore);
 
   cars: CarModel[] = [];
+  carDetail: CarDetailModel | null = null;
   state: STORE_STATES = STORE_STATES.IDLE;
   errorMessage = '';
 
-  public async getCars() {
+  public async find() {
     this.state = STORE_STATES.LOADING;
     const { result, error } = await this.carService.find();
 
@@ -35,6 +38,15 @@ export default class CarStore {
         this.cars = [...cars];
       });
     }
+  }
+
+  public async findOne(id: number) {
+    await this.carService.findOne(id).then(({ result }) => {
+      void this.carModelStore.getModels(result?.brand.id as number);
+      runInAction(() => {
+        this.carDetail = result;
+      });
+    });
   }
 
   public async createCar(car: CreateCarRequestModel) {

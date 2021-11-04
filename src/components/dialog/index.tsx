@@ -1,12 +1,13 @@
 import { Box } from 'native-base';
-import React, { useContext } from 'react';
-import { MessageDialog } from './MessageDialog';
-import { ProgressDialog } from './ProgressDialog';
+import React from 'react';
+import MessageDialog from './MessageDialog';
+import ProgressDialog from './ProgressDialog';
 import { observer } from 'mobx-react';
 import DialogStore from '@mobx/stores/dialog';
+import Container from 'typedi';
 
 const Dialog = () => {
-  const dialogStore = useContext(DialogStore);
+  const dialogStore = Container.get(DialogStore);
   const { msgDialogState, progressDialogState } = dialogStore;
   return (
     <Box>

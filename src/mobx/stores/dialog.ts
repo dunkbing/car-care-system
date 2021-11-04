@@ -1,9 +1,10 @@
 import { DIALOG_TYPE, MessageDialogProps } from '@components/dialog/MessageDialog';
 import { DialogState, ProgressDialogProps } from '@components/dialog/ProgressDialog';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { createContext } from 'react';
+import { Service } from 'typedi';
 
-class DialogStore {
+@Service()
+export default class DialogStore {
   constructor() {
     makeObservable(this, {
       msgDialogState: observable,
@@ -52,7 +53,3 @@ class DialogStore {
     runInAction(() => (this.progressDialogState = { ...this.progressDialogState, state: DialogState.CLOSE }));
   }
 }
-
-export const dialogStore = new DialogStore();
-
-export default createContext(dialogStore);

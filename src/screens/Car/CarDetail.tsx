@@ -12,7 +12,7 @@ import { observer } from 'mobx-react';
 import CarService from '@mobx/services/car';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CarStore from '@mobx/stores/car';
-import { dialogStore } from '@mobx/stores/dialog';
+import DialogStore from '@mobx/stores/dialog';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 
 type Props = StackScreenProps<ProfileStackParams, 'EditCarDetail'>;
@@ -21,15 +21,16 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
   const carBrandStore = Container.get(CarBrandStore);
   const carModelStore = Container.get(CarModelStore);
   const carStore = Container.get(CarStore);
+  const dialogStore = Container.get(DialogStore);
   const carService = Container.get(CarService);
 
   useEffect(() => {
     void carBrandStore.getBrands();
+    void carStore.findOne(route.params.car.id);
     void carService.findOne(route.params.car.id).then(({ result }) => {
       void carModelStore.getModels(result?.brand.id as number);
-      setCar(result as CarDetailModel);
     });
-  }, [carBrandStore, carModelStore, carService, route.params.car.id]);
+  }, [carBrandStore, carModelStore, carService, carStore, route.params.car.id]);
 
   function onDeleteCar() {
     dialogStore.openMsgDialog({
@@ -42,7 +43,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
     });
   }
 
-  const [car, setCar] = useState<CarDetailModel>({ ...route.params.car });
+  const [car] = useState<CarDetailModel>({ ...route.params.car });
 
   return (
     <NativeBaseProvider>

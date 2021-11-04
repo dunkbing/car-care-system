@@ -8,7 +8,8 @@ import {
   PlacesRequestParams,
   PlacesResponse,
 } from '@models/map';
-import { dialogStore } from '@mobx/stores/dialog';
+import DialogStore from '@mobx/stores/dialog';
+import Container from 'typedi';
 
 const baseURL = 'https://rsapi.goong.io';
 const placesPath = 'Place';
@@ -29,6 +30,7 @@ class MapService {
   }
 
   public async getPlaceDetail(params: DetailPlaceRequestParams): Promise<ServiceResult<DetailPlaceResponse>> {
+    const dialogStore = Container.get(DialogStore);
     try {
       dialogStore.openProgressDialog({ title: 'Vui lòng đợi' });
       const response = await axios.get<DetailPlaceRequestParams, AxiosResponse<DetailPlaceResponse>>(`${placesPath}/Detail`, {

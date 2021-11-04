@@ -130,11 +130,13 @@ const Register: React.FC<Props> = ({ navigation }) => {
                       { label: 'Cá nhân', value: 'Cá nhân' },
                       { label: 'Doanh nghiệp', value: 'Doanh nghiệp' },
                     ]}
+                    isInvalid={!isValid}
                     onValueChange={(value) => setTypeCustomer(value)}
                     selectProps={{
                       accessibilityLabel: 'Loại khách hàng',
                       placeholder: 'Loại khách hàng',
                     }}
+                    errorMessage={errors.typeCustomer}
                   />
                   <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>

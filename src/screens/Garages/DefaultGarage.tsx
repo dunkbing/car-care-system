@@ -77,8 +77,8 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
   }
   return (
     <VStack h='100%' alignItems='center' bg='white'>
-      <ScrollView h={height * 0.6} contentContainerStyle={{ paddingBottom: 110 }}>
-        <Center w='100%' h={height / 3.5} bg='primary.500' rounded='md' shadow={3}>
+      <ScrollView w='100%' h={height * 0.6} contentContainerStyle={{ paddingBottom: 110 }}>
+        <Center w='100%' h={height / 3.5} bg='primary.500' rounded='md'>
           <Image
             source={{
               uri: garage?.imageUrl || 'https://pixerpaints.com/wp-content/uploads/2021/02/product-default.jpg',
@@ -91,8 +91,8 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
         <Center w='100%' mt='3'>
           <GarageInfo name={garage?.name} address={garage?.address} phoneNumber={garage?.phoneNumber} />
         </Center>
-        <Center w='80%' rounded='md' mt='3'>
-          <VStack space={2}>
+        <Center w='100%' px='2' rounded='md' mt='3'>
+          <VStack space={2} px='4'>
             <GarageFeedback
               username='Nam Anh'
               rating={5}
@@ -106,7 +106,7 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
           </VStack>
         </Center>
       </ScrollView>
-      {authStore.userType === USER_TYPES.CUSTOMER && route.params?.garage && (
+      {authStore.userType === USER_TYPES.CUSTOMER && !route.params?.isRescueStack && garage && (
         <Center w='80%' mb={30}>
           <Button onPress={changeDefaultGarage} colorScheme='green' width='100%'>
             Thay đổi garage cứu hộ mặc định

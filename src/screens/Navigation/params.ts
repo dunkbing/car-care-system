@@ -1,4 +1,4 @@
-import { CarDetailModel, CarModel } from '@models/car';
+import { CarDetailModel } from '@models/car';
 import { GarageModel } from '@models/garage';
 import { CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -83,5 +83,5 @@ export type RescueStackParams = {
     | {
         onCancel: (() => void) | undefined;
       };
-  GarageDetail: undefined | { garage: GarageModel };
+  GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
 };

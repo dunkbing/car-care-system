@@ -12,6 +12,9 @@ import { Container } from 'typedi';
 import { launchImageLibrary } from 'react-native-image-picker';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { observer } from 'mobx-react';
+import { STORE_STATES } from '@utils/constants';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
 
@@ -24,7 +27,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
     void carBrandStore.getBrands();
   }, [carBrandStore]);
 
-  const [brand, setBrand] = useState('');
+  const [brand, setBrand] = useState(-1);
   const [car, setCar] = useState<CreateCarRequestModel>({
     modelId: -1,
     color: '',
@@ -36,11 +39,17 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   }
 
   function createCar() {
-    void carStore.createCar(car).then(() => navigation.goBack());
+    void carStore.createCar(car).then(() => {
+      if (carStore.state === STORE_STATES.SUCCESS) {
+        navigation.goBack();
+      } else {
+        toast.show(carStore.errorMessage);
+      }
+    });
   }
 
-  function onSelectBrand(brandId: string | number) {
-    setBrand(brandId.toString());
+  function onSelectBrand(brandId: number | string) {
+    setBrand(brandId as number);
     void carModelStore.getModels(brandId as number);
   }
   return (
@@ -58,7 +67,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
             <VStack space={2} mt={5}>
               <FormSelect
                 label='Hãng xe'
-                value={brand}
+                value={brand.toString()}
                 items={carBrandStore.brands.map((brand) => ({ label: brand.name, value: brand.id.toString() }))}
                 onValueChange={onSelectBrand}
                 selectProps={{
@@ -142,4 +151,4 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-export default DefineCarModel;
+export default observer(DefineCarModel);

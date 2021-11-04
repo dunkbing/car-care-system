@@ -18,6 +18,7 @@ export default class CarStore {
 
   cars: CarModel[] = [];
   state: STORE_STATES = STORE_STATES.IDLE;
+  errorMessage = '';
 
   public async getCars() {
     this.state = STORE_STATES.LOADING;
@@ -38,11 +39,23 @@ export default class CarStore {
 
   public async createCar(car: CreateCarRequestModel) {
     this.state = STORE_STATES.LOADING;
-    const success = await withProgress(this.carService.create(car));
+    const success = await withProgress(
+      this.carService.create(car, (errors) => {
+        if (errors.length) {
+          runInAction(() => {
+            this.state = STORE_STATES.ERROR;
+            this.errorMessage = errors[0].message;
+          });
+        }
+      }),
+    );
 
-    runInAction(() => {
-      this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
-    });
+    if (success) {
+      runInAction(() => {
+        this.errorMessage = '';
+        this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
+      });
+    }
   }
 
   public async deleteCar(carId: number) {

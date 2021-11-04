@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, Text, Image, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
 import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/user';
 import { Formik } from 'formik';
-import { GoogleLogo } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
 import AuthService from '@mobx/services/auth';
@@ -124,6 +123,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     errorMessage={errors.password}
                   />
                   <FormSelect
+                    isRequired
                     label='Loại khách hàng'
                     value={typeCustomer}
                     items={[
@@ -151,12 +151,6 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 </VStack>
               )}
             </Formik>
-          </VStack>
-          <VStack alignItems='center'>
-            <Text fontSize='md' mt={10}>
-              Hoặc đăng nhập với
-            </Text>
-            <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
           </VStack>
         </Box>
       </ScrollView>

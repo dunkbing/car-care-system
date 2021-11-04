@@ -48,6 +48,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
         _contentContainerStyle={{
           px: '20px',
           mb: '4',
+          backgroundColor: 'white',
         }}
       >
         <Box safeArea flex={1} p={2} w='90%' mx='auto'>

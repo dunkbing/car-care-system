@@ -38,12 +38,12 @@ export function MessageDialog({ title, message, state, type, onRefused, onAgreed
   const buttons = () => {
     if (type === DIALOG_TYPE.BOTH) {
       return (
-        <Button.Group space={2}>
-          <Button variant='solid' colorScheme='secondary' onPress={handleClose(onRefused)}>
-            Hủy
-          </Button>
-          <Button variant='solid' colorScheme='primary' onPress={handleClose(onAgreed)} ref={cancelRef}>
+        <Button.Group space={2} flex='1'>
+          <Button flex='1' variant='solid' colorScheme='primary' onPress={handleClose(onAgreed)} ref={cancelRef}>
             Xác nhận
+          </Button>
+          <Button flex='1' variant='solid' colorScheme='secondary' onPress={handleClose(onRefused)}>
+            Hủy
           </Button>
         </Button.Group>
       );

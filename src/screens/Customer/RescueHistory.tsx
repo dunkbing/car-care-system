@@ -24,10 +24,10 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistoryMod
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
         <View width='100%'>
           <Text mb={3} bold={true} fontSize={17}>
-            {garage.name}
+            {garage?.name}
           </Text>
           <Text mb={3} bold={true} fontSize={17}>
-            {car.brandName} {car.modelName}
+            {car?.brandName || 'null'} {car?.modelName || 'null'}
           </Text>
         </View>
         <View>

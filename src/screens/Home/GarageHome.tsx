@@ -93,7 +93,7 @@ const StaffOption: React.FC = () => {
             name='Yêu cầu cứu hộ'
             imgSrc={RequestImg}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'PendingRescueRequest' });
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailAssignedRequest' });
             }}
           />
         </HStack>

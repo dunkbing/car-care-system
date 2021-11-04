@@ -8,7 +8,7 @@ const path = 'cars';
 
 @Service()
 export default class CarService extends BaseService {
-  public async findCustomerHistories(): Promise<ServiceResult<CarResponseModel[]>> {
+  public async find(): Promise<ServiceResult<CarResponseModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarResponseModel>>>(`${path}`);
       const result = response.data.data.result;
@@ -52,6 +52,15 @@ export default class CarService extends BaseService {
       const response = await axios.put<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      return response.data.executeMessage === 'Success';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  public async delete(id: number): Promise<boolean> {
+    try {
+      const response = await axios.delete<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}/${id}`);
       return response.data.executeMessage === 'Success';
     } catch (error) {
       return false;

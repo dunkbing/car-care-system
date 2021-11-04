@@ -8,8 +8,6 @@ export type CarModel = {
   imageUrl: string | null;
 };
 
-export type CarResponseModel = CarModel;
-
 type Avatar = {
   uri: string;
   type: string;
@@ -47,3 +45,5 @@ export type CarDetailModel = {
   imageUrl: string | null;
   avatar?: Avatar;
 };
+
+export type CarResponseModel = CarModel;

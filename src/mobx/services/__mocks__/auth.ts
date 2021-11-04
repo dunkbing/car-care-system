@@ -1,6 +1,8 @@
 import { Gender, LoginQueryModel, User } from '@models/user';
 import { STORE_STATES } from '@utils/constants';
+import { Service } from 'typedi';
 
+@Service()
 class AuthService {
   state: STORE_STATES = STORE_STATES.IDLE;
   user: User = {

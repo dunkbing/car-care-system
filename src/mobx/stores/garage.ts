@@ -40,7 +40,7 @@ export default class GarageStore {
 
   public async searchGarage(keyword: string) {
     this.state = STORE_STATES.LOADING;
-    const { result, error } = await this.garageService.findCustomerHistories(keyword);
+    const { result, error } = await this.garageService.find(keyword);
 
     if (error) {
       runInAction(() => {

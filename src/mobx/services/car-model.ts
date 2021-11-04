@@ -13,7 +13,7 @@ export default class CarModelService extends BaseService {
    * @param brandId
    * @returns car models
    */
-  public async findCustomerHistories(brandId: number): Promise<ServiceResult<CarModelModel[]>> {
+  public async find(brandId: number): Promise<ServiceResult<CarModelModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<CarModelModel>>>(`${path}/${brandId}`);
       const result = response.data.data.result;

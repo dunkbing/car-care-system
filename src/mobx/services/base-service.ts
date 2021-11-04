@@ -2,7 +2,7 @@ import { ServiceResult } from './config';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export interface IRead<T> {
-  findCustomerHistories(item: any): Promise<ServiceResult<T[]>>;
+  find(item: any): Promise<ServiceResult<T[]>>;
   findOne(id: number): Promise<ServiceResult<T>>;
 }
 
@@ -25,7 +25,7 @@ export abstract class BaseService<T = any> implements IWrite<T>, IRead<T> {
     throw new Error('Method not implemented.');
   }
 
-  findCustomerHistories(item: any): Promise<ServiceResult<T[]>> {
+  find(item: any): Promise<ServiceResult<T[]>> {
     throw new Error('Method not implemented.');
   }
 

@@ -11,12 +11,14 @@ import { Container } from 'typedi';
 import { observer } from 'mobx-react';
 import CarService from '@mobx/services/car';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import CarStore from '@mobx/stores/car';
 
 type Props = StackScreenProps<ProfileStackParams, 'EditCarDetail'>;
 
 const CarDetail: React.FC<Props> = ({ navigation, route }) => {
   const carBrandStore = Container.get(CarBrandStore);
   const carModelStore = Container.get(CarModelStore);
+  const carStore = Container.get(CarStore);
   const carService = Container.get(CarService);
 
   useEffect(() => {
@@ -27,21 +29,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
     });
   }, [carBrandStore, carModelStore, carService, route.params.car.id]);
 
-  const [car, setCar] = useState<CarDetailModel>({
-    id: 1,
-    brand: {
-      id: 1,
-      name: 'Ford',
-    },
-    model: {
-      id: 1,
-      name: 'Ranger XLT 2.2L 4X4 AT',
-    },
-    year: 2019,
-    color: '#2acaea',
-    licenseNumber: '75A-14519',
-    imageUrl: null,
-  });
+  const [car, setCar] = useState<CarDetailModel>({ ...route.params.car });
 
   return (
     <NativeBaseProvider>
@@ -50,6 +38,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
           px: '20px',
           mb: '4',
           backgroundColor: 'white',
+          flexGrow: 1,
         }}
       >
         <Box safeArea flex={1} p={2} mt={1} w='90%' mx='auto'>
@@ -60,7 +49,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
                 value={car.brand.id.toString()}
                 items={carBrandStore.brands.map((brand) => ({ label: brand.name, value: brand.id.toString() }))}
                 onValueChange={(value) => {
-                  setCar({ ...car, brand: { id: 1, name: car.brand.name } });
+                  setCar({ ...car, brand: { id: Number(value), name: car.brand.name } });
                   void carModelStore.getModels(Number(value));
                 }}
                 selectProps={{
@@ -115,7 +104,10 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
               />
               <Center>
                 <Button
-                  onPress={() => navigation.goBack()}
+                  onPress={async () => {
+                    await carStore.deleteCar(car.id);
+                    navigation.pop(2);
+                  }}
                   style={{ alignSelf: 'center', width: '100%', height: 40 }}
                   bgColor='#EA4335'
                   _text={{ color: 'white' }}

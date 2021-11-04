@@ -9,6 +9,9 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { STORE_STATES } from '@utils/constants';
 import { Container } from 'typedi';
 import { RefreshControl, TouchableOpacity } from 'react-native';
+import CarService from '@mobx/services/car';
+import { withProgress } from '@mobx/services/config';
+import toast from '@utils/toast';
 
 const CarView: React.FC<Pick<CarModel, 'modelName' | 'brandName' | 'licenseNumber' | 'imageUrl'> & { onPress: OnPress }> = ({
   modelName,
@@ -54,6 +57,7 @@ const CarView: React.FC<Pick<CarModel, 'modelName' | 'brandName' | 'licenseNumbe
 type Props = StackScreenProps<ProfileStackParams, 'CarInfo'>;
 
 const CarStatus: React.FC<Props> = ({ navigation }) => {
+  const carService = Container.get(CarService);
   const carStore = Container.get(CarStore);
   function createCar() {
     navigation.navigate('DefineCarModel', { loggedIn: true });
@@ -88,8 +92,13 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
               <CarView
                 key={car.id}
                 {...car}
-                onPress={() => {
-                  navigation.navigate('CarHistory', { car });
+                onPress={async () => {
+                  const { result: carDetail, error } = await withProgress(carService.findOne(car.id));
+                  if (carDetail && !error) {
+                    navigation.navigate('CarHistory', { car: carDetail });
+                  } else {
+                    toast.show('Có lỗi xảy ra');
+                  }
                 }}
               />
             ))

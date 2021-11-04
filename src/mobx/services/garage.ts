@@ -19,7 +19,7 @@ export default class GarageService extends BaseService<GarageModel> {
     }
   }
 
-  public async findCustomerHistories(keyword: string): Promise<ServiceResult<GarageModel[]>> {
+  public async find(keyword: string): Promise<ServiceResult<GarageModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<WithPagination<GarageModel>>>(path, {
         params: { Keyword: keyword },

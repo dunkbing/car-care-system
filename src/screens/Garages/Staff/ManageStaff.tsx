@@ -1,27 +1,83 @@
-import React, { useEffect } from 'react';
-import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading, Spinner } from 'native-base';
+import React from 'react';
+import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
 import { TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { observer } from 'mobx-react';
-import Container from 'typedi';
-import StaffStore from '@mobx/stores/staff';
-import { StaffModel } from '@models/staff';
-import { STORE_STATES } from '@utils/constants';
+import SearchBar from '@components/SearchBar';
 
-type StaffViewProps = {
-  staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
-  onPress: OnPress;
-};
-
-const StaffView: React.FC<StaffViewProps> = ({ staff, onPress }) => {
+const Staff1: React.FC<{ onPress: () => void }> = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
         <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          {staff.lastName} {staff.firstName}
+          Nguyễn Văn Đức
+        </Text>
+      </HStack>
+    </TouchableOpacity>
+  );
+};
+
+const Staff2: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Nguyễn Nam Anh
+        </Text>
+      </HStack>
+    </TouchableOpacity>
+  );
+};
+
+const Staff3: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Lê Đức Anh
+        </Text>
+      </HStack>
+    </TouchableOpacity>
+  );
+};
+
+const Staff4: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Lê Hồng Hải
+        </Text>
+      </HStack>
+    </TouchableOpacity>
+  );
+};
+
+const Staff5: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Nguyễn Văn Tài
+        </Text>
+      </HStack>
+    </TouchableOpacity>
+  );
+};
+
+const Staff6: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
+        <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
+          Mai Hải Nam
         </Text>
       </HStack>
     </TouchableOpacity>
@@ -31,23 +87,13 @@ const StaffView: React.FC<StaffViewProps> = ({ staff, onPress }) => {
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageStaffs'>;
 
 const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
-  const staffStore = Container.get(StaffStore);
-
-  useEffect(() => {
-    navigation.addListener('focus', () => {
-      void staffStore.find();
-    });
-  }, [staffStore]);
-
-  const onPress = (staff: StaffModel) => {
-    return () => {
-      if (!route.params?.rescue) {
-        navigation.navigate('EditStaff', { staff });
-      } else {
-        navigation.pop();
-        navigation.navigate('DetailAssignedRequest');
-      }
-    };
+  const onPress = () => {
+    if (!route.params?.rescue) {
+      navigation.navigate('EditStaff');
+    } else {
+      navigation.pop();
+      navigation.navigate('PendingRescueRequest');
+    }
   };
 
   return (
@@ -59,19 +105,20 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
         }}
         backgroundColor='#fff'
       >
-        <Heading size='lg' textAlign='left' mt={7} mb={1} ml={5}>
-          Danh sách nhân viên
-        </Heading>
+        <Box pt={5}>
+          <SearchBar placeholder='Tìm tên nhân viên' />
+        </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          {staffStore.state === STORE_STATES.LOADING ? (
-            <Spinner size='lg' />
-          ) : (
-            staffStore.staffs.map((staff) => <StaffView key={staff.id} staff={staff} onPress={onPress(staff)} />)
-          )}
+          <Staff1 onPress={onPress} />
+          <Staff2 onPress={onPress} />
+          <Staff3 onPress={onPress} />
+          <Staff4 onPress={onPress} />
+          <Staff5 onPress={onPress} />
+          <Staff6 onPress={onPress} />
         </Box>
       </ScrollView>
     </NativeBaseProvider>
   );
 };
 
-export default observer(ManageStaff);
+export default ManageStaff;

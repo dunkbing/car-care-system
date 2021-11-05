@@ -7,7 +7,7 @@ import { LocationMarker } from '@assets/images';
 type Props = {
   id: string;
   coordinate: number[];
-  onPress: () => void;
+  onPress?: () => void;
 };
 
 export default ({ id, coordinate, onPress }: Props) => {

@@ -2,8 +2,15 @@ import React from 'react';
 import { Button, Checkbox, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import SearchBar from '../../components/SearchBar';
 import { ScrollView } from 'react-native-gesture-handler';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
-const AutomotivePart: React.FC = ({ name, price }) => {
+type AutomotivepartProps = {
+  name: string;
+  price: string;
+};
+
+const AutomotivePart: React.FC<AutomotivepartProps> = ({ name, price }) => {
   return (
     <View
       style={{
@@ -25,13 +32,15 @@ const AutomotivePart: React.FC = ({ name, price }) => {
         }}
       >
         <Text>{price}đ</Text>
-        <Checkbox value='' />
+        <Checkbox accessibilityLabel={name} value='' />
       </View>
     </View>
   );
 };
 
-const AutomotivePartSuggestion: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSuggestion'>;
+
+const AutomotivePartSuggestion: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <VStack px={15} p={25} height='100%'>
@@ -59,6 +68,9 @@ const AutomotivePartSuggestion: React.FC = () => {
           <AutomotivePart name='Láng đĩa phanh sau' price='251.000' />
         </ScrollView>
         <Button
+          onPress={() => {
+            navigation.navigate('RepairSuggestion');
+          }}
           style={{
             backgroundColor: '#34A853',
             bottom: 0,

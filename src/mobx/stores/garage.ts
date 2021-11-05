@@ -4,10 +4,12 @@ import GarageService from '@mobx/services/garage';
 import { STORE_STATES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
+import BaseStore from './base-store';
 
 @Service()
-export default class GarageStore {
+export default class GarageStore extends BaseStore {
   constructor() {
+    super();
     makeObservable(this, {
       state: observable,
       customerDefaultGarage: observable,
@@ -19,10 +21,10 @@ export default class GarageStore {
 
   private readonly garageService = Container.get(GarageService);
 
-  state: STORE_STATES = STORE_STATES.IDLE;
-  // customer default garage
+  // customer side
   customerDefaultGarage: GarageModel | null = null;
 
+  // garage side
   garage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
 
@@ -59,9 +61,7 @@ export default class GarageStore {
     this.state = STORE_STATES.LOADING;
     const { result, error } = await this.garageService.findOne(id);
     if (error) {
-      runInAction(() => {
-        this.state = STORE_STATES.ERROR;
-      });
+      this.handleError(error);
     } else {
       const garage = result;
       runInAction(() => {

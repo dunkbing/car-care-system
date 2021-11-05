@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import { DefaultCar } from '@assets/images';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
 const Label: React.FC<{ name: string }> = (props) => {
   return (
@@ -16,7 +18,9 @@ const Label: React.FC<{ name: string }> = (props) => {
   );
 };
 
-const DetailAssignRequest: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailAssignedRequest'>;
+
+const DetailAssignRequest: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' h='100%' mx='auto' bg='#FFFFFF'>
@@ -70,7 +74,14 @@ const DetailAssignRequest: React.FC = () => {
               justifyContent: 'space-between',
             }}
           >
-            <Button style={{ width: '100%', backgroundColor: '#34A853', alignSelf: 'center' }}>Bắt đầu khởi hành</Button>
+            <Button
+              onPress={() => {
+                navigation.navigate('Map');
+              }}
+              style={{ width: '100%', backgroundColor: '#34A853', alignSelf: 'center' }}
+            >
+              Bắt đầu khởi hành
+            </Button>
           </View>
         </VStack>
       </Box>

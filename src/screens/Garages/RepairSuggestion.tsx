@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
 const CategoryDetail: React.FC = ({ categoryName, price }) => {
   return (
@@ -54,7 +56,9 @@ const CategoryDetail: React.FC = ({ categoryName, price }) => {
   );
 };
 
-const RepairSuggestion: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
+
+const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
   return (
     <ScrollView>
       <VStack px={15} py={25}>
@@ -85,6 +89,9 @@ const RepairSuggestion: React.FC = () => {
             Thiết bị
           </Text>
           <Button
+            onPress={() => {
+              navigation.pop();
+            }}
             style={{
               width: '40%',
               backgroundColor: '#34A853',
@@ -132,6 +139,9 @@ const RepairSuggestion: React.FC = () => {
         </View>
         <Center>
           <Button
+            onPress={() => {
+              navigation.pop(2);
+            }}
             style={{
               backgroundColor: '#34A853',
               width: '100%',

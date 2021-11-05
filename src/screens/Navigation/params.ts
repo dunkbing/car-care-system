@@ -65,6 +65,9 @@ export type GarageHomeOptionStackParams = {
   PendingRescueRequest: undefined;
   DetailRequest: undefined;
   DetailAssignedRequest: undefined;
+  Map: undefined;
+  AutomotivePartSuggestion: undefined;
+  RepairSuggestion: undefined;
   RejectRequest: undefined;
   Feedback: undefined;
 };

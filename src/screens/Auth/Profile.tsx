@@ -90,7 +90,7 @@ const Profile: React.FC<Props> = () => {
             />
           )}
         </VStack>
-        <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />
+        {authStore.userType === USER_TYPES.CUSTOMER && <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />}
         <Center>
           <HStack space={10} mt={5} mb={5}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>

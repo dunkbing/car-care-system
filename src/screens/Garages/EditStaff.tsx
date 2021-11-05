@@ -23,10 +23,15 @@ const EditStaff: React.FC = () => {
             <FormInput isRequired label='Số điện thoại' placeholder='Nhập số điện thoại' keyboardType='phone-pad' />
             <FormInput isRequired label='Email' placeholder='Nhập email' keyboardType='email-address' />
             <HStack space={60} mt={3}>
-              <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
+              <Button mb={-2} style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
                 Lưu
               </Button>
-              <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} backgroundColor='#EA4335' _text={{ color: 'white' }}>
+              <Button
+                mb={-2}
+                style={{ alignSelf: 'center', width: '40%', height: 40 }}
+                backgroundColor='#EA4335'
+                _text={{ color: 'white' }}
+              >
                 Xóa
               </Button>
             </HStack>

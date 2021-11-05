@@ -43,8 +43,8 @@ export const GarageOptionsStack: React.FC = () => {
           ),
         })}
       />
-      <Stack.Screen name='AddStaff' component={AddStaff} options={{ title: 'Quản lý nhân viên', ...navHeaderStyle }} />
-      <Stack.Screen name='EditStaff' component={EditStaff} options={{ title: 'Quản lý nhân viên', ...navHeaderStyle }} />
+      <Stack.Screen name='AddStaff' component={AddStaff} options={{ title: 'Thêm nhân viên', ...navHeaderStyle }} />
+      <Stack.Screen name='EditStaff' component={EditStaff} options={{ title: 'Thông tin nhân viên', ...navHeaderStyle }} />
       <Stack.Screen name='ManageCustomers' component={ManageCustomer} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
       <Stack.Screen name='CustomerCarStatus' component={CustomerCarStatus} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
       <Stack.Screen name='RescueHistory' component={RescueHistory} options={{ title: 'Lịch sử cứu hộ', ...navHeaderStyle }} />

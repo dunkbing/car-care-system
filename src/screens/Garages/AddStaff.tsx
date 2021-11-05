@@ -22,7 +22,7 @@ const AddStaff: React.FC = () => {
             <FormInput isRequired label='Tên' placeholder='Nhập tên nhân viên' keyboardType='ascii-capable' />
             <FormInput isRequired label='Số điện thoại' placeholder='Nhập số điện thoại' keyboardType='phone-pad' />
             <FormInput isRequired label='Email' placeholder='Nhập email' keyboardType='email-address' />
-            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
+            <Button mb={-2} style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
               Thêm
             </Button>
           </VStack>

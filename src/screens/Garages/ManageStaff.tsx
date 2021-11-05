@@ -1,9 +1,10 @@
 import React from 'react';
-import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading } from 'native-base';
+import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
 import { TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import SearchBar from '@components/SearchBar';
 
 const Staff: React.FC<{ onPress: () => void }> = ({ onPress }) => {
   return (
@@ -26,7 +27,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
       navigation.navigate('EditStaff');
     } else {
       navigation.pop();
-      navigation.navigate('DetailAssignedRequest');
+      navigation.navigate('PendingRescueRequest');
     }
   };
 
@@ -39,9 +40,9 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
         }}
         backgroundColor='#fff'
       >
-        <Heading size='lg' textAlign='left' mt={7} mb={1} ml={5}>
-          Danh sách nhân viên
-        </Heading>
+        <Box pt={5}>
+          <SearchBar placeholder='Tìm tên nhân viên' />
+        </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
           <Staff onPress={onPress} />
           <Staff onPress={onPress} />

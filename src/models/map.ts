@@ -93,3 +93,25 @@ export type DirectionsResponse = {
   geocoded_waypoints: any[];
   routes: Route[];
 };
+
+export type GeocodeRequestParams = {
+  api_key: string;
+  latlng: string;
+};
+
+export type GeocodingResponse = {
+  plus_code: any;
+  results: Array<{
+    address_components: { long_name: string; short_name: string }[];
+    formatted_address: string;
+    geometry: { location: { lat: number; lng: number } };
+    place_id: string;
+    reference: string;
+    plus_code: {
+      compound_code: string;
+      global_code: string;
+    };
+    type: any[];
+  }>;
+  status: string;
+};

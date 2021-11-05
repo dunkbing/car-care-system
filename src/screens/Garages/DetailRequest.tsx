@@ -23,7 +23,7 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
 const DetailRequest: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} w='100%' mx='auto' bg='#FFFFFF'>
+      <Box safeArea flex={1} p={2} w='100%' h='100%' mx='auto' bg='#FFFFFF'>
         <VStack
           style={{
             padding: 20,

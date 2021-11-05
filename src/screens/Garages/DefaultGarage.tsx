@@ -97,12 +97,12 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
               username='Nam Anh'
               rating={5}
               content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình nhiệt tình'
-              time='19-10-2021 14:29'
+              time='15-10-2021 14:29'
             />
-            <GarageFeedback username='Văn Nam' rating={5} content='Nhân viên tận tình giúp đỡ' time='19-10-2021 14:29' />
-            <GarageFeedback username='Ngọc Đức' rating={4} content='Cứu hộ nhanh chóng, nhân viên nhiệt tình' time='19-10-2021 14:29' />
-            <GarageFeedback username='Hồng Duy' rating={4} content='Hài lòng với dịch vụ' time='19-10-2021 14:29' />
-            <GarageFeedback username='Mạnh Quân' rating={5} content='Hài lòng với chất lượng dịch vụ' time='19-10-2021 14:29' />
+            <GarageFeedback username='Văn Nam' rating={5} content='Nhân viên tận tình giúp đỡ' time='15-10-2021 12:21' />
+            <GarageFeedback username='Ngọc Đức' rating={4} content='Cứu hộ nhanh chóng, nhân viên nhiệt tình' time='15-10-2021 12:11' />
+            <GarageFeedback username='Hồng Duy' rating={4} content='Hài lòng với dịch vụ' time='14-10-2021 15:29' />
+            <GarageFeedback username='Mạnh Quân' rating={5} content='Hài lòng với chất lượng dịch vụ' time='14-10-2021 14:29' />
           </VStack>
         </Center>
       </ScrollView>

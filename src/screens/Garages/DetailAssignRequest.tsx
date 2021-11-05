@@ -1,12 +1,25 @@
 import React from 'react';
-import { Box, Button, HStack, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
+import { Box, Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import { DefaultCar } from '@assets/images';
-import FAFIcon from 'react-native-vector-icons/FontAwesome5';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+
+const Label: React.FC<{ name: string }> = (props) => {
+  return (
+    <Text
+      style={{
+        fontSize: 16,
+        fontWeight: 'bold',
+      }}
+    >
+      {props.name}
+    </Text>
+  );
+};
 
 const DetailAssignRequest: React.FC = () => {
   return (
     <NativeBaseProvider>
-      <Box safeArea flex={1} p={2} mt={3} w='100%' mx='auto'>
+      <Box safeArea flex={1} p={2} w='100%' h='100%' mx='auto' bg='#FFFFFF'>
         <VStack
           style={{
             padding: 20,
@@ -18,59 +31,47 @@ const DetailAssignRequest: React.FC = () => {
               marginBottom: 40,
             }}
           >
-            <HStack space={2}>
-              <Image source={DefaultCar} alt='Alternate Text' size={'sm'} />
-              <VStack space={2}>
-                <Text bold fontSize='xl' ml={5}>
-                  Lê Đức Anh
-                </Text>
-                <HStack space={5} ml={5}>
-                  <FAFIcon name='map-marker-alt' size={20} color='#34A853' />
-                  <Text style={{ fontSize: 15, textAlignVertical: 'center', marginLeft: 5 }}>Nguyễn Cơ Thạch</Text>
-                </HStack>
-                <HStack space={5} ml={5}>
-                  <FAFIcon name='phone-alt' size={20} color='#34A853' />
-                  <Text style={{ fontSize: 15, textAlignVertical: 'center' }}>0912345678</Text>
-                </HStack>
-              </VStack>
-            </HStack>
+            <Image defaultSource={DefaultCar} source={DefaultCar} alt={'Car image'} />
+            <View style={{ paddingHorizontal: 20 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
+                Lê Đức Anh
+              </Text>
+              <Text style={{ marginVertical: 10, marginRight: 30 }} numberOfLines={3}>
+                <FAIcon name='map-marker' size={20} style={{ color: '#34a853' }} /> 12 Nguyễn Cơ Thạch, Nam Từ Liêm, Hà Nội
+              </Text>
+              <Text>
+                <FAIcon name='phone' size={20} style={{ color: '#34a853' }} /> 0912345678
+              </Text>
+            </View>
           </View>
-          <Text bold fontSize='lg' mb={3}>
-            Mazda CX5 - Trắng
-          </Text>
-          <HStack space={3} mb={3}>
-            <Text bold fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Biển số:
-            </Text>
-            <Text fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              30A 13045
-            </Text>
-          </HStack>
-          <HStack space={3} mb={3}>
-            <Text bold fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Năm sản xuất:
-            </Text>
-            <Text fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              2017
-            </Text>
-          </HStack>
-          <HStack space={3} mb={3}>
-            <Text bold fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Tình trạng:
-            </Text>
-            <Text fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Hết điện ắc quy
-            </Text>
-          </HStack>
-          <VStack space={3} mb={7}>
-            <Text bold fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Mô tả chi tiết:
-            </Text>
-            <Text fontSize='lg' style={{ textAlignVertical: 'center' }}>
-              Xe tôi bị hết điện bình ắc quy không thể khởi động.
-            </Text>
-          </VStack>
-          <Button style={{ width: '100%', backgroundColor: '#34A853', alignSelf: 'center' }}>Bắt đầu khởi hành</Button>
+          <View>
+            <Label name={'Mazda CX8 - Trắng'} />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+              <Label name={'Biển số:'} />
+              <Text fontSize={16}>30A - 13045</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+              <Label name={'Năm sản xuất:'} />
+              <Text fontSize={16}>2017</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+              <Label name={'Tình trạng:'} />
+              <Text fontSize={16}>Hết điện ắc quy</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+              <Label name={'Mô tả chi tiết:'} />
+            </View>
+            <Text fontSize={16}>Xe tôi bị hết điện bình ắc quy, không thể khởi động được</Text>
+          </View>
+          <View
+            style={{
+              marginTop: 50,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Button style={{ width: '100%', backgroundColor: '#34A853', alignSelf: 'center' }}>Bắt đầu khởi hành</Button>
+          </View>
         </VStack>
       </Box>
     </NativeBaseProvider>

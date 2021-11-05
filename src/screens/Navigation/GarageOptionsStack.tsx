@@ -14,6 +14,9 @@ import DetailRequest from '@screens/Garages/DetailRequest';
 import RejectRequest from '@screens/Garages/RejectRequest';
 import DetailAssignRequest from '@screens/Garages/DetailAssignRequest';
 import { ManageStaff, AddStaff, EditStaff } from '@screens/Garages/Staff';
+import Map from '@screens/Garages/Map';
+import AutomotivePartSuggestion from '@screens/Garages/AutomotivePartSuggestion';
+import RepairSuggestion from '@screens/Garages/RepairSuggestion';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -54,6 +57,9 @@ export const GarageOptionsStack: React.FC = () => {
         component={DetailAssignRequest}
         options={{ title: 'Chi tiết yêu cầu', ...navHeaderStyle }}
       />
+      <Stack.Screen name='Map' component={Map} options={{ headerShown: false }} />
+      <Stack.Screen name='AutomotivePartSuggestion' component={AutomotivePartSuggestion} options={{ headerShown: false }} />
+      <Stack.Screen name='RepairSuggestion' component={RepairSuggestion} options={{ headerShown: false }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />
     </Stack.Navigator>
   );

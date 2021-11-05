@@ -22,7 +22,7 @@ import DialogStore from '@mobx/stores/dialog';
 import { mapService } from '@mobx/services/map';
 import { RescueStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
-import Marker from './Marker';
+import Marker from '../../../components/map/Marker';
 import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 import { RESCUE_STATES, STORE_STATES } from '@utils/constants';

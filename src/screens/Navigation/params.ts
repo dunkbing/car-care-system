@@ -72,7 +72,8 @@ export type GarageHomeOptionStackParams = {
 export type RescueStackParams = {
   Map: undefined;
   DefineCarStatus: {
-    onConfirm: () => void;
+    garage: GarageModel;
+    onConfirm: (rescueCaseId: number, description: string) => void;
   };
   DetailRescueRequest:
     | undefined

@@ -11,9 +11,10 @@ const EditStaff: React.FC = () => {
           px: '20px',
           mb: '4',
           backgroundColor: 'white',
+          height: '100%',
         }}
       >
-        <Box safeArea flex={1} p={2} w='90%' h='100%' mx='auto'>
+        <Box safeArea flex={1} p={2} w='90%' mx='auto'>
           <Center>
             <Avatar mt={5} size='xl' bg='lightBlue.400' source={AvatarStaff}></Avatar>
           </Center>

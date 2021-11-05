@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Button, HStack, Image, Link, Text, VStack } from 'native-base';
 import { GarageModel } from '@models/garage';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
 
 type Props = {
   garage?: GarageModel;
@@ -9,6 +11,7 @@ type Props = {
 };
 
 const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
+  const rescueStore = Container.get(RescueStore);
   return (
     <Box width='100%' height={190} backgroundColor='white'>
       <HStack px='6' py='8' space={2}>
@@ -29,7 +32,14 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
           <Link onPress={viewGarageDetail} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}>
             Xem thông tin garage
           </Link>
-          <Button onPress={handleSos} w='65%' mt='1'>
+          <Button
+            onPress={async () => {
+              await rescueStore.getRescueCases();
+              handleSos?.();
+            }}
+            w='65%'
+            mt='1'
+          >
             Gửi yêu cầu
           </Button>
         </VStack>

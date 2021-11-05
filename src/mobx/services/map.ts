@@ -5,6 +5,8 @@ import {
   DetailPlaceResponse,
   DirectionsRequestParams,
   DirectionsResponse,
+  GeocodeRequestParams,
+  GeocodingResponse,
   PlacesRequestParams,
   PlacesResponse,
 } from '@models/map';
@@ -14,6 +16,7 @@ import Container from 'typedi';
 const baseURL = 'https://rsapi.goong.io';
 const placesPath = 'Place';
 const directionsPath = 'Direction';
+const geocodePath = 'Geocode';
 
 class MapService {
   public async getPlaces(params: PlacesRequestParams): Promise<ServiceResult<PlacesResponse>> {
@@ -49,6 +52,19 @@ class MapService {
   public async getDirections(params: DirectionsRequestParams): Promise<ServiceResult<DirectionsResponse>> {
     try {
       const response = await axios.get<DirectionsRequestParams, AxiosResponse<DirectionsResponse>>(`${directionsPath}`, {
+        baseURL,
+        params,
+      });
+      const result = response.data;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    }
+  }
+
+  public async getGeocoding(params: GeocodeRequestParams): Promise<ServiceResult<GeocodingResponse>> {
+    try {
+      const response = await axios.get<any, AxiosResponse<any>>(`${geocodePath}`, {
         baseURL,
         params,
       });

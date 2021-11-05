@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import axios, { AxiosResponse } from 'axios';
 import { Service } from 'typedi';
 import { WithPagination, ServiceResult, ResponsePlural } from './config';
-import { CustomerRescueHistoryModel, GarageRescueHistoryModel, RescueCase } from '@models/rescue';
+import { CustomerRescueHistoryModel, GarageRescueHistoryModel, RescueCase, RescueDetailRequest } from '@models/rescue';
 import { BaseService } from './base-service';
 
 const path = 'rescues';
@@ -42,5 +42,29 @@ export default class RescueService extends BaseService {
     } catch (error) {
       return { result: null, error };
     }
+  }
+
+  /**
+   * create a new rescue request.
+   * @param rescueDetail
+   */
+  public async createRescueDetail(rescueDetail: RescueDetailRequest): Promise<ServiceResult<any>> {
+    try {
+      const response = await axios.post<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details`, rescueDetail);
+      const { data } = response;
+      if (data.errors.length) {
+        return { result: null, error: data.errors };
+      }
+      return { result: data.data.result, error: null };
+    } catch (error) {
+      return { result: null, error: this.processError(error) };
+    }
+  }
+
+  /**
+   * Get current available customer's processing rescue detail
+   */
+  public async getCurrentProcessingCustomer() {
+    
   }
 }

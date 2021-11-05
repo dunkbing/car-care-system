@@ -4,18 +4,16 @@ import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import { GarageHomeOptionStackParams } from './params';
 import DefaultGarage from '@screens/Garages/DefaultGarage';
 import ManageCustomer from '@screens/Garages/ManageCustomer';
-import ManageStaff from '@screens/Garages/ManageStaff';
 import RescueHistory from '@screens/Garages/RescueHistory';
 import { navHeaderStyle } from './roots';
 import PendingRequest from '@screens/Garages/PendingRequest';
-import AddStaff from '@screens/Garages/AddStaff';
-import EditStaff from '@screens/Garages/EditStaff';
 import { TouchableOpacity } from 'react-native';
 import CustomerCarStatus from '@screens/Garages/CustomerCarStatus';
 import HistoryDetail from '@screens/Garages/HistoryDetail';
 import DetailRequest from '@screens/Garages/DetailRequest';
 import RejectRequest from '@screens/Garages/RejectRequest';
 import DetailAssignRequest from '@screens/Garages/DetailAssignRequest';
+import { ManageStaff, AddStaff, EditStaff } from '@screens/Garages/Staff';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 

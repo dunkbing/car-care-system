@@ -40,17 +40,14 @@ export default class CarService extends BaseService {
       const response = await axios.post<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      if (response.data.errors.length) {
-        cb?.(response.data.errors);
+      const { data } = response;
+      if (data.errors.length) {
+        cb?.(data.errors);
         return false;
       }
       return response.data.executeStatus === 'Success';
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        cb?.(error.response?.data?.errors);
-        return false;
-      }
-      cb?.([error]);
+      cb?.(this.processError(error));
       return false;
     }
   }

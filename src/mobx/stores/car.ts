@@ -5,10 +5,12 @@ import { STORE_STATES } from '@utils/constants';
 import { withProgress } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
 import CarModelStore from './car-model';
+import BaseStore from './base-store';
 
 @Service()
-export default class CarStore {
+export default class CarStore extends BaseStore {
   constructor() {
+    super();
     makeObservable(this, {
       cars: observable,
       find: action,
@@ -20,8 +22,6 @@ export default class CarStore {
 
   cars: CarModel[] = [];
   carDetail: CarDetailModel | null = null;
-  state: STORE_STATES = STORE_STATES.IDLE;
-  errorMessage = '';
 
   public async find() {
     this.state = STORE_STATES.LOADING;
@@ -53,6 +53,7 @@ export default class CarStore {
     this.state = STORE_STATES.LOADING;
     const success = await withProgress(
       this.carService.create(car, (errors) => {
+        this.handleError(errors);
         if (errors.length) {
           runInAction(() => {
             this.state = STORE_STATES.ERROR;

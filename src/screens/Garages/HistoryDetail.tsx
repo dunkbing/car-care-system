@@ -110,10 +110,10 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
           </Text>
           <View>
             <CategoryDetail name={'Láng đĩa phanh trước'} price={'250.000'} quantity={2} />
-            <CategoryDetail name={'Láng đĩa phanh trước'} price={'150.000'} quantity={1} />
-            <CategoryDetail name={'Láng đĩa phanh trước'} price={'250.000'} quantity={1} />
-            <CategoryDetail name={'Láng đĩa phanh trước'} price={'350.000'} quantity={1} />
-            <CategoryDetail name={'Láng đĩa phanh trước'} price={'550.000'} quantity={1} />
+            <CategoryDetail name={'Lọc dầu'} price={'150.000'} quantity={1} />
+            <CategoryDetail name={'Lọc xăng'} price={'250.000'} quantity={1} />
+            <CategoryDetail name={'Bugi'} price={'350.000'} quantity={1} />
+            <CategoryDetail name={'Gioăng nắp dàn cò'} price={'550.000'} quantity={1} />
           </View>
           <Text
             style={{
@@ -136,7 +136,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
               textAlign: 'right',
             }}
           >
-            Tổng: 3.000.000đ
+            Tổng: 2.784.800đ
           </Text>
         </View>
         {rescue.customerFeedback ? (

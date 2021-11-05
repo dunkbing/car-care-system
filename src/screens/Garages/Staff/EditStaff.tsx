@@ -26,12 +26,7 @@ const EditStaff: React.FC = () => {
               <Button mb={-2} style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
                 Lưu
               </Button>
-              <Button
-                mb={-2}
-                style={{ alignSelf: 'center', width: '40%', height: 40 }}
-                backgroundColor='#EA4335'
-                _text={{ color: 'white' }}
-              >
+              <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} backgroundColor='#EA4335' _text={{ color: 'white' }}>
                 Xóa
               </Button>
             </HStack>

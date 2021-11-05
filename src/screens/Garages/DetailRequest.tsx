@@ -39,7 +39,7 @@ const DetailRequest: React.FC<Props> = ({ navigation }) => {
             <Text style={{ fontWeight: 'bold', fontSize: 20 }} numberOfLines={1}>
               Lê Đức Anh
             </Text>
-            <Text style={{ marginVertical: 10 }} numberOfLines={2}>
+            <Text style={{ marginVertical: 10, marginRight: 25 }} numberOfLines={3}>
               <FAIcon name='map-marker' size={20} style={{ color: '#34a853' }} /> 12 Nguyễn Cơ Thạch, Nam Từ Liêm, Hà Nội
             </Text>
             <Text>

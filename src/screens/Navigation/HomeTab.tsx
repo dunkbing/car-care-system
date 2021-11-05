@@ -9,6 +9,10 @@ import { RescueStack } from './RescueStack';
 import PendingRequest from '@screens/Garages/PendingRequest';
 import { navHeaderStyle } from './roots';
 import { GarageHome } from '@screens/Home';
+import Container from 'typedi';
+import AuthStore from '@mobx/stores/auth';
+import { USER_TYPES } from '@utils/constants';
+import { observer } from 'mobx-react';
 
 const CustomerTab = createBottomTabNavigator<CustomerTabParams>();
 const GarageTab = createBottomTabNavigator<GarageTabParams>();
@@ -39,7 +43,8 @@ export const CustomerHomeTab: React.FC = () => {
   );
 };
 
-export const GarageHomeTab: React.FC = () => {
+export const GarageHomeTab: React.FC = observer(() => {
+  const authStore = Container.get(AuthStore);
   return (
     <GarageTab.Navigator
       screenOptions={({ route }) => ({
@@ -63,12 +68,14 @@ export const GarageHomeTab: React.FC = () => {
       })}
     >
       <GarageTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='GarageHome' component={GarageHome} />
-      <GarageTab.Screen
-        options={{ tabBarShowLabel: false, title: 'Yêu cầu cứu hộ', ...(navHeaderStyle as any) }}
-        name='PendingRequestHome'
-        component={PendingRequest}
-      />
+      {authStore.userType === USER_TYPES.GARAGE_MANAGER && (
+        <GarageTab.Screen
+          options={{ tabBarShowLabel: false, title: 'Yêu cầu cứu hộ', ...(navHeaderStyle as any) }}
+          name='PendingRequestHome'
+          component={PendingRequest}
+        />
+      )}
       <GarageTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='ProfileHome' component={GarageSettings} />
     </GarageTab.Navigator>
   );
-};
+});

@@ -1,4 +1,5 @@
-import { ServiceResult } from './config';
+import axios, { AxiosError } from 'axios';
+import { ResponseSingular, ServiceResult } from './config';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export interface IRead<T> {
@@ -31,5 +32,18 @@ export abstract class BaseService<T = any> implements IWrite<T>, IRead<T> {
 
   findOne(id: number): Promise<ServiceResult<T>> {
     throw new Error('Method not implemented.');
+  }
+
+  processError(error: Error | any) {
+    if (axios.isAxiosError(error)) {
+      const serverError = error as AxiosError<ResponseSingular>;
+      if (serverError.response?.data?.errors) {
+        return serverError.response?.data?.errors;
+      }
+    }
+    if (Array.isArray(error)) {
+      return error;
+    }
+    return [error];
   }
 }

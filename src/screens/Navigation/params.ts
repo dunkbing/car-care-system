@@ -1,6 +1,7 @@
 import { CarDetailModel } from '@models/car';
 import { GarageModel } from '@models/garage';
 import { CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
+import { StaffModel } from '@models/staff';
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type StackParams = {
@@ -56,7 +57,7 @@ export type GarageHomeOptionStackParams = {
   MyGarage: undefined;
   ManageStaffs: undefined | { rescue: boolean };
   AddStaff: undefined;
-  EditStaff: undefined;
+  EditStaff: { staff: StaffModel };
   ManageCustomers: undefined;
   CustomerCarStatus: undefined;
   RescueHistory: undefined;

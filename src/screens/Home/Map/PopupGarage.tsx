@@ -19,7 +19,7 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
           source={{
             uri: 'https://wallpaperaccess.com/full/317501.jpg',
           }}
-          alt='Alternate Text'
+          alt='img'
           size='lg'
           w='30%'
           h='100%'

@@ -2,7 +2,7 @@ import { CarModel } from './car';
 import { Location } from './common';
 import { GarageModel } from './garage';
 import { StaffModel } from './staff';
-import { RescuedCustomerModel } from './user';
+import { CustomerModel, RescuedCustomerModel } from './user';
 
 export type CustomerFeedback = {
   id: number;
@@ -72,5 +72,5 @@ export type AvailableCustomerRescueDetail = {
   garage: GarageModel;
   rescueCase: RescueCase;
   staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'>;
-  customer: any | null;
+  customer: CustomerModel | null;
 };

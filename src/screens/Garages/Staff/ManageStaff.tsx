@@ -10,6 +10,9 @@ import StaffStore from '@mobx/stores/staff';
 import Container from 'typedi';
 import { StaffModel } from '@models/staff';
 import { STORE_STATES } from '@utils/constants';
+import { rootNavigation } from '@screens/Navigation';
+import RescueService from '@mobx/services/rescue';
+import { withProgress } from '@mobx/services/config';
 
 type StaffViewProps = {
   staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
@@ -20,7 +23,7 @@ const StaffView: React.FC<StaffViewProps> = ({ staff, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+        <Image source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} alt='img' size={'sm'} mr={1} />
         <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
           {staff.lastName} {staff.firstName}
         </Text>
@@ -33,20 +36,25 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageStaffs'>;
 
 const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
   const staffStore = Container.get(StaffStore);
+  const rescueService = Container.get(RescueService);
 
   useEffect(() => {
-    navigation.addListener('focus', () => {
-      void staffStore.find();
+    return navigation.addListener('focus', () => {
+      if (route.params?.rescue) {
+        void staffStore.find({ isAvailable: true });
+      } else {
+        void staffStore.find();
+      }
     });
-  }, [navigation, staffStore]);
+  }, [navigation, route.params?.rescue, staffStore]);
 
   const onPress = (staff: StaffModel) => {
-    return () => {
+    return async () => {
       if (!route.params?.rescue) {
         navigation.navigate('EditStaff', { staff });
       } else {
-        navigation.pop();
-        navigation.navigate('DetailAssignedRequest');
+        await withProgress(rescueService.assignStaff(staff.id));
+        rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
       }
     };
   };

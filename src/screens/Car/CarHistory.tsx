@@ -19,7 +19,7 @@ const CarHistory: React.FC<Props> = ({ route }) => {
           }}
         >
           <HStack space={2} mt={7} mb={3}>
-            <Image source={car.imageUrl ? { uri: car.imageUrl } : DefaultCar} alt='Alternate Text' size={'sm'} mr={1} />
+            <Image source={car.imageUrl ? { uri: car.imageUrl } : DefaultCar} alt='img' size={'sm'} mr={1} />
             <VStack space={2}>
               <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 1, marginLeft: 10 }}>
                 {car.brand.name} {car.model.name}

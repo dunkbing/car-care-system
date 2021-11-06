@@ -5,8 +5,9 @@ import { USER_TYPES } from '@utils/constants';
 
 export type CustomerModel = {
   id: number;
-  fullName: string;
-  phone: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
   email: string;
   address: string;
   password: string;
@@ -14,7 +15,7 @@ export type CustomerModel = {
 
 export type CreateCustomer = {
   fullName: string;
-  phone: string;
+  phoneNumber: string;
   email: string;
   password: string;
 };
@@ -22,7 +23,7 @@ export type CreateCustomer = {
 export type UpdateCustomerModel = {
   id: number;
   fullName: string;
-  phone: string;
+  phoneNumber: string;
   email: string;
   address: string;
   password: string;

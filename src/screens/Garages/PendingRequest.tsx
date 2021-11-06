@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, ScrollView, View, VStack, Center, Button } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams, GarageTabParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
+import { RefreshControl } from 'react-native';
 
 type RescueRequestProps = {
   customerName: string;
@@ -73,9 +77,21 @@ const RescueRequest: React.FC<RescueRequestProps> = ({ customerName, address, ph
 
 type Props = StackScreenProps<GarageHomeOptionStackParams & GarageTabParams, 'PendingRescueRequest'>;
 
-const PendingRequest: React.FC<Props> = () => {
+const PendingRequest: React.FC<Props> = ({ navigation }) => {
+  const rescueStore = Container.get(RescueStore);
+
+  const onRefresh = () => {
+    void rescueStore.getPendingRescueRequests();
+  };
+
+  useEffect(() => {
+    return navigation.addListener('focus', () => {
+      void rescueStore.getPendingRescueRequests();
+    });
+  }, [navigation, rescueStore]);
+
   return (
-    <ScrollView p={5}>
+    <ScrollView p={5} refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}>
       <View
         style={{
           padding: 7,
@@ -91,26 +107,23 @@ const PendingRequest: React.FC<Props> = () => {
               fontSize: 18,
             }}
           >
-            Danh sách chờ {'(2)'}
+            Danh sách chờ ({rescueStore.pendingRescueRequests.length})
           </Text>
         </Center>
       </View>
       <VStack mb={10}>
-        <RescueRequest
-          onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest' })}
-          customerName='Nam Nguyen'
-          address='Km29 Đại lộ Thăng Long, Hà Nội'
-          phoneNumber='0912345678'
-        />
-        <RescueRequest
-          onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest' })}
-          customerName='Nam Nguyen'
-          address='Km29 Đại lộ Thăng Long, Hà Nội'
-          phoneNumber='0912345678'
-        />
+        {rescueStore.pendingRescueRequests.map((request) => (
+          <RescueRequest
+            key={request.id}
+            onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest', params: { request } })}
+            customerName={`${request.customer?.lastName} ${request.customer?.firstName}`}
+            address={request.address}
+            phoneNumber={`${request.customer?.phoneNumber}`}
+          />
+        ))}
       </VStack>
     </ScrollView>
   );
 };
 
-export default PendingRequest;
+export default observer(PendingRequest);

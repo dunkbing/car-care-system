@@ -24,13 +24,11 @@ export default class CarStore extends BaseStore {
   carDetail: CarDetailModel | null = null;
 
   public async find() {
-    this.state = STORE_STATES.LOADING;
+    this.startLoading();
     const { result, error } = await this.carService.find();
 
     if (error) {
-      runInAction(() => {
-        this.state = STORE_STATES.ERROR;
-      });
+      this.handleError(error);
     } else {
       const cars = result || [];
       runInAction(() => {

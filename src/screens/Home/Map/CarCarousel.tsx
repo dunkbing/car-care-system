@@ -75,7 +75,7 @@ function CarCarousel({ onSelect }: Props) {
   return (
     <View py='2' style={styles.wrapperVertical}>
       {carStore.state === STORE_STATES.LOADING ? (
-        <Spinner />
+        <Spinner size='lg' />
       ) : (
         <SmoothPicker
           initialScrollToIndex={selected}

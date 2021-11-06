@@ -15,7 +15,7 @@ import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
 import AssignedEmployee from './AssignedEmployee';
 import { GarageModel } from '@models/garage';
-import { Place } from '@models/map';
+import { GeocodingResponse, Place } from '@models/map';
 import GarageStore from '@mobx/stores/garage';
 import locationService from '@mobx/services/location';
 import DialogStore from '@mobx/stores/dialog';
@@ -30,6 +30,8 @@ import RescueStore from '@mobx/stores/rescue';
 import { RescueDetailRequest } from '@models/rescue';
 import CarStore from '@mobx/stores/car';
 import toast from '@utils/toast';
+import { parallel } from '@utils/parallel';
+import { ServiceResult, withProgress } from '@mobx/services/config';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -115,6 +117,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
    */
   useEffect(() => {
     if (definedCarStatus) {
+      console.log(mapState.rescueDetail);
       void processSosRequest();
       setDefinedCarStatus(false);
     }
@@ -122,40 +125,40 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [definedCarStatus]);
 
   useEffect(() => {
-    console.log('map useEffect');
     void locationService
       .requestPermission()
       .then((location) => {
-        void mapService
-          .getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location!.latitude},${location!.longitude}` })
-          .then(({ result }) => {
-            void carStore.find().then(() => {
-              let car;
-              if (carStore.cars.length >= 2) {
-                car = carStore.cars[1];
-              } else if (carStore.cars.length === 1) {
-                car = carStore.cars[0];
-              }
-              setMapState({
-                ...mapState,
-                userLocation: {
-                  latitude: location!.latitude,
-                  longitude: location!.longitude,
-                },
-                rescueLocation: undefined,
-                rescueDetail: {
-                  ...mapState.rescueDetail,
-                  customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
-                  rescueLocation: {
-                    longitude: location!.longitude,
-                    latitude: location!.latitude,
-                  },
-                  address: result?.results[0].formatted_address as string,
-                  carId: car?.id || -1,
-                },
-              });
-            });
+        void withProgress(
+          parallel<ServiceResult<GeocodingResponse>, void>(
+            mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location!.latitude},${location!.longitude}` }),
+            carStore.find(),
+          ),
+        ).then(([{ result }]) => {
+          let car;
+          if (carStore.cars.length >= 2) {
+            car = carStore.cars[1];
+          } else if (carStore.cars.length === 1) {
+            car = carStore.cars[0];
+          }
+          setMapState({
+            ...mapState,
+            userLocation: {
+              latitude: location!.latitude,
+              longitude: location!.longitude,
+            },
+            rescueLocation: undefined,
+            rescueDetail: {
+              ...mapState.rescueDetail,
+              customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
+              rescueLocation: {
+                longitude: location!.longitude,
+                latitude: location!.latitude,
+              },
+              address: result?.results[0].formatted_address as string,
+              carId: car?.id || -1,
+            },
           });
+        });
       })
       .catch(console.log);
     if (Platform.OS === 'android') {

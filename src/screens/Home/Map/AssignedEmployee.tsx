@@ -3,6 +3,7 @@ import { Avatar, Box, Center, HStack, Text } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
+import { AvatarStaff } from '@assets/images';
 
 type Props = {
   name: string;
@@ -17,12 +18,7 @@ const AssignedEmployee = ({ name, avatarUrl, viewDetail }: Props) => {
   return (
     <Box width='90%' style={{ backgroundColor: 'white' }} rounded='3' shadow='2'>
       <HStack space={4} px='2' py='2'>
-        <Avatar
-          bg='cyan.500'
-          source={{
-            uri: avatarUrl || 'https://pbs.twimg.com/profile_images/1177303899243343872/B0sUJIH0_400x400.jpg',
-          }}
-        />
+        <Avatar bg='cyan.500' source={avatarUrl ? { uri: avatarUrl } : AvatarStaff} />
         <Center width='45%'>
           <Text>{name}</Text>
         </Center>

@@ -1,7 +1,8 @@
 import { CarModel } from './car';
 import { Location } from './common';
 import { GarageModel } from './garage';
-import { RescuedCustomerModel } from './user';
+import { StaffModel } from './staff';
+import { CustomerModel, RescuedCustomerModel } from './user';
 
 export type CustomerFeedback = {
   id: number;
@@ -59,4 +60,17 @@ export type RescueDetailRequest = {
   customerCurrentLocation: Location;
   rescueCaseId: number;
   garageId: number;
+};
+
+export type AvailableCustomerRescueDetail = {
+  id: number;
+  description: string;
+  address: string;
+  location: Location | null;
+  status: number;
+  car: CarModel | null;
+  garage: GarageModel;
+  rescueCase: RescueCase;
+  staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'>;
+  customer: CustomerModel | null;
 };

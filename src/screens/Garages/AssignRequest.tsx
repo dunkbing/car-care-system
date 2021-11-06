@@ -5,7 +5,7 @@ import AvatarStaff from '@assets/images/avatar-staff.png';
 const Staff: React.FC = () => {
   return (
     <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-      <Image source={AvatarStaff} alt='Alternate Text' size={'sm'} mr={1} />
+      <Image source={AvatarStaff} alt='img' size={'sm'} mr={1} />
       <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
         Nguyễn Văn Thiện
       </Text>

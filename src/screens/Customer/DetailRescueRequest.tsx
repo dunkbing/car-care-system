@@ -56,7 +56,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 elevation: 6,
               }}
             >
-              <Image source={GarageLocation} alt='Alternate Text' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
+              <Image source={GarageLocation} alt='img' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
               <Text
                 style={{
                   fontWeight: 'normal',
@@ -88,7 +88,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 elevation: 6,
               }}
             >
-              <Image source={CurrentLocation} alt='Alternate Text' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
+              <Image source={CurrentLocation} alt='img' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
               <Text style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}>Lotteria Cầu Giấy</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

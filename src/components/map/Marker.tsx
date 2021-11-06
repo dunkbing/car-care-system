@@ -7,14 +7,14 @@ import { LocationMarker } from '@assets/images';
 type Props = {
   id: string;
   coordinate: number[];
-  onPress: () => void;
+  onPress?: () => void;
 };
 
 export default ({ id, coordinate, onPress }: Props) => {
   return (
     <MapboxGL.MarkerView id={id} coordinate={coordinate}>
       <TouchableNativeFeedback onPress={onPress}>
-        <Image source={LocationMarker} alt='Alternate Text' size={'xs'} />
+        <Image source={LocationMarker} alt='img' size={'xs'} />
       </TouchableNativeFeedback>
     </MapboxGL.MarkerView>
   );

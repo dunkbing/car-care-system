@@ -2,17 +2,15 @@ import axios, { AxiosResponse } from 'axios';
 import { Service } from 'typedi';
 import { WithPagination, ServiceResult, ResponseSingular } from './config';
 import { BaseService } from './base-service';
-import { StaffModel } from '@models/staff';
+import { StaffModel, StaffRequestParams } from '@models/staff';
 
 const path = 'staffs';
 
 @Service()
 export default class StaffService extends BaseService {
-  public async find(keyword: string): Promise<ServiceResult<StaffModel[]>> {
+  public async find(params: StaffRequestParams): Promise<ServiceResult<StaffModel[]>> {
     try {
-      const response = await axios.get<any, AxiosResponse<WithPagination<StaffModel>>>(`${path}`, {
-        params: { keyword },
-      });
+      const response = await axios.get<any, AxiosResponse<WithPagination<StaffModel>>>(`${path}`, { params });
       const { data } = response;
       const { errors } = data;
       if (errors && errors.length) {

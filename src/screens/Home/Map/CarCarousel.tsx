@@ -1,7 +1,7 @@
 import { VStack, Text, View, Spinner } from 'native-base';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Dimensions, ListRenderItemInfo, StyleSheet } from 'react-native';
-import SmoothPicker from '@components/SmoothPicker';
+import SmoothPicker, { ListReturn } from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import CarStore from '@mobx/stores/car';
 import { CarModel } from '@models/car';
@@ -57,24 +57,25 @@ const ItemToRender = ({ item, index }: ListRenderItemInfo<CarModel>, indexSelect
   return <Item selected={selected} name={item.brandName} license={item.licenseNumber} width={width} />;
 };
 
-function CarCarousel() {
+type Props = {
+  onSelect?: (car: CarModel) => void;
+};
+
+function CarCarousel({ onSelect }: Props) {
   const carStore = Container.get(CarStore);
   const cars = carStore.cars;
 
-  useEffect(() => {
-    void carStore.find();
-  }, [carStore]);
-
-  function handleChange(index: number) {
+  const onSelected = ({ index, item }: ListReturn) => {
     setSelected(index);
-  }
+    onSelect?.(item);
+  };
 
   const [selected, setSelected] = React.useState(1);
 
   return (
     <View py='2' style={styles.wrapperVertical}>
       {carStore.state === STORE_STATES.LOADING ? (
-        <Spinner />
+        <Spinner size='lg' />
       ) : (
         <SmoothPicker
           initialScrollToIndex={selected}
@@ -84,7 +85,7 @@ function CarCarousel() {
           showsVerticalScrollIndicator={false}
           data={cars}
           scrollAnimation
-          onSelected={({ index }) => handleChange(index)}
+          onSelected={onSelected}
           renderItem={(option: ListRenderItemInfo<CarModel>) =>
             ItemToRender(option, selected, (width * 0.9) / (cars.length <= 3 ? cars.length : 3))
           }

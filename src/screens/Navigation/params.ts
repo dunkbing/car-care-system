@@ -1,6 +1,6 @@
 import { CarDetailModel } from '@models/car';
 import { GarageModel } from '@models/garage';
-import { CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
+import { AvailableCustomerRescueDetail, CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
 import { StaffModel } from '@models/staff';
 import { NavigatorScreenParams } from '@react-navigation/native';
 
@@ -63,8 +63,11 @@ export type GarageHomeOptionStackParams = {
   RescueHistory: undefined;
   HistoryDetail: { rescue: Pick<GarageRescueHistoryModel, 'car' | 'staff' | 'createAt' | 'customer' | 'customerFeedback'> };
   PendingRescueRequest: undefined;
-  DetailRequest: undefined;
+  DetailRequest: { request: AvailableCustomerRescueDetail };
   DetailAssignedRequest: undefined;
+  Map: undefined;
+  AutomotivePartSuggestion: undefined;
+  RepairSuggestion: undefined;
   RejectRequest: undefined;
   Feedback: undefined;
 };
@@ -72,7 +75,8 @@ export type GarageHomeOptionStackParams = {
 export type RescueStackParams = {
   Map: undefined;
   DefineCarStatus: {
-    onConfirm: () => void;
+    garage: GarageModel;
+    onConfirm: (rescueCaseId: number, description: string) => void;
   };
   DetailRescueRequest:
     | undefined

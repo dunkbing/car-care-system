@@ -3,7 +3,7 @@ import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import StaffService from '@mobx/services/staff';
 import BaseStore from './base-store';
-import { StaffModel } from '@models/staff';
+import { StaffModel, StaffRequestParams } from '@models/staff';
 import { withProgress } from '@mobx/services/config';
 
 @Service()
@@ -15,7 +15,7 @@ export default class StaffStore extends BaseStore {
       staffs: observable,
       find: action,
     });
-    void this.find('');
+    void this.find();
   }
 
   private readonly staffService = Container.get(StaffService);
@@ -25,12 +25,12 @@ export default class StaffStore extends BaseStore {
   /**
    * get a list of customer by keyword.
    * for manager uses only.
-   * @param keyword for searching
+   * @param params for searching
    */
-  public async find(keyword = '') {
+  public async find(params: StaffRequestParams = { keyword: '', isAvailable: true }) {
     this.startLoading();
 
-    const { result, error } = await this.staffService.find(keyword);
+    const { result, error } = await this.staffService.find(params);
 
     if (error) {
       this.handleError(error);

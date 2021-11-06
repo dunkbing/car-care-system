@@ -4,25 +4,40 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
 import FormSelect from '@components/form/FormSelect';
 import toast from '@utils/toast';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
 
 type Props = StackScreenProps<RescueStackParams, 'DefineCarStatus'>;
 
-const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
+const DefineCarStatus: React.FC<Props> = observer(({ navigation, route }) => {
+  const rescueStore = Container.get(RescueStore);
   const [carStatus, setCarStatus] = React.useState('');
   const [carStatusDescription, setCarStatusDescription] = React.useState('');
+  const { garage } = route.params;
+
   function handleConfirm() {
     if (carStatus === '6' && !carStatusDescription) {
       toast.show('Vui lòng mô tả tình trạng xe');
       return;
+    } else if (!carStatus) {
+      toast.show('Vui lòng chọn tình trạng xe');
+      return;
     }
-    route.params?.onConfirm();
+    if (carStatusDescription) {
+      route.params?.onConfirm(Number(carStatus), carStatusDescription);
+    } else {
+      const newDesc = rescueStore.rescueCases.find((item) => item.id === Number(carStatus))?.name;
+      route.params?.onConfirm(Number(carStatus), newDesc as string);
+    }
     navigation.goBack();
   }
+
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} mt={10} w='90%' mx='auto'>
         <Heading mb={5} size='lg' color='black'>
-          Garage Ô tô Trung Anh
+          {garage?.name}
         </Heading>
         <Text
           style={{
@@ -39,14 +54,10 @@ const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
           value={carStatus}
           label='Tình trạng xe'
           selectProps={{ placeholder: 'Tình trạng xe' }}
-          items={[
-            { label: 'Thủng lốp', value: '1' },
-            { label: 'Hết xăng', value: '2' },
-            { label: 'Hết điện bình ắc quy', value: '3' },
-            { label: 'Động cơ nóng bất thường', value: '4' },
-            { label: 'Lỗi động cơ có tiếng gõ', value: '5' },
-            { label: 'Khác', value: '6' },
-          ]}
+          items={rescueStore.rescueCases.map((item) => ({
+            label: item.name,
+            value: item.id.toString(),
+          }))}
           onValueChange={(value) => setCarStatus(value)}
         />
         <TextArea
@@ -90,6 +101,6 @@ const DefineCarStatus: React.FC<Props> = ({ navigation, route }) => {
       </Box>
     </NativeBaseProvider>
   );
-};
+});
 
 export default DefineCarStatus;

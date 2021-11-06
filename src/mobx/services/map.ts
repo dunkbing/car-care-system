@@ -5,6 +5,8 @@ import {
   DetailPlaceResponse,
   DirectionsRequestParams,
   DirectionsResponse,
+  DistanceMatrixRequestParams,
+  DistanceMatrixResponse,
   GeocodeRequestParams,
   GeocodingResponse,
   PlacesRequestParams,
@@ -17,6 +19,7 @@ const baseURL = 'https://rsapi.goong.io';
 const placesPath = 'Place';
 const directionsPath = 'Direction';
 const geocodePath = 'Geocode';
+const distanceMatrixPath = 'DistanceMatrix';
 
 class MapService {
   public async getPlaces(params: PlacesRequestParams): Promise<ServiceResult<PlacesResponse>> {
@@ -65,6 +68,19 @@ class MapService {
   public async getGeocoding(params: GeocodeRequestParams): Promise<ServiceResult<GeocodingResponse>> {
     try {
       const response = await axios.get<any, AxiosResponse<any>>(`${geocodePath}`, {
+        baseURL,
+        params,
+      });
+      const result = response.data;
+      return { result, error: null };
+    } catch (error) {
+      return { result: null, error };
+    }
+  }
+
+  public async getDistanceMatrix(params: DistanceMatrixRequestParams): Promise<ServiceResult<DistanceMatrixResponse>> {
+    try {
+      const response = await axios.get<any, AxiosResponse<any>>(`${distanceMatrixPath}`, {
         baseURL,
         params,
       });

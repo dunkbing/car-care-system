@@ -25,7 +25,7 @@ export default class CarStore extends BaseStore {
 
   public async find() {
     this.startLoading();
-    const { result, error } = await this.carService.findCustomerHistories();
+    const { result, error } = await this.carService.find();
 
     if (error) {
       this.handleError(error);

@@ -72,7 +72,7 @@ export default class RescueService extends BaseService {
    */
   public async getCurrentProcessingCustomer(): Promise<ServiceResult<AvailableCustomerRescueDetail>> {
     try {
-      const response = await axios.post<any, AxiosResponse<ResponseSingular<AvailableCustomerRescueDetail>>>(
+      const response = await axios.get<any, AxiosResponse<ResponseSingular<AvailableCustomerRescueDetail>>>(
         `${path}/available-details/customer`,
       );
       const { data } = response;

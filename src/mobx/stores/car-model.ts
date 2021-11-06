@@ -17,7 +17,7 @@ export default class CarModelStore {
   models: Array<CarModelModel> = [];
 
   public async getModels(brandId: number) {
-    const { error, result } = await withProgress(this.modelService.findCustomerHistories(brandId));
+    const { error, result } = await withProgress(this.modelService.find(brandId));
 
     if (error) {
       runInAction(() => {

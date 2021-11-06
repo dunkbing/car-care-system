@@ -16,7 +16,7 @@ import AuthStore from '@mobx/stores/auth';
 const HistoryView: React.FC<
   { onPress: OnPress } & Pick<GarageRescueHistoryModel, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>
 > = ({ onPress, staff, customer, createAt }) => {
-  const rescueDate = new Date(createAt as string);
+  const rescueDate = new Date(createAt);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>

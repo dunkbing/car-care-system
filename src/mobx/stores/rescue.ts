@@ -135,4 +135,18 @@ export default class RescueStore extends BaseStore {
       this.handleSuccess();
     }
   }
+
+  public async getCurrentProcessingCustomer() {
+    this.startLoading();
+    const { result, error } = await this.rescueService.getCurrentProcessingCustomer();
+
+    if (error) {
+      this.handleError(error);
+    } else {
+      runInAction(() => {
+        this.currentCustomerProcessingRescue = result;
+      });
+      this.handleSuccess();
+    }
+  }
 }

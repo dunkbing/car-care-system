@@ -24,7 +24,7 @@ const CarView: React.FC = () => {
       }}
     >
       <HStack space={2} mt={1} style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-        <Image source={DefaultCar} alt='Alternate Text' size={'sm'} mt={-1} mr={-10} />
+        <Image source={DefaultCar} alt='img' size={'sm'} mt={-1} mr={-10} />
         <VStack space={2}>
           <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>Mercedes C300 - 2019</Text>
           <Text style={{ marginLeft: 10 }}>30A 13045</Text>

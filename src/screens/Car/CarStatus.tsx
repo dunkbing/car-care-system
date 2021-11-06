@@ -41,7 +41,7 @@ const CarView: React.FC<Pick<CarModel, 'modelName' | 'brandName' | 'licenseNumbe
     >
       <TouchableOpacity onPress={onPress}>
         <HStack space={2} mt={1} style={{ flexDirection: 'row' }}>
-          <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='Alternate Text' w={20} h={20} mt={-1} />
+          <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='img' w={20} h={20} mt={-1} />
           <VStack space={2}>
             <Text style={{ fontWeight: 'bold', fontSize: 12, marginTop: 1, marginLeft: 10 }}>
               {brandName} {modelName}

@@ -108,7 +108,7 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
           <Text fontSize='md' mt={10}>
             Hoặc đăng nhập với
           </Text>
-          <Image source={GoogleLogo} alt='Alternate Text' size={'md'} />
+          <Image source={GoogleLogo} alt='img' size={'md'} />
         </VStack>
       </Box>
     </NativeBaseProvider>

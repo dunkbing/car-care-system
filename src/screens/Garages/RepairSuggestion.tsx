@@ -3,6 +3,10 @@ import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 const CategoryDetail: React.FC = ({ categoryName, price }) => {
   return (
@@ -59,6 +63,7 @@ const CategoryDetail: React.FC = ({ categoryName, price }) => {
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
 const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
+  const rescueStore = Container.get(RescueStore);
   return (
     <ScrollView>
       <VStack px={15} py={25}>
@@ -139,8 +144,14 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
         </View>
         <Center>
           <Button
-            onPress={() => {
-              navigation.pop(2);
+            onPress={async () => {
+              await rescueStore.changeRescueStatusToWorking();
+
+              if (rescueStore.state === STORE_STATUS.ERROR) {
+                toast.show(rescueStore.errorMessage);
+              } else {
+                navigation.pop(2);
+              }
             }}
             style={{
               backgroundColor: '#34A853',

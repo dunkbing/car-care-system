@@ -8,8 +8,9 @@ import { RescueStackParams } from '@screens/Navigation/params';
 type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
 
 const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+  const { staff, duration, onCancel } = route.params || {};
   function cancelRequest() {
-    navigation.navigate('DefineRequestCancelReason', { onCancel: route.params?.onCancel });
+    navigation.navigate('DefineRequestCancelReason', { onCancel });
   }
   return (
     <NativeBaseProvider>
@@ -26,7 +27,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 Nhân viên
               </Text>
               <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1} textAlign='right'>
-                Nguyễn Ngọc Đức
+                {`${staff?.lastName} ${staff?.firstName}`}
               </Text>
             </HStack>
             <HStack space={5} mb={5} style={{ justifyContent: 'space-between' }}>
@@ -34,7 +35,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 Số điện thoại
               </Text>
               <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1}>
-                0912345678
+                {`${staff?.phoneNumber}`}
               </Text>
             </HStack>
             <HStack
@@ -93,7 +94,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Thời gian ước tính:</Text>
-              <Text style={{ fontWeight: 'normal', fontSize: 18 }}>15 phút</Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 18 }}>{`${duration}`}</Text>
             </HStack>
           </View>
         </Center>

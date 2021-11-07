@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
@@ -12,7 +12,7 @@ import { Container } from 'typedi';
 import Marker from '@components/map/Marker';
 import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
 import RescueStore from '@mobx/stores/rescue';
-import { STORE_STATUS } from '@utils/constants';
+import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
@@ -36,9 +36,17 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
   //#endregion store
-  const cameraRef = useRef<MapboxGL.Camera>(null);
 
-  const { request: { customer, car, staff } } = route.params || {};
+  //#region hooks
+  const cameraRef = useRef<MapboxGL.Camera>(null);
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+    });
+  }, [navigation]);
+  //#endregion
+
+  const { request } = route.params || {};
 
   return (
     <Box style={{ ...StyleSheet.absoluteFillObject, height: '100%', width: '100%' }}>
@@ -58,6 +66,24 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           id={garageStore.garage!.id.toString()}
           coordinate={[garageStore.garage!.location.longitude, garageStore.garage!.location.latitude]}
         />
+        {request?.location && (
+          <MapboxGL.PointAnnotation
+            key='pointAnnotation'
+            id='pointAnnotation'
+            coordinate={[request?.location?.longitude, request?.location?.latitude]}
+          >
+            <View
+              style={{
+                height: 30,
+                width: 30,
+                backgroundColor: '#00cccc',
+                borderRadius: 50,
+                borderColor: '#fff',
+                borderWidth: 3,
+              }}
+            />
+          </MapboxGL.PointAnnotation>
+        )}
       </MapboxGL.MapView>
       <View
         style={{
@@ -83,51 +109,75 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
       >
         <AssignedEmployee
           viewDetail={() => {}}
-          name={`${staff?.firstName} ${staff?.lastName}`}
-          avatarUrl={`${staff.avatarUrl}`}
-          phoneNumber={`${staff?.phoneNumber}`}
+          name={`${request?.staff?.firstName} ${request?.staff?.lastName}`}
+          avatarUrl={`${request?.staff.avatarUrl}`}
+          phoneNumber={`${request?.staff?.phoneNumber}`}
         />
       </Center>
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          backgroundColor: 'white',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-          bottom: 50,
-        }}
-      >
-        <Text bold fontSize='md'>
-          Thời gian di chuyển dự kiến: 15 phút
-        </Text>
-      </View>
-      <TouchableOpacity
-        onPress={async () => {
-          await rescueStore.changeRescueStatusToArrived();
+      {!(rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) && (
+        <View
+          style={{
+            width: '100%',
+            height: 50,
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            bottom: 50,
+          }}
+        >
+          <Text bold fontSize='md'>
+            Thời gian di chuyển dự kiến: 15 phút
+          </Text>
+        </View>
+      )}
+      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
+        <TouchableOpacity
+          style={{
+            width: '100%',
+            height: 50,
+            backgroundColor: '#34A853',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            bottom: 0,
+          }}
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToDone();
+            navigation.goBack();
+          }}
+        >
+          <Text bold color='white' fontSize='lg'>
+            Hoàn thành sửa chữa
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToArrived();
 
-          if (rescueStore.state === STORE_STATUS.ERROR) {
-            toast.show(rescueStore.errorMessage);
-          } else {
-            navigation.navigate('AutomotivePartSuggestion');
-          }
-        }}
-        activeOpacity={0.8}
-        style={{
-          width: '100%',
-          height: 50,
-          backgroundColor: '#FABB05',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute', //Here is the trick
-          bottom: 0,
-        }}
-      >
-        <Text bold color='white' fontSize='lg'>
-          Xác nhận đã đến nơi
-        </Text>
-      </TouchableOpacity>
+            if (rescueStore.state === STORE_STATUS.ERROR) {
+              toast.show(rescueStore.errorMessage);
+            } else {
+              navigation.navigate('AutomotivePartSuggestion');
+            }
+          }}
+          activeOpacity={0.8}
+          style={{
+            width: '100%',
+            height: 50,
+            backgroundColor: '#FABB05',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            bottom: 0,
+          }}
+        >
+          <Text bold color='white' fontSize='lg'>
+            Xác nhận đã đến nơi
+          </Text>
+        </TouchableOpacity>
+      )}
     </Box>
   );
 };

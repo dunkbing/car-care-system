@@ -1,10 +1,16 @@
-import { LoginQueryModel, User } from '@models/user';
+import { CustomerLoginResponseModel, GarageLoginResponseModel, LoginQueryModel, User } from '@models/user';
 import AuthService from '@mobx/services/auth';
 import { STORE_STATES, USER_TYPES } from '@utils/constants';
 import { makeObservable, observable, runInAction } from 'mobx';
-import { setHeader, withProgress } from '@mobx/services/config';
+import { setHeader } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
 import GarageStore from './garage';
+import { ApiService } from '@mobx/services/api-service';
+
+const apiUrls = {
+  customerLogin: 'auth/customers/login',
+  garageLogin: 'auth/staffs/login',
+};
 
 @Service()
 export default class AuthStore {
@@ -14,6 +20,7 @@ export default class AuthStore {
       user: observable,
     });
   }
+  private readonly apiService = Container.get(ApiService);
   private readonly authService = Container.get(AuthService);
   private readonly garageStore = Container.get(GarageStore);
   state: STORE_STATES = STORE_STATES.IDLE;
@@ -22,7 +29,7 @@ export default class AuthStore {
 
   public async login(loginQuery: LoginQueryModel, userType: USER_TYPES = USER_TYPES.CUSTOMER) {
     if (userType === USER_TYPES.CUSTOMER) {
-      const { result: user, error } = await withProgress(this.authService.customerLogin(loginQuery));
+      const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(apiUrls.customerLogin, loginQuery, true);
       if (error) {
         runInAction(() => {
           this.user = null;
@@ -33,11 +40,12 @@ export default class AuthStore {
           this.user = user;
           this.state = STORE_STATES.SUCCESS;
           this.userType = userType;
+          this.apiService.accessToken = user?.accessToken;
           setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
         });
       }
     } else {
-      const { result: user, error } = await withProgress(this.authService.garageLogin(loginQuery));
+      const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(apiUrls.garageLogin, loginQuery, true);
       if (error) {
         runInAction(() => {
           this.user = null;
@@ -60,6 +68,7 @@ export default class AuthStore {
       this.user = null;
       this.state = STORE_STATES.IDLE;
       this.userType = null;
+      this.apiService.accessToken = null;
     });
   }
 }

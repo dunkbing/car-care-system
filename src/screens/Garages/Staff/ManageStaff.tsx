@@ -11,8 +11,8 @@ import Container from 'typedi';
 import { StaffModel } from '@models/staff';
 import { STORE_STATES } from '@utils/constants';
 import { rootNavigation } from '@screens/Navigation';
-import RescueService from '@mobx/services/rescue';
 import { withProgress } from '@mobx/services/config';
+import RescueStore from '@mobx/stores/rescue';
 
 type StaffViewProps = {
   staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
@@ -36,7 +36,7 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageStaffs'>;
 
 const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
   const staffStore = Container.get(StaffStore);
-  const rescueService = Container.get(RescueService);
+  const rescueStore = Container.get(RescueStore);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -53,7 +53,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
       if (!route.params?.rescue) {
         navigation.navigate('EditStaff', { staff });
       } else {
-        await withProgress(rescueService.assignStaff(staff.id));
+        await withProgress(rescueStore.assignStaff(staff.id));
         rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
       }
     };

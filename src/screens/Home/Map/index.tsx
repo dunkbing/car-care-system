@@ -245,7 +245,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
    */
   const processSosRequest = async () => {
     const { garage } = mapState;
-    await rescueStore.createRescueCase(mapState.rescueDetail);
+    await rescueStore.createRescueDetail(mapState.rescueDetail);
 
     if (rescueStore.state === STORE_STATES.ERROR) {
       dialogStore.closeMsgDialog();

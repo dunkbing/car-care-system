@@ -15,6 +15,9 @@ const path = 'rescues';
 
 @Service()
 export default class RescueService extends BaseService {
+  /**
+   * get current customer's rescue history
+   */
   public async findCustomerHistories(keyword: string): Promise<ServiceResult<CustomerRescueHistoryModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<WithPagination<CustomerRescueHistoryModel>>>(`${path}/histories/customer`, {
@@ -27,6 +30,9 @@ export default class RescueService extends BaseService {
     }
   }
 
+  /**
+   * get current garage's rescue history
+   */
   public async findGarageHistories(keyword: string): Promise<ServiceResult<GarageRescueHistoryModel[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<WithPagination<GarageRescueHistoryModel>>>(`${path}/histories/garage`, {
@@ -40,6 +46,9 @@ export default class RescueService extends BaseService {
     }
   }
 
+  /**
+   * get all example rescue cases
+   */
   public async getRescueCases(): Promise<ServiceResult<RescueCase[]>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponsePlural<RescueCase>>>(`${path}/cases`);
@@ -68,13 +77,77 @@ export default class RescueService extends BaseService {
   }
 
   /**
-   * Get current available customer's processing rescue detail
+   * get current available customer's processing rescue detail
    */
   public async getCurrentProcessingCustomer(): Promise<ServiceResult<AvailableCustomerRescueDetail>> {
     try {
       const response = await axios.get<any, AxiosResponse<ResponseSingular<AvailableCustomerRescueDetail>>>(
         `${path}/available-details/customer`,
       );
+      const { data } = response;
+      if (data.errors.length) {
+        return { result: null, error: data.errors };
+      }
+      return { result: data.data.result, error: null };
+    } catch (error) {
+      return { result: null, error: this.processError(error) };
+    }
+  }
+
+  /**
+   * get current available staff's processing rescue detail
+   */
+  public async getCurrentProcessingGarage(): Promise<ServiceResult<any>> {
+    try {
+      const response = await axios.get<any, AxiosResponse<ResponseSingular<any>>>(`${path}/available-details/staff`);
+      const { data } = response;
+      if (data.errors.length) {
+        return { result: null, error: data.errors };
+      }
+      return { result: data.data.result, error: null };
+    } catch (error) {
+      return { result: null, error: this.processError(error) };
+    }
+  }
+
+  /**
+   * assign staff to rescue detail.
+   */
+  public async assignStaff(staffId: number): Promise<ServiceResult<any>> {
+    try {
+      const response = await axios.patch<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details/assign-staff/${staffId}`);
+      const { data } = response;
+      if (data.errors.length) {
+        return { result: null, error: data.errors };
+      }
+      return { result: data.data.result, error: null };
+    } catch (error) {
+      return { result: null, error: this.processError(error) };
+    }
+  }
+
+  /**
+   * change current rescue detail's status to arriving
+   */
+  public async changeStatusToArriving(): Promise<ServiceResult<any>> {
+    try {
+      const response = await axios.patch<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details/arriving-rescue`);
+      const { data } = response;
+      if (data.errors.length) {
+        return { result: null, error: data.errors };
+      }
+      return { result: data.data.result, error: null };
+    } catch (error) {
+      return { result: null, error: this.processError(error) };
+    }
+  }
+
+  /**
+   * change current rescue detail's status to arrived rescue
+   */
+  public async changeStatusToArrivedRescue(): Promise<ServiceResult<any>> {
+    try {
+      const response = await axios.patch<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details/arrived-rescue`);
       const { data } = response;
       if (data.errors.length) {
         return { result: null, error: data.errors };
@@ -107,11 +180,11 @@ export default class RescueService extends BaseService {
   }
 
   /**
-   * assign staff to rescue detail.
+   * change current rescue detail's status to working
    */
-  public async assignStaff(staffId: number): Promise<ServiceResult<any>> {
+  public async startWorking(): Promise<ServiceResult<any>> {
     try {
-      const response = await axios.patch<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details/assign-staff/${staffId}`);
+      const response = await axios.patch<any, AxiosResponse<ResponsePlural<any>>>(`${path}/details/start-working`);
       const { data } = response;
       if (data.errors.length) {
         return { result: null, error: data.errors };

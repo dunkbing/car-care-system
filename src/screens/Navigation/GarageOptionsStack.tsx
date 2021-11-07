@@ -61,8 +61,8 @@ export const GarageOptionsStack: React.FC = () => {
         options={{ title: 'Chi tiết yêu cầu', ...navHeaderStyle }}
       />
       <Stack.Screen name='Map' component={Map} options={{ headerShown: false }} />
-      <Stack.Screen name='AutomotivePartSuggestion' component={AutomotivePartSuggestion} options={{ headerShown: false }} />
-      <Stack.Screen name='RepairSuggestion' component={RepairSuggestion} options={{ headerShown: false }} />
+      <Stack.Screen name='AutomotivePartSuggestion' component={AutomotivePartSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
+      <Stack.Screen name='RepairSuggestion' component={RepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />
     </Stack.Navigator>
   );

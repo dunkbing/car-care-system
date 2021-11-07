@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { GarageModel } from '@models/garage';
 import GarageService from '@mobx/services/garage';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import BaseStore from './base-store';
@@ -41,31 +41,31 @@ export default class GarageStore extends BaseStore {
   }
 
   public async searchGarage(keyword: string) {
-    this.state = STORE_STATES.LOADING;
+    this.state = STORE_STATUS.LOADING;
     const { result, error } = await this.garageService.find(keyword);
 
     if (error) {
       runInAction(() => {
-        this.state = STORE_STATES.ERROR;
+        this.state = STORE_STATUS.ERROR;
       });
     } else {
       const garages = result || [];
       runInAction(() => {
-        this.state = STORE_STATES.SUCCESS;
+        this.state = STORE_STATUS.SUCCESS;
         this.garages = [...garages];
       });
     }
   }
 
   public async getOne(id: number) {
-    this.state = STORE_STATES.LOADING;
+    this.state = STORE_STATUS.LOADING;
     const { result, error } = await this.garageService.findOne(id);
     if (error) {
       this.handleError(error);
     } else {
       const garage = result;
       runInAction(() => {
-        this.state = STORE_STATES.SUCCESS;
+        this.state = STORE_STATUS.SUCCESS;
         this.setCustomerDefaultGarage(garage as GarageModel);
       });
     }

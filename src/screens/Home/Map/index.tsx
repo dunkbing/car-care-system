@@ -25,7 +25,7 @@ import SearchBar from '@components/SearchBar';
 import Marker from '../../../components/map/Marker';
 import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
-import { RESCUE_STATES, STORE_STATES } from '@utils/constants';
+import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import RescueStore from '@mobx/stores/rescue';
 import { RescueDetailRequest } from '@models/rescue';
 import CarStore from '@mobx/stores/car';
@@ -71,7 +71,7 @@ type MapState = {
   rescueLocation?: { latitude: number; longitude: number } | Location;
   rescueRoute?: [number, number][] | null;
   garage: GarageModel | null;
-  rescueState: RESCUE_STATES;
+  rescueState: RESCUE_STATUS;
   rescueDetail: RescueDetailRequest;
 };
 
@@ -92,7 +92,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       longitude: 105.8342,
     },
     garage: null,
-    rescueState: RESCUE_STATES.IDLE,
+    rescueState: RESCUE_STATUS.IDLE,
     rescueDetail: {
       carId: -1,
       address: '',
@@ -143,7 +143,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             car = carStore.cars[0];
           }
           if (rescueStore.currentCustomerProcessingRescue) {
-            const rescueState = rescueStore.currentCustomerProcessingRescue ? RESCUE_STATES.ACCEPTED : RESCUE_STATES.IDLE;
+            const rescueState = rescueStore.currentCustomerProcessingRescue ? RESCUE_STATUS.ACCEPTED : RESCUE_STATUS.IDLE;
             let rescueRoute: [number, number][] | null | undefined;
             const rescueLocation = location;
             const garageLocation = rescueStore.currentCustomerProcessingRescue.garage?.location;
@@ -223,7 +223,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {
-      if (mapState.rescueState === RESCUE_STATES.IDLE) {
+      if (mapState.rescueState === RESCUE_STATUS.IDLE) {
         setMapState({
           ...mapState,
           garage,
@@ -247,7 +247,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     const { garage } = mapState;
     await rescueStore.createRescueDetail(mapState.rescueDetail);
 
-    if (rescueStore.state === STORE_STATES.ERROR) {
+    if (rescueStore.state === STORE_STATUS.ERROR) {
       dialogStore.closeMsgDialog();
       toast.show(rescueStore.errorMessage);
       return;
@@ -277,14 +277,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
               if (result?.routes && result.routes.length > 0) {
                 setMapState({
                   ...mapState,
-                  rescueState: RESCUE_STATES.ACCEPTED,
+                  rescueState: RESCUE_STATUS.ACCEPTED,
                   rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
                 });
               }
             });
           setMapState({
             ...mapState,
-            rescueState: RESCUE_STATES.ACCEPTED,
+            rescueState: RESCUE_STATUS.ACCEPTED,
           });
         }
       },
@@ -322,7 +322,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             onRefused: () => {
               setMapState({
                 ...mapState,
-                rescueState: RESCUE_STATES.REJECTED,
+                rescueState: RESCUE_STATUS.REJECTED,
               });
             },
           });
@@ -334,7 +334,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   function viewDetailRescueRequest() {
     navigation.navigate('DetailRescueRequest', {
       onCancel: () => {
-        setMapState({ ...mapState, rescueState: RESCUE_STATES.REJECTED });
+        setMapState({ ...mapState, rescueState: RESCUE_STATUS.REJECTED });
       },
     });
   }
@@ -465,7 +465,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
         />
       </Box>
-      {mapState.rescueState !== RESCUE_STATES.ACCEPTED ? (
+      {mapState.rescueState !== RESCUE_STATUS.ACCEPTED ? (
         <Box pt={height * 0.65} position='absolute' alignSelf='center'>
           <Center>
             <CarCarousel
@@ -487,6 +487,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
               viewDetail={viewDetailRescueRequest}
               name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
               avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
+              phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
             />
           </Center>
           <Center width='100%' backgroundColor='white' py='3' mt={2}>

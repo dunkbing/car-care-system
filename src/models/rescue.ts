@@ -74,3 +74,8 @@ export type AvailableCustomerRescueDetail = {
   staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'>;
   customer: CustomerModel | null;
 };
+
+export type RescueState = {
+  currentStatus: number;
+  estimatedArrivalTime: number;
+};

@@ -1,12 +1,12 @@
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { runInAction } from 'mobx';
 
 export default class BaseStore {
-  state: STORE_STATES = STORE_STATES.IDLE;
+  state: STORE_STATUS = STORE_STATUS.IDLE;
   errorMessage = '';
 
   protected handleError(error: Error | any) {
-    this.state = STORE_STATES.ERROR;
+    this.state = STORE_STATUS.ERROR;
     if (Array.isArray(error)) {
       if (error.length > 0) {
         if (error[0].message) {
@@ -24,14 +24,14 @@ export default class BaseStore {
 
   protected handleSuccess() {
     runInAction(() => {
-      this.state = STORE_STATES.SUCCESS;
+      this.state = STORE_STATUS.SUCCESS;
       this.errorMessage = '';
     });
   }
 
   protected startLoading() {
     runInAction(() => {
-      this.state = STORE_STATES.LOADING;
+      this.state = STORE_STATUS.LOADING;
       this.errorMessage = '';
     });
   }

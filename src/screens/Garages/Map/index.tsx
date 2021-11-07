@@ -11,6 +11,9 @@ import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { Container } from 'typedi';
 import Marker from '@components/map/Marker';
 import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
+import RescueStore from '@mobx/stores/rescue';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -28,11 +31,14 @@ Logger.setLogCallback((log) => {
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Map'>;
 
-const Map: React.FC<Props> = ({ navigation }) => {
+const Map: React.FC<Props> = ({ navigation, route }) => {
   //#region stores
   const garageStore = Container.get(GarageStore);
+  const rescueStore = Container.get(RescueStore);
   //#endregion store
   const cameraRef = useRef<MapboxGL.Camera>(null);
+
+  const { request: { customer, car, staff } } = route.params || {};
 
   return (
     <Box style={{ ...StyleSheet.absoluteFillObject, height: '100%', width: '100%' }}>
@@ -75,7 +81,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
           bottom: 130,
         }}
       >
-        <AssignedEmployee viewDetail={() => {}} name='Nguyen Ngoc Duc' avatarUrl='' />
+        <AssignedEmployee
+          viewDetail={() => {}}
+          name={`${staff?.firstName} ${staff?.lastName}`}
+          avatarUrl={`${staff.avatarUrl}`}
+          phoneNumber={`${staff?.phoneNumber}`}
+        />
       </Center>
       <View
         style={{
@@ -93,8 +104,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
         </Text>
       </View>
       <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('AutomotivePartSuggestion');
+        onPress={async () => {
+          await rescueStore.changeRescueStatusToArrived();
+
+          if (rescueStore.state === STORE_STATUS.ERROR) {
+            toast.show(rescueStore.errorMessage);
+          } else {
+            navigation.navigate('AutomotivePartSuggestion');
+          }
         }}
         activeOpacity={0.8}
         style={{

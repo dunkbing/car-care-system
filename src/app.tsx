@@ -10,7 +10,7 @@ import Dialog from '@components/dialog';
 import { API_URL } from '@env';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import { observer } from 'mobx-react';
 import { GarageOptionsStack } from '@screens/Navigation/GarageOptionsStack';
 
@@ -23,7 +23,7 @@ const App: React.FC = observer(() => {
       <RootStack.Navigator initialRouteName='Auth'>
         {!authStore.user ? (
           <RootStack.Screen name='Auth' component={AuthStack} options={{ headerShown: false }} />
-        ) : authStore.userType === USER_TYPES.CUSTOMER ? (
+        ) : authStore.userType === ACCOUNT_TYPES.CUSTOMER ? (
           <RootStack.Screen name='CustomerHomeTab' component={CustomerHomeTab} options={{ headerShown: false }} />
         ) : (
           <RootStack.Screen name='GarageHomeTab' component={GarageHomeTab} options={{ headerShown: false }} />

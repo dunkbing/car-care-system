@@ -1,4 +1,4 @@
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import StaffService from '@mobx/services/staff';
@@ -27,7 +27,7 @@ export default class StaffStore extends BaseStore {
    * for manager uses only.
    * @param params for searching
    */
-  public async find(params: StaffRequestParams = { keyword: '', isAvailable: true }) {
+  public async find(params: StaffRequestParams = { keyword: '' }) {
     this.startLoading();
 
     const { result, error } = await this.staffService.find(params);
@@ -37,7 +37,7 @@ export default class StaffStore extends BaseStore {
     } else {
       const staffs = result || [];
       runInAction(() => {
-        this.state = STORE_STATES.SUCCESS;
+        this.state = STORE_STATUS.SUCCESS;
         this.staffs = [...staffs];
       });
     }

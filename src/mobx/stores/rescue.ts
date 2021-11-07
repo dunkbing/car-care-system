@@ -1,9 +1,10 @@
 import 'reflect-metadata';
-import { STORE_STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATUS, ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import {
   AvailableCustomerRescueDetail,
+  RescueState,
   CustomerRescueHistoryModel,
   GarageRescueHistoryModel,
   RescueCase,
@@ -19,7 +20,7 @@ const apiUrls = {
   createRescueDetail: 'rescues/details',
   currentProcessingCustomer: 'rescues/available-details/customer',
   currentProcessingGarage: 'rescues/available-details/staff',
-  assignStaff: (id: number) => `rescues/details/assign-staff/${id}`,
+  assignStaff: 'rescues/details/assign-staff',
   arrivingRescue: 'rescues/details/arriving-rescue',
   arrivedRescue: 'rescues/details/arrived-rescue',
   workingRescue: 'rescues/details/working-rescue',
@@ -38,11 +39,23 @@ export default class RescueStore extends BaseStore {
       state: observable,
       errorMessage: observable,
       customerRescueHistories: observable,
+      currentCustomerProcessingRescue: observable,
+      currentStaffProcessingRescue: observable,
       garageRescueHistories: observable,
       pendingRescueRequests: observable,
       rescueCases: observable,
       findHistories: action,
       createRescueDetail: action,
+      assignStaff: action,
+      changeRescueStatusToArriving: action,
+      changeRescueStatusToArrived: action,
+      changeRescueStatusToWorking: action,
+      changeRescueStatusToDone: action,
+      customerRejectCurrentRescueCase: action,
+      getCurrentProcessingCustomer: action,
+      getCurrentProcessingStaff: action,
+      getCustomerRejectRescueCases: action,
+      getGarageRejectRescueCases: action,
       getPendingRescueRequests: action,
       getRescueCases: action,
     });
@@ -53,6 +66,8 @@ export default class RescueStore extends BaseStore {
 
   customerRescueHistories: Array<CustomerRescueHistoryModel> = [];
   currentCustomerProcessingRescue: AvailableCustomerRescueDetail | null = null;
+  currentStaffProcessingRescue: AvailableCustomerRescueDetail | null = null;
+  currentStaffRescueState: RescueState | null = null;
 
   garageRescueHistories: Array<GarageRescueHistoryModel> = [];
   rescueCases: Array<RescueCase> = [];
@@ -63,22 +78,22 @@ export default class RescueStore extends BaseStore {
    * @param keyword
    * @param userType
    */
-  public async findHistories(keyword: string, userType: USER_TYPES = USER_TYPES.CUSTOMER) {
-    this.state = STORE_STATES.LOADING;
+  public async findHistories(keyword: string, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
+    this.state = STORE_STATUS.LOADING;
 
-    if (userType === USER_TYPES.CUSTOMER) {
+    if (userType === ACCOUNT_TYPES.CUSTOMER) {
       const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(apiUrls.customerHistories, {
         keyword,
       });
 
       if (error) {
         runInAction(() => {
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         const rescues = result || [];
         runInAction(() => {
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.customerRescueHistories = [...rescues];
         });
       }
@@ -89,12 +104,12 @@ export default class RescueStore extends BaseStore {
 
       if (error) {
         runInAction(() => {
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         const rescues = result || [];
         runInAction(() => {
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.garageRescueHistories = [...rescues];
         });
       }
@@ -159,7 +174,7 @@ export default class RescueStore extends BaseStore {
   /**
    * get current available staff's processing rescue detail
    */
-  public async getCurrentProcessingGarage() {
+  public async getCurrentProcessingStaff() {
     this.startLoading();
     const { result, error } = await this.apiService.get<any>(apiUrls.currentProcessingGarage);
 
@@ -167,7 +182,7 @@ export default class RescueStore extends BaseStore {
       this.handleError(error);
     } else {
       runInAction(() => {
-        this.currentCustomerProcessingRescue = result;
+        this.currentStaffProcessingRescue = result;
       });
       this.handleSuccess();
     }
@@ -176,9 +191,11 @@ export default class RescueStore extends BaseStore {
   /**
    * assign staff to rescue detail.
    */
-  public async assignStaff(staffId: number) {
+  public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
+    console.log(params);
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.assignStaff(staffId));
+    const { result, error } = await this.apiService.patch<any>(apiUrls.assignStaff, params);
+    console.log(result, error);
 
     if (error) {
       this.handleError(error);
@@ -190,13 +207,14 @@ export default class RescueStore extends BaseStore {
   /**
    * change current rescue detail's status to arriving
    */
-  public async changeStatusToArriving() {
+  public async changeRescueStatusToArriving(params: { status: RESCUE_STATUS; estimatedArrivalTime: number }) {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.arrivingRescue);
+    const { error } = await this.apiService.patch<any>(apiUrls.arrivingRescue, params, true);
 
     if (error) {
       this.handleError(error);
     } else {
+      this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
       this.handleSuccess();
     }
   }
@@ -204,13 +222,14 @@ export default class RescueStore extends BaseStore {
   /**
    * change current rescue detail's status to arrived rescue
    */
-  public async changeStatusToArrivedRescue() {
+  public async changeRescueStatusToArrived() {
     this.startLoading();
     const { error } = await this.apiService.patch<any>(apiUrls.arrivedRescue);
 
     if (error) {
       this.handleError(error);
     } else {
+      this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
       this.handleSuccess();
     }
   }
@@ -218,7 +237,7 @@ export default class RescueStore extends BaseStore {
   /**
    * change current rescue detail's status to working
    */
-  public async changeStatusToWorking() {
+  public async changeRescueStatusToWorking() {
     this.startLoading();
     const { error } = await this.apiService.patch<any>(apiUrls.workingRescue);
 
@@ -232,7 +251,7 @@ export default class RescueStore extends BaseStore {
   /**
    * change current rescue detail's status to done
    */
-  public async changeStatusToDone() {
+  public async changeRescueStatusToDone() {
     this.startLoading();
     const { error } = await this.apiService.patch<any>(apiUrls.doneRescue);
 

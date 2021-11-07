@@ -13,7 +13,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { observer } from 'mobx-react';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
@@ -40,7 +40,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
 
   function createCar() {
     void carStore.createCar(car).then(() => {
-      if (carStore.state === STORE_STATES.SUCCESS) {
+      if (carStore.state === STORE_STATUS.SUCCESS) {
         navigation.goBack();
       } else {
         toast.show(carStore.errorMessage);

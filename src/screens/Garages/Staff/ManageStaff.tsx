@@ -9,10 +9,11 @@ import { observer } from 'mobx-react';
 import StaffStore from '@mobx/stores/staff';
 import Container from 'typedi';
 import { StaffModel } from '@models/staff';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { rootNavigation } from '@screens/Navigation';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
+import toast from '@utils/toast';
 
 type StaffViewProps = {
   staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
@@ -40,28 +41,36 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      if (route.params?.rescue) {
+      if (route.params?.rescueId) {
         void staffStore.find({ isAvailable: true });
       } else {
         void staffStore.find();
       }
     });
-  }, [navigation, route.params?.rescue, staffStore]);
+  }, [navigation, route.params?.rescueId, staffStore]);
 
   const onPress = (staff: StaffModel) => {
     return async () => {
-      if (!route.params?.rescue) {
+      if (!route.params?.rescueId) {
         navigation.navigate('EditStaff', { staff });
       } else {
-        await withProgress(rescueStore.assignStaff(staff.id));
+        await withProgress(rescueStore.assignStaff({ staffId: staff.id, rescueDetailId: route.params?.rescueId }));
+        if (rescueStore.state === STORE_STATUS.ERROR) {
+          toast.show(rescueStore.errorMessage);
+          return;
+        }
         rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
       }
     };
   };
 
   const onRefresh = useCallback(() => {
-    void staffStore.find();
-  }, [staffStore]);
+    if (route.params?.rescueId) {
+      void staffStore.find({ isAvailable: true });
+    } else {
+      void staffStore.find();
+    }
+  }, [route.params?.rescueId, staffStore]);
 
   return (
     <NativeBaseProvider>
@@ -83,7 +92,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           />
         </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          {staffStore.state === STORE_STATES.LOADING ? (
+          {staffStore.state === STORE_STATUS.LOADING ? (
             <Spinner size='lg' />
           ) : (
             staffStore.staffs.map((staff) => <StaffView key={staff.id} staff={staff} onPress={onPress(staff)} />)

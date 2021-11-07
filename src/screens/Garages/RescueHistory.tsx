@@ -9,7 +9,7 @@ import { observer } from 'mobx-react';
 import { GarageRescueHistoryModel } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { to12HoursTime, toHourAndMinute } from '@utils/time';
 import AuthStore from '@mobx/stores/auth';
 
@@ -86,7 +86,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
         height='60%'
         refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
-        {rescueStore.state === STORE_STATES.LOADING ? (
+        {rescueStore.state === STORE_STATUS.LOADING ? (
           <Spinner size='lg' />
         ) : (
           rescueStore.garageRescueHistories.map((rescue) => (

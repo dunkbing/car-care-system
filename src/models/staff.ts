@@ -1,5 +1,4 @@
-import { USER_TYPES } from '@utils/constants';
-import { Gender } from './user';
+import { ACCOUNT_TYPES, Gender } from '@utils/constants';
 
 export type StaffRequestParams = {
   keyword?: string;
@@ -15,7 +14,7 @@ export type StaffModel = {
   address: string | null;
   gender: Gender;
   dateOfBirth: string;
-  accountType: USER_TYPES;
+  accountType: ACCOUNT_TYPES;
   isAvailable: boolean;
   avatarUrl: string;
   garageId: number;

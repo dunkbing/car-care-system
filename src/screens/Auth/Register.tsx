@@ -1,7 +1,7 @@
 import React from 'react';
 import { NativeBaseProvider, Box, VStack, Button, ScrollView } from 'native-base';
 import FormInput from '@components/form/FormInput';
-import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/user';
+import { RegisterQueryModel, registerValidationSchema } from '@models/user';
 import { Formik } from 'formik';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
@@ -9,6 +9,7 @@ import toast from '@utils/toast';
 import FormSelect from '@components/form/FormSelect';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
+import { Gender } from '@utils/constants';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
@@ -45,7 +46,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 confirmPassword: '',
                 address: 'a',
                 typeCustomer: '',
-                gender: Gender.Male,
+                gender: Gender.MALE,
               }}
               // eslint-disable-next-line @typescript-eslint/require-await
               onSubmit={onRegisterSubmit}

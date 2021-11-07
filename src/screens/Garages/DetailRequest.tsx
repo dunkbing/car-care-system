@@ -76,7 +76,7 @@ const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
             }}
           >
             <Button
-              onPress={() => navigation.navigate('ManageStaffs', { rescue: true })}
+              onPress={() => navigation.navigate('ManageStaffs', { rescueId: request.id })}
               style={{ width: 130, backgroundColor: '#34A853' }}
             >
               Chọn nhân viên

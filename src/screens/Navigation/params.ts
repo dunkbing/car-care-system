@@ -55,7 +55,7 @@ export type GarageTabParams = {
 
 export type GarageHomeOptionStackParams = {
   MyGarage: { garage: GarageModel | null };
-  ManageStaffs: undefined | { rescue: boolean };
+  ManageStaffs: undefined | { rescueId: number };
   AddStaff: undefined;
   EditStaff: { staff: StaffModel };
   ManageCustomers: undefined;
@@ -64,8 +64,8 @@ export type GarageHomeOptionStackParams = {
   HistoryDetail: { rescue: Pick<GarageRescueHistoryModel, 'car' | 'staff' | 'createAt' | 'customer' | 'customerFeedback'> };
   PendingRescueRequest: undefined;
   DetailRequest: { request: AvailableCustomerRescueDetail };
-  DetailAssignedRequest: undefined;
-  Map: undefined;
+  DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null };
+  Map: { request: AvailableCustomerRescueDetail };
   AutomotivePartSuggestion: undefined;
   RepairSuggestion: undefined;
   RejectRequest: undefined;

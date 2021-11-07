@@ -487,6 +487,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
               viewDetail={viewDetailRescueRequest}
               name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
               avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
+              phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
             />
           </Center>
           <Center width='100%' backgroundColor='white' py='3' mt={2}>

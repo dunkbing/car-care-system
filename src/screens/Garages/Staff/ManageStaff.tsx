@@ -13,6 +13,7 @@ import { STORE_STATUS } from '@utils/constants';
 import { rootNavigation } from '@screens/Navigation';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
+import toast from '@utils/toast';
 
 type StaffViewProps = {
   staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
@@ -40,32 +41,36 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      if (route.params?.rescue) {
+      if (route.params?.rescueId) {
         void staffStore.find({ isAvailable: true });
       } else {
         void staffStore.find();
       }
     });
-  }, [navigation, route.params?.rescue, staffStore]);
+  }, [navigation, route.params?.rescueId, staffStore]);
 
   const onPress = (staff: StaffModel) => {
     return async () => {
-      if (!route.params?.rescue) {
+      if (!route.params?.rescueId) {
         navigation.navigate('EditStaff', { staff });
       } else {
-        await withProgress(rescueStore.assignStaff(staff.id));
+        await withProgress(rescueStore.assignStaff({ staffId: staff.id, rescueDetailId: route.params?.rescueId }));
+        if (rescueStore.state === STORE_STATUS.ERROR) {
+          toast.show(rescueStore.errorMessage);
+          return;
+        }
         rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
       }
     };
   };
 
   const onRefresh = useCallback(() => {
-    if (route.params?.rescue) {
+    if (route.params?.rescueId) {
       void staffStore.find({ isAvailable: true });
     } else {
       void staffStore.find();
     }
-  }, [route.params?.rescue, staffStore]);
+  }, [route.params?.rescueId, staffStore]);
 
   return (
     <NativeBaseProvider>

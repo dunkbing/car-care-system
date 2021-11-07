@@ -1,6 +1,7 @@
 import { API_URL } from '@env';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { Service } from 'typedi';
+import DialogStore from '@mobx/stores/dialog';
+import axios, { AxiosError, AxiosRequestHeaders, AxiosResponse } from 'axios';
+import Container, { Service } from 'typedi';
 import { ResponsePlural, ResponseSingular, ServiceResult, WithPagination, withProgress } from './config';
 
 declare type QueryParams = { [param: string]: string | string[] };
@@ -14,6 +15,7 @@ declare type RequestParams = object | string | number | boolean | any | (object 
 export class ApiService {
   private basePath: string = API_URL;
   accessToken: string | undefined | null = '';
+  private readonly dialogStore = Container.get(DialogStore);
 
   public setBasePath(host: string, path: string, useHttps = true): void {
     const scheme = useHttps ? 'https' : 'http';
@@ -107,10 +109,7 @@ export class ApiService {
 
   public async put<Response>(path: string, params?: RequestParams, reportProgress = false): Promise<ServiceResult<Response>> {
     const headers = this.createRequestHeaders();
-    let promise = axios.put<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), {
-      headers,
-      params,
-    });
+    let promise = axios.put<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
     if (reportProgress) {
       promise = withProgress(promise);
     }
@@ -123,15 +122,14 @@ export class ApiService {
       return { result: data.data.result, error: null };
     } catch (error) {
       return { result: null, error: this.processError(error) };
+    } finally {
+      this.dialogStore.closeProgressDialog();
     }
   }
 
   public async patch<Response>(path: string, params?: RequestParams, reportProgress = false): Promise<ServiceResult<Response>> {
     const headers = this.createRequestHeaders();
-    let promise = axios.patch<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), {
-      headers,
-      params,
-    });
+    let promise = axios.patch<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
     if (reportProgress) {
       promise = withProgress(promise);
     }
@@ -144,6 +142,8 @@ export class ApiService {
       return { result: data.data.result, error: null };
     } catch (error) {
       return { result: null, error: this.processError(error) };
+    } finally {
+      this.dialogStore.closeProgressDialog();
     }
   }
 
@@ -181,7 +181,7 @@ export class ApiService {
     return [error];
   }
 
-  private createRequestHeaders(): any {
+  private createRequestHeaders(): AxiosRequestHeaders {
     const headers: any = {};
     headers['Content-Type'] = 'application/json; charset=UTF-8';
     if (this.accessToken) {

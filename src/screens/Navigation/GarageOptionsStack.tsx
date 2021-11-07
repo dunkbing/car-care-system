@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
@@ -34,14 +35,16 @@ export const GarageOptionsStack: React.FC = () => {
       <Stack.Screen
         name='ManageStaffs'
         component={ManageStaff}
-        options={({ navigation }) => ({
-          title: 'Quản lý nhân viên',
+        options={({ navigation, route }) => ({
+          title: route.params?.rescueId ? 'Chọn nhân viên' : 'Quản lý nhân viên',
           ...navHeaderStyle,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('AddStaff')}>
-              <MatIcon name='add' size={30} color='#fff' />
-            </TouchableOpacity>
-          ),
+          headerRight: !route.params?.rescueId
+            ? () => (
+              <TouchableOpacity onPress={() => navigation.navigate('AddStaff')}>
+                <MatIcon name='add' size={30} color='#fff' />
+              </TouchableOpacity>
+            )
+            : () => null,
         })}
       />
       <Stack.Screen name='AddStaff' component={AddStaff} options={{ title: 'Thêm nhân viên', ...navHeaderStyle }} />

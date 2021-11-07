@@ -102,9 +102,10 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
         </View>
         <View>
           <CategoryDetail categoryName='Láng đĩa phanh trước' price='250.000' />
-          <CategoryDetail categoryName='Láng đĩa phanh trước' price='250.000' />
-          <CategoryDetail categoryName='Láng đĩa phanh trước' price='250.000' />
-          <CategoryDetail categoryName='Láng đĩa phanh trước' price='250.000' />
+          <CategoryDetail categoryName='Lọc dầu' price='150.000' />
+          <CategoryDetail categoryName='Lọc xăng' price='850.000' />
+          <CategoryDetail categoryName='Bugi' price='354.800' />
+          <CategoryDetail categoryName='Gioăng nắp dàn cò' price='480.000' />
         </View>
         <Text
           style={{
@@ -116,10 +117,8 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
           Dịch vụ
         </Text>
         <View>
-          <CategoryDetail categoryName='Công thợ' price='250.000' />
-          <CategoryDetail categoryName='Công thợ' price='250.000' />
-          <CategoryDetail categoryName='Công thợ' price='250.000' />
-          <CategoryDetail categoryName='Công thợ' price='250.000' />
+          <CategoryDetail categoryName='Công thợ' price='200.000' />
+          <CategoryDetail categoryName='Phí di chuyển' price='250.000' />
         </View>
         <View
           style={{
@@ -134,7 +133,7 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
               fontSize: 20,
             }}
           >
-            Tổng: 3.000.000đ
+            Tổng: 2.784.800đ
           </Text>
         </View>
         <Center>

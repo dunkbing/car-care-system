@@ -7,7 +7,7 @@ import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import AuthStore from '@mobx/stores/auth';
 import FormSelect from '@components/form/FormSelect';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import { AvatarStaff } from '@assets/images';
 import { CustomerLoginResponseModel, GarageLoginResponseModel } from '@models/user';
 
@@ -17,7 +17,7 @@ const Profile: React.FC<Props> = () => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
   const authStore = Container.get(AuthStore);
   const currentUser =
-    authStore.userType === USER_TYPES.CUSTOMER
+    authStore.userType === ACCOUNT_TYPES.CUSTOMER
       ? (authStore.user as CustomerLoginResponseModel)
       : (authStore.user as GarageLoginResponseModel);
   const [user, setUser] = useState({ ...currentUser });
@@ -77,7 +77,7 @@ const Profile: React.FC<Props> = () => {
             keyboardType='ascii-capable'
             defaultValue={(user as any)?.address || ''}
           />
-          {authStore.userType === USER_TYPES.CUSTOMER && (
+          {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
             <FormSelect
               label='Loại khách hàng'
               value={typeCustomer}
@@ -90,7 +90,9 @@ const Profile: React.FC<Props> = () => {
             />
           )}
         </VStack>
-        {authStore.userType === USER_TYPES.CUSTOMER && <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />}
+        {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
+          <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />
+        )}
         <Center>
           <HStack space={10} mt={5} mb={5}>
             <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>

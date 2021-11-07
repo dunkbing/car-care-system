@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import { CarDetailModel, CarModel, CreateCarRequestModel } from '@models/car';
 import CarService from '@mobx/services/car';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { withProgress } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
 import CarModelStore from './car-model';
@@ -32,7 +32,7 @@ export default class CarStore extends BaseStore {
     } else {
       const cars = result || [];
       runInAction(() => {
-        this.state = STORE_STATES.SUCCESS;
+        this.state = STORE_STATUS.SUCCESS;
         this.cars = [...cars];
       });
     }
@@ -48,13 +48,13 @@ export default class CarStore extends BaseStore {
   }
 
   public async createCar(car: CreateCarRequestModel) {
-    this.state = STORE_STATES.LOADING;
+    this.state = STORE_STATUS.LOADING;
     const success = await withProgress(
       this.carService.create(car, (errors) => {
         this.handleError(errors);
         if (errors.length) {
           runInAction(() => {
-            this.state = STORE_STATES.ERROR;
+            this.state = STORE_STATUS.ERROR;
             this.errorMessage = errors[0].message;
           });
         }
@@ -64,17 +64,17 @@ export default class CarStore extends BaseStore {
     if (success) {
       runInAction(() => {
         this.errorMessage = '';
-        this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
+        this.state = success ? STORE_STATUS.SUCCESS : STORE_STATUS.ERROR;
       });
     }
   }
 
   public async deleteCar(carId: number) {
-    this.state = STORE_STATES.LOADING;
+    this.state = STORE_STATUS.LOADING;
     const success = await withProgress(this.carService.delete(carId));
 
     runInAction(() => {
-      this.state = success ? STORE_STATES.SUCCESS : STORE_STATES.ERROR;
+      this.state = success ? STORE_STATUS.SUCCESS : STORE_STATUS.ERROR;
     });
   }
 }

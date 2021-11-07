@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Center, HStack, Image, Text, VStack } from 'native-base';
 import { Customer, Employees, ListImg, RequestImg, ScrewDriverWrench } from '@assets/images';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
@@ -6,10 +6,11 @@ import { headerColor } from '@screens/shared/colors';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import { TouchableOpacity } from 'react-native';
 import GarageStore from '@mobx/stores/garage';
 import { rootNavigation } from '@screens/Navigation/roots';
+import RescueStore from '@mobx/stores/rescue';
 
 const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPress?: () => void }) => {
   return (
@@ -27,7 +28,11 @@ const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPr
 };
 
 const ManagerOption: React.FC = () => {
+  //#region stores
   const garageStore = Container.get(GarageStore);
+  const rescueStore = Container.get(RescueStore);
+  //#endregion
+
   return (
     <VStack pt='3'>
       <Center>
@@ -43,7 +48,10 @@ const ManagerOption: React.FC = () => {
             name='Yêu cầu cứu hộ'
             imgSrc={RequestImg}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailAssignedRequest' });
+              rootNavigation.navigate('GarageHomeOptions', {
+                screen: 'DetailAssignedRequest',
+                params: { request: rescueStore.currentStaffProcessingRescue },
+              });
             }}
           />
         </HStack>
@@ -79,6 +87,8 @@ const ManagerOption: React.FC = () => {
 };
 
 const StaffOption: React.FC = () => {
+  const rescueStore = Container.get(RescueStore);
+
   return (
     <VStack pt='3'>
       <Center>
@@ -94,7 +104,10 @@ const StaffOption: React.FC = () => {
             name='Yêu cầu cứu hộ'
             imgSrc={RequestImg}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailAssignedRequest' });
+              rootNavigation.navigate('GarageHomeOptions', {
+                screen: 'DetailAssignedRequest',
+                params: { request: rescueStore.currentStaffProcessingRescue },
+              });
             }}
           />
         </HStack>
@@ -116,13 +129,14 @@ const StaffOption: React.FC = () => {
 const GarageHome: React.FC = () => {
   const authStore = Container.get(AuthStore);
   const garageStore = Container.get(GarageStore);
-  // useEffect(() => {
-  //   garageStore.setDefaultGarage({
-  //     address: 'QL23, Vân Nội, Đông Anh, Hà Nội',
-  //     name: 'Garage ô tô Hùng Lý',
-  //     phoneNumber: '0325163541',
-  //   } as any);
-  // }, []);
+  const rescueStore = Container.get(RescueStore);
+
+  //#region hooks
+  useEffect(() => {
+    void rescueStore.getCurrentProcessingStaff();
+  }, [rescueStore]);
+  //#endregion
+
   return (
     <VStack>
       <Center pb='8' pt='8'>
@@ -134,7 +148,7 @@ const GarageHome: React.FC = () => {
           <Text fontSize='lg'>{garageStore.garage?.address}</Text>
         </HStack>
       </Center>
-      {authStore.userType === USER_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
+      {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
     </VStack>
   );
 };

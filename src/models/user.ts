@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { orRegex, regexes } from '@utils/regex';
 import { GarageModel } from './garage';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES, Gender } from '@utils/constants';
 
 export type CustomerModel = {
   id: number;
@@ -61,10 +61,6 @@ export const registerValidationSchema = yup.object({
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
-export enum Gender {
-  Male,
-  Female,
-}
 
 export type RescuedCustomerModel = {
   id: 1;
@@ -100,7 +96,7 @@ export type GarageLoginResponseModel = {
   lastName: string;
   gender: Gender;
   dateOfBirth: string;
-  accountType: USER_TYPES;
+  accountType: ACCOUNT_TYPES;
   isAvailable: boolean;
   avatarUrl: string;
   garage: GarageModel;

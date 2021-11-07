@@ -1,4 +1,4 @@
-export enum STORE_STATES {
+export enum STORE_STATUS {
   IDLE,
   LOADING,
   LOADING_BACKGROUND,
@@ -6,18 +6,50 @@ export enum STORE_STATES {
   ERROR,
 }
 
-export enum USER_TYPES {
+//#region user
+export enum ACCOUNT_TYPES {
   CUSTOMER = 0,
   GARAGE_MANAGER = 1,
   GARAGE_STAFF = 2,
 }
 
-export enum RESCUE_STATES {
-  IDLE,
+export enum ACCOUNT_STATUS {
+  DEACTIVATED,
+  ACTIVATED,
+}
+
+export enum CUSTOMER_TYPES {
+  PERSONAL,
+  BUSINESS,
+}
+
+export enum Gender {
+  MALE,
+  FEMALE,
+  OTHER,
+}
+//#endregion
+
+//#region others
+export enum INVOICE_STATUS {
+  DRAFT,
+  PENDING,
+  PAID,
+}
+
+export enum REJECT_SIDE {
+  CUSTOMER,
+  GARAGE,
+}
+
+export enum RESCUE_STATUS {
   PENDING,
   ACCEPTED,
-  REJECTED,
+  ARRIVING,
   ARRIVED,
   WORKING,
+  REJECTED,
   DONE,
+  IDLE,
 }
+//#endregion

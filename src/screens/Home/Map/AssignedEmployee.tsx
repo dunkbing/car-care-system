@@ -8,12 +8,13 @@ import { AvatarStaff } from '@assets/images';
 type Props = {
   name: string;
   avatarUrl: string;
+  phoneNumber: string;
   viewDetail: () => void;
 };
 
-const AssignedEmployee = ({ name, avatarUrl, viewDetail }: Props) => {
+const AssignedEmployee = ({ name, avatarUrl, viewDetail, phoneNumber }: Props) => {
   function callEmp() {
-    void Linking.openURL('tel:012345678');
+    void Linking.openURL(`tel:${phoneNumber}`);
   }
   return (
     <Box width='90%' style={{ backgroundColor: 'white' }} rounded='3' shadow='2'>

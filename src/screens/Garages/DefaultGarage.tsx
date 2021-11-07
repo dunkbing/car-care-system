@@ -12,7 +12,7 @@ import { Dimensions, Linking, TouchableOpacity } from 'react-native';
 import { headerColor } from '@screens/shared/colors';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 
 const { height } = Dimensions.get('screen');
 
@@ -106,7 +106,7 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
           </VStack>
         </Center>
       </ScrollView>
-      {authStore.userType === USER_TYPES.CUSTOMER && !route.params?.isRescueStack && garage && (
+      {authStore.userType === ACCOUNT_TYPES.CUSTOMER && !route.params?.isRescueStack && garage && (
         <Center w='80%' mb={30}>
           <Button onPress={changeDefaultGarage} colorScheme='green' width='100%'>
             Thay đổi garage cứu hộ mặc định

@@ -55,17 +55,17 @@ const AutomotivePartSuggestion: React.FC<Props> = ({ navigation }) => {
           Danh sách thiết bị
         </Text>
         <ScrollView>
+          <AutomotivePart name='Láng đĩa phanh trước' price='250.000' />
           <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='251.000' />
+          <AutomotivePart name='Lọc dầu' price='150.000' />
+          <AutomotivePart name='Lọc xăng' price='850.000' />
+          <AutomotivePart name='Bugi' price='88.700' />
+          <AutomotivePart name='Gioăng nắp dàn cò' price='480.000' />
+          <AutomotivePart name='Dây cao áp' price='450.000' />
+          <AutomotivePart name='Má phanh trước' price='1.045.000' />
+          <AutomotivePart name='Má phanh sau' price='1.210.000' />
+          <AutomotivePart name='Lá côn' price='1.368.000' />
+          <AutomotivePart name='Dây côn' price='561.000' />
         </ScrollView>
         <Button
           onPress={() => {

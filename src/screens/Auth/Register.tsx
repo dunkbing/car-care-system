@@ -5,25 +5,21 @@ import { Gender, RegisterQueryModel, registerValidationSchema } from '@models/us
 import { Formik } from 'formik';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams } from '@screens/Navigation/params';
-import AuthService from '@mobx/services/auth';
-import DialogStore from '@mobx/stores/dialog';
 import toast from '@utils/toast';
 import FormSelect from '@components/form/FormSelect';
 import Container from 'typedi';
+import AuthStore from '@mobx/stores/auth';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
 const Register: React.FC<Props> = ({ navigation }) => {
   const [typeCustomer, setTypeCustomer] = React.useState('');
-  const authService = Container.get(AuthService);
-  const dialogStore = Container.get(DialogStore);
+  const authStore = Container.get(AuthStore);
   async function onRegisterSubmit(values: RegisterQueryModel) {
-    dialogStore.openProgressDialog();
-    const { error } = await authService.register(values);
-    dialogStore.closeProgressDialog();
+    await authStore.register(values);
 
-    if (error) {
-      toast.show(`Đăng ký thất bại: ${error.message}`);
+    if (authStore.errorMessage) {
+      toast.show(`Đăng ký thất bại: ${authStore.errorMessage}`);
     } else {
       navigation.navigate('DefineCarModel');
     }

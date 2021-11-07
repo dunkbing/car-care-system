@@ -38,7 +38,7 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
     }
   }
   return (
-    <Center mt={props.mt}>
+    <Center mt={props.mt as any}>
       <Input
         placeholder={placeholder}
         placeholderTextColor='black'

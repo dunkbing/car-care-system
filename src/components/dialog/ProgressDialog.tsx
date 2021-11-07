@@ -22,16 +22,9 @@ const ProgressDialog = ({ title, state, onClosed }: ProgressDialogProps) => {
       <AlertDialog.Content>
         <AlertDialog.CloseButton />
         {title && <AlertDialog.Header>{title}</AlertDialog.Header>}
-        <AlertDialog.Body>
-          <Spinner size='lg' accessibilityLabel='Updating department' />
+        <AlertDialog.Body h={100} alignItems='center' justifyContent='center'>
+          <Spinner size='lg' accessibilityLabel='Loading' />
         </AlertDialog.Body>
-        {/* <AlertDialog.Footer>
-          <Button.Group space={2}>
-            <Button variant='solid' colorScheme='secondary' onPress={onClosed}>
-              Hủy
-            </Button>
-          </Button.Group>
-        </AlertDialog.Footer> */}
       </AlertDialog.Content>
     </AlertDialog>
   );

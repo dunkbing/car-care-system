@@ -16,7 +16,7 @@ import AuthStore from '@mobx/stores/auth';
 const HistoryView: React.FC<
   { onPress: OnPress } & Pick<GarageRescueHistoryModel, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>
 > = ({ onPress, staff, customer, createAt }) => {
-  const rescueDate = new Date(createAt as string);
+  const rescueDate = new Date(createAt);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
@@ -72,9 +72,9 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
     <VStack width='100%'>
       <SearchBar
         placeholder='Tìm kiếm khách hàng'
-        timeout={500}
         width='90%'
         mt='5'
+        timeout={500}
         onSearch={(query) => {
           void rescueStore.findHistories(query);
         }}

@@ -115,3 +115,26 @@ export type GeocodingResponse = {
   }>;
   status: string;
 };
+
+export type DistanceMatrixResponse = {
+  rows: {
+    elements: {
+      status: string;
+      duration: {
+        text: string;
+        value: number;
+      };
+      distance: {
+        text: string;
+        value: number;
+      };
+    }[];
+  }[];
+};
+
+export type DistanceMatrixRequestParams = {
+  api_key: string;
+  origins: string;
+  destinations: string;
+  vehicle: string;
+};

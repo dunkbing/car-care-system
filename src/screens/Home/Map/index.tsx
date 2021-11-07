@@ -32,6 +32,7 @@ import CarStore from '@mobx/stores/car';
 import toast from '@utils/toast';
 import { parallel } from '@utils/parallel';
 import { ServiceResult, withProgress } from '@mobx/services/config';
+import { CarModel } from '@models/car';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -110,6 +111,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   });
   const [places, setPlaces] = useState<Place[]>([]);
   const [definedCarStatus, setDefinedCarStatus] = useState(false);
+  const [duration, setDuration] = useState('');
   const sheetRef = useRef<BottomSheet>(null);
 
   /**
@@ -117,7 +119,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
    */
   useEffect(() => {
     if (definedCarStatus) {
-      console.log(mapState.rescueDetail);
       void processSosRequest();
       setDefinedCarStatus(false);
     }
@@ -129,35 +130,83 @@ const Map: React.FC<Props> = ({ navigation }) => {
       .requestPermission()
       .then((location) => {
         void withProgress(
-          parallel<ServiceResult<GeocodingResponse>, void>(
+          parallel<ServiceResult<GeocodingResponse>, void, void>(
             mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location!.latitude},${location!.longitude}` }),
+            rescueStore.getCurrentProcessingCustomer(),
             carStore.find(),
           ),
-        ).then(([{ result }]) => {
-          let car;
+        ).then(([{ result: geocoding }]) => {
+          let car: CarModel | undefined;
           if (carStore.cars.length >= 2) {
             car = carStore.cars[1];
           } else if (carStore.cars.length === 1) {
             car = carStore.cars[0];
           }
-          setMapState({
-            ...mapState,
-            userLocation: {
-              latitude: location!.latitude,
-              longitude: location!.longitude,
-            },
-            rescueLocation: undefined,
-            rescueDetail: {
-              ...mapState.rescueDetail,
-              customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
-              rescueLocation: {
-                longitude: location!.longitude,
+          if (rescueStore.currentCustomerProcessingRescue) {
+            const rescueState = rescueStore.currentCustomerProcessingRescue ? RESCUE_STATES.ACCEPTED : RESCUE_STATES.IDLE;
+            let rescueRoute: [number, number][] | null | undefined;
+            const rescueLocation = location;
+            const garageLocation = rescueStore.currentCustomerProcessingRescue.garage?.location;
+            void withProgress(
+              parallel(
+                mapService.getDirections({
+                  api_key: GOONG_API_KEY,
+                  origin: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                  destination: `${garageLocation.latitude},${garageLocation.longitude}`,
+                }),
+                mapService.getDistanceMatrix({
+                  api_key: GOONG_API_KEY,
+                  origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                  destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+                  vehicle: 'car',
+                }),
+              ),
+            ).then(([{ result: direction }, { result: distanceMatrix }]) => {
+              if (direction?.routes && direction.routes.length > 0) {
+                rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
+              }
+              setMapState({
+                ...mapState,
+                userLocation: {
+                  latitude: location!.latitude,
+                  longitude: location!.longitude,
+                },
+                rescueLocation: undefined,
+                rescueDetail: {
+                  ...mapState.rescueDetail,
+                  customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
+                  rescueLocation: {
+                    longitude: location!.longitude,
+                    latitude: location!.latitude,
+                  },
+                  address: geocoding?.results[0].formatted_address as string,
+                  carId: car?.id || -1,
+                },
+                rescueState,
+                rescueRoute,
+              });
+              setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
+            });
+          } else {
+            setMapState({
+              ...mapState,
+              userLocation: {
                 latitude: location!.latitude,
+                longitude: location!.longitude,
               },
-              address: result?.results[0].formatted_address as string,
-              carId: car?.id || -1,
-            },
-          });
+              rescueLocation: undefined,
+              rescueDetail: {
+                ...mapState.rescueDetail,
+                customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
+                rescueLocation: {
+                  longitude: location!.longitude,
+                  latitude: location!.latitude,
+                },
+                address: geocoding?.results[0].formatted_address as string,
+                carId: car?.id || -1,
+              },
+            });
+          }
         });
       })
       .catch(console.log);
@@ -174,11 +223,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {
-      setMapState({
-        ...mapState,
-        garage,
-      });
-      sheetRef.current?.snapTo(0);
+      if (mapState.rescueState === RESCUE_STATES.IDLE) {
+        setMapState({
+          ...mapState,
+          garage,
+        });
+        sheetRef.current?.snapTo(0);
+      }
     };
   };
 
@@ -194,7 +245,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
    */
   const processSosRequest = async () => {
     const { garage } = mapState;
-    await rescueStore.createRescueCase(mapState.rescueDetail);
+    await rescueStore.createRescueDetail(mapState.rescueDetail);
 
     if (rescueStore.state === STORE_STATES.ERROR) {
       dialogStore.closeMsgDialog();
@@ -432,11 +483,15 @@ const Map: React.FC<Props> = ({ navigation }) => {
       ) : (
         <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
           <Center>
-            <AssignedEmployee viewDetail={viewDetailRescueRequest} name='Nguyen Ngoc Duc' avatarUrl='' />
+            <AssignedEmployee
+              viewDetail={viewDetailRescueRequest}
+              name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
+              avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
+            />
           </Center>
           <Center width='100%' backgroundColor='white' py='3' mt={2}>
             <Text>Cứu hộ sẽ đến trong</Text>
-            <Text bold>15 phút</Text>
+            <Text bold>{duration} phút</Text>
           </Center>
         </Box>
       )}

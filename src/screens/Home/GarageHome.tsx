@@ -27,6 +27,7 @@ const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPr
 };
 
 const ManagerOption: React.FC = () => {
+  const garageStore = Container.get(GarageStore);
   return (
     <VStack pt='3'>
       <Center>
@@ -35,7 +36,7 @@ const ManagerOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage' });
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garage } });
             }}
           />
           <OptionItem
@@ -86,7 +87,7 @@ const StaffOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage' });
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: Container.get(GarageStore).garage } });
             }}
           />
           <OptionItem

@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Spinner } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
-import { TouchableOpacity } from 'react-native';
+import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
@@ -11,8 +11,8 @@ import Container from 'typedi';
 import { StaffModel } from '@models/staff';
 import { STORE_STATES } from '@utils/constants';
 import { rootNavigation } from '@screens/Navigation';
-import RescueService from '@mobx/services/rescue';
 import { withProgress } from '@mobx/services/config';
+import RescueStore from '@mobx/stores/rescue';
 
 type StaffViewProps = {
   staff: Pick<StaffModel, 'firstName' | 'lastName' | 'avatarUrl'>;
@@ -36,7 +36,7 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageStaffs'>;
 
 const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
   const staffStore = Container.get(StaffStore);
-  const rescueService = Container.get(RescueService);
+  const rescueStore = Container.get(RescueStore);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -53,11 +53,15 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
       if (!route.params?.rescue) {
         navigation.navigate('EditStaff', { staff });
       } else {
-        await withProgress(rescueService.assignStaff(staff.id));
+        await withProgress(rescueStore.assignStaff(staff.id));
         rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
       }
     };
   };
+
+  const onRefresh = useCallback(() => {
+    void staffStore.find();
+  }, [staffStore]);
 
   return (
     <NativeBaseProvider>
@@ -67,9 +71,16 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           mb: '4',
         }}
         backgroundColor='#fff'
+        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
         <Box pt={5}>
-          <SearchBar placeholder='Tìm tên nhân viên' />
+          <SearchBar
+            placeholder='Tìm tên nhân viên'
+            timeout={500}
+            onSearch={(keyword) => {
+              void staffStore.find({ keyword });
+            }}
+          />
         </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
           {staffStore.state === STORE_STATES.LOADING ? (

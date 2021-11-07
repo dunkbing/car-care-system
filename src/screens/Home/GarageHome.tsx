@@ -6,7 +6,7 @@ import { headerColor } from '@screens/shared/colors';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import { TouchableOpacity } from 'react-native';
 import GarageStore from '@mobx/stores/garage';
 import { rootNavigation } from '@screens/Navigation/roots';
@@ -134,7 +134,7 @@ const GarageHome: React.FC = () => {
           <Text fontSize='lg'>{garageStore.garage?.address}</Text>
         </HStack>
       </Center>
-      {authStore.userType === USER_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
+      {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
     </VStack>
   );
 };

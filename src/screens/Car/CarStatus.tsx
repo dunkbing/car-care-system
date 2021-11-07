@@ -6,7 +6,7 @@ import { CarModel } from '@models/car';
 import CarStore from '@mobx/stores/car';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { StackScreenProps } from '@react-navigation/stack';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { Container } from 'typedi';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import CarService from '@mobx/services/car';
@@ -85,7 +85,7 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
           }}
           refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
         >
-          {carStore.state === STORE_STATES.LOADING ? (
+          {carStore.state === STORE_STATUS.LOADING ? (
             <Spinner size='lg' />
           ) : (
             carStore.cars.map((car) => (

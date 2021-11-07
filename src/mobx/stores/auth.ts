@@ -6,7 +6,7 @@ import {
   RegisterResponseModel,
   User,
 } from '@models/user';
-import { STORE_STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATUS, ACCOUNT_TYPES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import { setHeader } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
@@ -36,22 +36,22 @@ export default class AuthStore extends BaseStore {
   }
   private readonly apiService = Container.get(ApiService);
   private readonly garageStore = Container.get(GarageStore);
-  state: STORE_STATES = STORE_STATES.IDLE;
+  state: STORE_STATUS = STORE_STATUS.IDLE;
   user: User | null = null;
-  userType: USER_TYPES | undefined | null = USER_TYPES.CUSTOMER;
+  userType: ACCOUNT_TYPES | undefined | null = ACCOUNT_TYPES.CUSTOMER;
 
-  public async login(loginQuery: LoginQueryModel, userType: USER_TYPES = USER_TYPES.CUSTOMER) {
-    if (userType === USER_TYPES.CUSTOMER) {
+  public async login(loginQuery: LoginQueryModel, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
+    if (userType === ACCOUNT_TYPES.CUSTOMER) {
       const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(apiUrls.customerLogin, loginQuery, true);
       if (error) {
         runInAction(() => {
           this.user = null;
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         runInAction(() => {
           this.user = user;
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.userType = userType;
           this.apiService.accessToken = user?.accessToken;
           setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
@@ -62,12 +62,12 @@ export default class AuthStore extends BaseStore {
       if (error) {
         runInAction(() => {
           this.user = null;
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         runInAction(() => {
           this.user = user;
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.userType = user?.accountType;
           this.garageStore.setGarage(user?.garage as any);
           setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
@@ -81,7 +81,7 @@ export default class AuthStore extends BaseStore {
     if (error) {
       runInAction(() => {
         this.user = null;
-        this.state = STORE_STATES.ERROR;
+        this.state = STORE_STATUS.ERROR;
       });
       this.handleError(error);
     } else {
@@ -92,7 +92,7 @@ export default class AuthStore extends BaseStore {
   public logout() {
     runInAction(() => {
       this.user = null;
-      this.state = STORE_STATES.IDLE;
+      this.state = STORE_STATUS.IDLE;
       this.userType = null;
       this.apiService.accessToken = null;
     });

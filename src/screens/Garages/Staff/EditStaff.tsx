@@ -8,7 +8,7 @@ import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 import DialogStore from '@mobx/stores/dialog';
 import StaffStore from '@mobx/stores/staff';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import { observer } from 'mobx-react';
 
@@ -21,7 +21,7 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
 
   async function saveStaff() {
     await staffStore.update(staff);
-    if (staffStore.state === STORE_STATES.ERROR) {
+    if (staffStore.state === STORE_STATUS.ERROR) {
       toast.show(staffStore.errorMessage);
     } else {
       navigation.goBack();

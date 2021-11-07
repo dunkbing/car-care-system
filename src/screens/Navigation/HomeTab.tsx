@@ -11,7 +11,7 @@ import { navHeaderStyle } from './roots';
 import { GarageHome } from '@screens/Home';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import { observer } from 'mobx-react';
 
 const CustomerTab = createBottomTabNavigator<CustomerTabParams>();
@@ -68,7 +68,7 @@ export const GarageHomeTab: React.FC = observer(() => {
       })}
     >
       <GarageTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='GarageHome' component={GarageHome} />
-      {authStore.userType === USER_TYPES.GARAGE_MANAGER && (
+      {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER && (
         <GarageTab.Screen
           options={{ tabBarShowLabel: false, title: 'Yêu cầu cứu hộ', ...(navHeaderStyle as any) }}
           name='PendingRequestHome'

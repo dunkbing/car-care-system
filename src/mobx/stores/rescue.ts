@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { STORE_STATES, USER_TYPES } from '@utils/constants';
+import { STORE_STATUS, ACCOUNT_TYPES } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import {
@@ -63,22 +63,22 @@ export default class RescueStore extends BaseStore {
    * @param keyword
    * @param userType
    */
-  public async findHistories(keyword: string, userType: USER_TYPES = USER_TYPES.CUSTOMER) {
-    this.state = STORE_STATES.LOADING;
+  public async findHistories(keyword: string, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
+    this.state = STORE_STATUS.LOADING;
 
-    if (userType === USER_TYPES.CUSTOMER) {
+    if (userType === ACCOUNT_TYPES.CUSTOMER) {
       const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(apiUrls.customerHistories, {
         keyword,
       });
 
       if (error) {
         runInAction(() => {
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         const rescues = result || [];
         runInAction(() => {
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.customerRescueHistories = [...rescues];
         });
       }
@@ -89,12 +89,12 @@ export default class RescueStore extends BaseStore {
 
       if (error) {
         runInAction(() => {
-          this.state = STORE_STATES.ERROR;
+          this.state = STORE_STATUS.ERROR;
         });
       } else {
         const rescues = result || [];
         runInAction(() => {
-          this.state = STORE_STATES.SUCCESS;
+          this.state = STORE_STATUS.SUCCESS;
           this.garageRescueHistories = [...rescues];
         });
       }

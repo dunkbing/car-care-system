@@ -9,7 +9,7 @@ import { observer } from 'mobx-react';
 import StaffStore from '@mobx/stores/staff';
 import Container from 'typedi';
 import { StaffModel } from '@models/staff';
-import { STORE_STATES } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import { rootNavigation } from '@screens/Navigation';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
@@ -60,8 +60,12 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
   };
 
   const onRefresh = useCallback(() => {
-    void staffStore.find();
-  }, [staffStore]);
+    if (route.params?.rescue) {
+      void staffStore.find({ isAvailable: true });
+    } else {
+      void staffStore.find();
+    }
+  }, [route.params?.rescue, staffStore]);
 
   return (
     <NativeBaseProvider>
@@ -83,7 +87,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           />
         </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          {staffStore.state === STORE_STATES.LOADING ? (
+          {staffStore.state === STORE_STATUS.LOADING ? (
             <Spinner size='lg' />
           ) : (
             staffStore.staffs.map((staff) => <StaffView key={staff.id} staff={staff} onPress={onPress(staff)} />)

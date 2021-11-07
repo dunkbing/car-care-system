@@ -11,7 +11,7 @@ import SearchGarage from '@screens/Garages/SearchGarage';
 import DefineCarModel from '@screens/Car/DefineCarModel';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { USER_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES } from '@utils/constants';
 import CarDetail from '@screens/Car/CarDetail';
 import Feedback from '@screens/Customer/Feedback';
 import HistoryDetail from '@screens/Customer/HistoryDetail';
@@ -49,7 +49,7 @@ export const ProfileStack: React.FC<Props> = () => {
       <ProfileStackNav.Screen
         name='DefaultGarage'
         component={DefaultGarage}
-        options={{ title: authStore.userType === USER_TYPES.CUSTOMER ? 'Garage cứu hộ mặc định' : 'Garage của tôi', ...navHeaderStyle }}
+        options={{ title: authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Garage cứu hộ mặc định' : 'Garage của tôi', ...navHeaderStyle }}
       />
       <ProfileStackNav.Screen
         name='SearchGarage'

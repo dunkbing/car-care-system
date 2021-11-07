@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
 import { Box, Button, Center, Text, View } from 'native-base';
@@ -71,7 +72,6 @@ type MapState = {
   rescueLocation?: { latitude: number; longitude: number } | Location;
   rescueRoute?: [number, number][] | null;
   garage: GarageModel | null;
-  rescueState: RESCUE_STATUS;
   rescueDetail: RescueDetailRequest;
 };
 
@@ -92,7 +92,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
       longitude: 105.8342,
     },
     garage: null,
-    rescueState: RESCUE_STATUS.IDLE,
     rescueDetail: {
       carId: -1,
       address: '',
@@ -143,50 +142,87 @@ const Map: React.FC<Props> = ({ navigation }) => {
             car = carStore.cars[0];
           }
           if (rescueStore.currentCustomerProcessingRescue) {
-            const rescueState = rescueStore.currentCustomerProcessingRescue ? RESCUE_STATUS.ACCEPTED : RESCUE_STATUS.IDLE;
-            let rescueRoute: [number, number][] | null | undefined;
-            const rescueLocation = location;
-            const garageLocation = rescueStore.currentCustomerProcessingRescue.garage?.location;
-            void withProgress(
-              parallel(
-                mapService.getDirections({
-                  api_key: GOONG_API_KEY,
-                  origin: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
-                  destination: `${garageLocation.latitude},${garageLocation.longitude}`,
-                }),
-                mapService.getDistanceMatrix({
-                  api_key: GOONG_API_KEY,
-                  origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
-                  destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
-                  vehicle: 'car',
-                }),
-              ),
-            ).then(([{ result: direction }, { result: distanceMatrix }]) => {
-              if (direction?.routes && direction.routes.length > 0) {
-                rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
+            switch (rescueStore.currentCustomerProcessingRescue.status) {
+              case RESCUE_STATUS.PENDING:
+                dialogStore.openMsgDialog({
+                  title: 'Chờ garage phản hồi',
+                  message: 'Quý khách vui lòng chờ garage phản hồi',
+                  type: DIALOG_TYPE.CANCEL,
+                });
+                break;
+              case RESCUE_STATUS.ACCEPTED: {
+                const { garage } = rescueStore.currentCustomerProcessingRescue;
+                dialogStore.openMsgDialog({
+                  message: `${garage.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
+                  type: DIALOG_TYPE.CONFIRM,
+                });
+                break;
               }
-              setMapState({
-                ...mapState,
-                userLocation: {
-                  latitude: location!.latitude,
-                  longitude: location!.longitude,
-                },
-                rescueLocation: undefined,
-                rescueDetail: {
-                  ...mapState.rescueDetail,
-                  customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
-                  rescueLocation: {
-                    longitude: location!.longitude,
-                    latitude: location!.latitude,
-                  },
-                  address: geocoding?.results[0].formatted_address as string,
-                  carId: car?.id || -1,
-                },
-                rescueState,
-                rescueRoute,
-              });
-              setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
-            });
+              case RESCUE_STATUS.REJECTED:
+                dialogStore.openMsgDialog({
+                  title: 'Garage đã từ chối yêu cầu của bạn',
+                  message: 'Rất tiếc chúng tôi không thể gửi xe cứu hộ tới vì xe của bạn ở quá xa',
+                  type: DIALOG_TYPE.CONFIRM,
+                });
+                break;
+              case RESCUE_STATUS.ARRIVING: {
+                let rescueRoute: [number, number][] | null | undefined;
+                const rescueLocation = location;
+                const garageLocation = rescueStore.currentCustomerProcessingRescue.garage?.location;
+                void withProgress(
+                  parallel(
+                    mapService.getDirections({
+                      api_key: GOONG_API_KEY,
+                      origin: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                      destination: `${garageLocation.latitude},${garageLocation.longitude}`,
+                    }),
+                    mapService.getDistanceMatrix({
+                      api_key: GOONG_API_KEY,
+                      origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                      destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+                      vehicle: 'car',
+                    }),
+                  ),
+                ).then(([{ result: direction }, { result: distanceMatrix }]) => {
+                  if (direction?.routes && direction.routes.length > 0) {
+                    rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
+                  }
+                  setMapState({
+                    ...mapState,
+                    userLocation: {
+                      latitude: location!.latitude,
+                      longitude: location!.longitude,
+                    },
+                    rescueLocation: undefined,
+                    rescueDetail: {
+                      ...mapState.rescueDetail,
+                      customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
+                      rescueLocation: {
+                        longitude: location!.longitude,
+                        latitude: location!.latitude,
+                      },
+                      address: geocoding?.results[0].formatted_address as string,
+                      carId: car?.id || -1,
+                    },
+                    rescueRoute,
+                  });
+                  setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
+                });
+                break;
+              }
+              case RESCUE_STATUS.ARRIVED: {
+                navigation.navigate('ConfirmSuggestedRepair');
+                break;
+              }
+              case RESCUE_STATUS.WORKING: {
+                break;
+              }
+              case RESCUE_STATUS.DONE: {
+                break;
+              }
+              default:
+                break;
+            }
           } else {
             setMapState({
               ...mapState,
@@ -223,7 +259,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {
-      if (mapState.rescueState === RESCUE_STATUS.IDLE) {
+      if (rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.IDLE) {
         setMapState({
           ...mapState,
           garage,
@@ -277,15 +313,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
               if (result?.routes && result.routes.length > 0) {
                 setMapState({
                   ...mapState,
-                  rescueState: RESCUE_STATUS.ACCEPTED,
                   rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
                 });
               }
             });
-          setMapState({
-            ...mapState,
-            rescueState: RESCUE_STATUS.ACCEPTED,
-          });
         }
       },
     });
@@ -295,11 +326,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
    * when (sos/send request) button is clicked.
    */
   const handleSos = (garage: GarageModel | null) => {
-    return () => {
+    return async () => {
       if (!garage) {
         dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', type: DIALOG_TYPE.CONFIRM, onAgreed: () => {} });
         return;
       }
+      await rescueStore.getRescueCases();
       navigation.navigate('DefineCarStatus', {
         garage,
         onConfirm: (rescueCaseId: number, description: string) => {
@@ -319,12 +351,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             title: 'Chờ garage phản hồi',
             message: 'Quý khách vui lòng chờ garage phản hồi',
             type: DIALOG_TYPE.CANCEL,
-            onRefused: () => {
-              setMapState({
-                ...mapState,
-                rescueState: RESCUE_STATUS.REJECTED,
-              });
-            },
+            onRefused: () => {},
           });
         },
       });
@@ -334,8 +361,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
   function viewDetailRescueRequest() {
     navigation.navigate('DetailRescueRequest', {
       onCancel: () => {
-        setMapState({ ...mapState, rescueState: RESCUE_STATUS.REJECTED });
+        // setMapState({ ...mapState, rescueState: RESCUE_STATUS.REJECTED });
       },
+      staff: rescueStore.currentCustomerProcessingRescue?.staff,
+      duration,
     });
   }
 
@@ -465,7 +494,32 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
         />
       </Box>
-      {mapState.rescueState !== RESCUE_STATUS.ACCEPTED ? (
+      {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
+      rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
+        <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
+          <Center>
+            <AssignedEmployee
+              viewDetail={viewDetailRescueRequest}
+              name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
+              avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
+              phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
+            />
+          </Center>
+          <Center width='100%' backgroundColor='white' py='3' mt={2}>
+            {rescueStore.currentCustomerProcessingRescue.status === RESCUE_STATUS.ARRIVING ? (
+              <Center>
+                <Text>Cứu hộ sẽ đến trong</Text>
+                <Text bold>{duration}</Text>
+              </Center>
+            ) : (
+              <Center>
+                <Text bold>Đang trong quá trình sửa chữa.</Text>
+                <Text bold>Quý khách vui lòng chờ</Text>
+              </Center>
+            )}
+          </Center>
+        </Box>
+      ) : (
         <Box pt={height * 0.65} position='absolute' alignSelf='center'>
           <Center>
             <CarCarousel
@@ -478,21 +532,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
             <Button width='33%' colorScheme='danger' onPress={handleSos(garageStore.customerDefaultGarage)}>
               SOS
             </Button>
-          </Center>
-        </Box>
-      ) : (
-        <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
-          <Center>
-            <AssignedEmployee
-              viewDetail={viewDetailRescueRequest}
-              name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
-              avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
-              phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
-            />
-          </Center>
-          <Center width='100%' backgroundColor='white' py='3' mt={2}>
-            <Text>Cứu hộ sẽ đến trong</Text>
-            <Text bold>{duration} phút</Text>
           </Center>
         </Box>
       )}

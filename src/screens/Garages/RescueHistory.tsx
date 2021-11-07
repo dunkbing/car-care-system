@@ -72,9 +72,9 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
     <VStack width='100%'>
       <SearchBar
         placeholder='Tìm kiếm khách hàng'
-        timeout={500}
         width='90%'
         mt='5'
+        timeout={500}
         onSearch={(query) => {
           void rescueStore.findHistories(query);
         }}

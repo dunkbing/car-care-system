@@ -67,7 +67,6 @@ export default class RescueStore extends BaseStore {
     this.state = STORE_STATES.LOADING;
 
     if (userType === USER_TYPES.CUSTOMER) {
-      // const { result, error } = await this.rescueService.findCustomerHistories(keyword);
       const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(apiUrls.customerHistories, {
         keyword,
       });

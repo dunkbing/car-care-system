@@ -1,12 +1,15 @@
-import CarModelService from '@mobx/services/car-model';
-import { withProgress } from '@mobx/services/config';
+import { ApiService } from '@mobx/services/api-service';
 import { CarModelModel } from '@models/car-model';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 
+const apiUrls = {
+  models: (brandId: number) => `models/${brandId}`,
+};
+
 @Service()
 export default class CarModelStore {
-  private readonly modelService = Container.get(CarModelService);
+  private readonly apiService = Container.get(ApiService);
   constructor() {
     makeObservable(this, {
       models: observable,
@@ -17,7 +20,7 @@ export default class CarModelStore {
   models: Array<CarModelModel> = [];
 
   public async getModels(brandId: number) {
-    const { error, result } = await withProgress(this.modelService.find(brandId));
+    const { error, result } = await this.apiService.getPlural<CarModelModel>(apiUrls.models(brandId), {}, true);
 
     if (error) {
       runInAction(() => {

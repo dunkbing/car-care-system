@@ -1,27 +1,40 @@
-import { CustomerLoginResponseModel, GarageLoginResponseModel, LoginQueryModel, User } from '@models/user';
-import AuthService from '@mobx/services/auth';
+import {
+  CustomerLoginResponseModel,
+  GarageLoginResponseModel,
+  LoginQueryModel,
+  RegisterQueryModel,
+  RegisterResponseModel,
+  User,
+} from '@models/user';
 import { STORE_STATES, USER_TYPES } from '@utils/constants';
-import { makeObservable, observable, runInAction } from 'mobx';
+import { action, makeObservable, observable, runInAction } from 'mobx';
 import { setHeader } from '@mobx/services/config';
 import Container, { Service } from 'typedi';
 import GarageStore from './garage';
 import { ApiService } from '@mobx/services/api-service';
+import BaseStore from './base-store';
 
 const apiUrls = {
   customerLogin: 'auth/customers/login',
   garageLogin: 'auth/staffs/login',
+  register: 'auth/register',
 };
 
 @Service()
-export default class AuthStore {
+export default class AuthStore extends BaseStore {
   constructor() {
+    super();
     makeObservable(this, {
       state: observable,
+      errorMessage: observable,
       user: observable,
+      userType: observable,
+      login: action,
+      register: action,
+      logout: action,
     });
   }
   private readonly apiService = Container.get(ApiService);
-  private readonly authService = Container.get(AuthService);
   private readonly garageStore = Container.get(GarageStore);
   state: STORE_STATES = STORE_STATES.IDLE;
   user: User | null = null;
@@ -60,6 +73,19 @@ export default class AuthStore {
           setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
         });
       }
+    }
+  }
+
+  public async register(registerData: RegisterQueryModel) {
+    const { error } = await this.apiService.post<RegisterResponseModel>(apiUrls.register, registerData, true);
+    if (error) {
+      runInAction(() => {
+        this.user = null;
+        this.state = STORE_STATES.ERROR;
+      });
+      this.handleError(error);
+    } else {
+      this.handleSuccess();
     }
   }
 

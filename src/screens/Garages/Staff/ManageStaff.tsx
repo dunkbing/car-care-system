@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Spinner } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
-import { TouchableOpacity } from 'react-native';
+import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
@@ -59,6 +59,10 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
     };
   };
 
+  const onRefresh = useCallback(() => {
+    void staffStore.find();
+  }, [staffStore]);
+
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -67,9 +71,16 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           mb: '4',
         }}
         backgroundColor='#fff'
+        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
         <Box pt={5}>
-          <SearchBar placeholder='Tìm tên nhân viên' />
+          <SearchBar
+            placeholder='Tìm tên nhân viên'
+            timeout={500}
+            onSearch={(keyword) => {
+              void staffStore.find({ keyword });
+            }}
+          />
         </Box>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
           {staffStore.state === STORE_STATES.LOADING ? (

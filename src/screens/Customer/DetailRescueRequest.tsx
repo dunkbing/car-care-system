@@ -4,14 +4,20 @@ import { GarageLocation } from '@assets/images';
 import { CurrentLocation } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
 
 type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
 
 const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+  const rescueStore = Container.get(RescueStore);
   const { staff, duration, onCancel } = route.params || {};
-  function cancelRequest() {
+
+  async function cancelRequest() {
+    await rescueStore.getCustomerRejectRescueCases();
     navigation.navigate('DefineRequestCancelReason', { onCancel });
   }
+
   return (
     <NativeBaseProvider>
       <VStack px='4' pt='3'>
@@ -65,7 +71,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                   textAlignVertical: 'center',
                 }}
               >
-                Dương Quảng Hàm
+                {`${rescueStore.currentCustomerProcessingRescue?.garage.address}`}
               </Text>
             </HStack>
             <HStack
@@ -90,7 +96,9 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               }}
             >
               <Image source={CurrentLocation} alt='img' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
-              <Text style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}>Lotteria Cầu Giấy</Text>
+              <Text
+                style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}
+              >{`${rescueStore.currentCustomerProcessingRescue?.address}`}</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Thời gian ước tính:</Text>

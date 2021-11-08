@@ -2,16 +2,36 @@ import React, { useState } from 'react';
 import { Button, Center, NativeBaseProvider, Select, Text, TextArea, VStack, View, CheckIcon } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
 
-const CancelRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+const CancelRescueRequest: React.FC<Props> = observer(({ navigation, route }) => {
+  const rescueStore = Container.get(RescueStore);
   const [reason, setReason] = useState('');
 
-  function confirmCancel() {
-    route.params?.onCancel?.();
-    navigation.pop(2);
+  async function confirmCancel() {
+    if (!reason) {
+      toast.show('Vui lòng chọn lý do hủy yêu cầu');
+      return;
+    }
+    await rescueStore.customerRejectCurrentRescueCase({
+      rejectRescueCaseId: Number(reason),
+      rejectReason: `${rescueStore.customerRejectedCases.find((item) => item.id === Number(reason))?.reason}`,
+    });
+
+    if (rescueStore.state === STORE_STATUS.ERROR) {
+      toast.show(`${rescueStore.errorMessage}`);
+    } else {
+      route.params?.onCancel?.();
+      navigation.pop(2);
+    }
   }
+
   return (
     <NativeBaseProvider>
       <VStack mt={10}>
@@ -41,10 +61,9 @@ const CancelRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               placeholder='Chọn một lý do'
               onValueChange={(itemValue) => setReason(itemValue)}
             >
-              <Select.Item label='Tôi đã tìm được cứu hộ khác' value='1' />
-              <Select.Item label='Xe cứu hộ cách tôi quá xa' value='2' />
-              <Select.Item label='Tôi nhập sai địa chỉ' value='3' />
-              <Select.Item label='Khác' value='4' />
+              {rescueStore.customerRejectedCases.map((reason) => (
+                <Select.Item key={reason.id} label={reason.reason} value={`${reason.id}`} />
+              ))}
             </Select>
           </View>
           <TextArea
@@ -85,6 +104,6 @@ const CancelRescueRequest: React.FC<Props> = ({ navigation, route }) => {
       </VStack>
     </NativeBaseProvider>
   );
-};
+});
 
 export default CancelRescueRequest;

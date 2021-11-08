@@ -125,6 +125,22 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [definedCarStatus]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      void rescueStore.getCurrentProcessingCustomer();
+    }, 5 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [rescueStore]);
+
+  useEffect(() => {
+    return navigation.addListener('focus', () => {
+      void rescueStore.getCurrentProcessingCustomer();
+    });
+  }, [navigation, rescueStore]);
+
+  useEffect(() => {
     void locationService
       .requestPermission()
       .then((location) => {
@@ -148,6 +164,16 @@ const Map: React.FC<Props> = ({ navigation }) => {
                   title: 'Chờ garage phản hồi',
                   message: 'Quý khách vui lòng chờ garage phản hồi',
                   type: DIALOG_TYPE.CANCEL,
+                  onRefused: async () => {
+                    await rescueStore.getCustomerRejectRescueCases();
+
+                    if (rescueStore.state === STORE_STATUS.ERROR) {
+                      toast.show('Không thể tải dữ liệu');
+                      return;
+                    } else {
+                      navigation.navigate('DefineRequestCancelReason');
+                    }
+                  },
                 });
                 break;
               case RESCUE_STATUS.ACCEPTED: {
@@ -365,6 +391,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       },
       staff: rescueStore.currentCustomerProcessingRescue?.staff,
       duration,
+      rescueId: rescueStore.currentCustomerProcessingRescue?.id as number,
     });
   }
 
@@ -495,6 +522,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
         />
       </Box>
       {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
+      rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
           <Center>

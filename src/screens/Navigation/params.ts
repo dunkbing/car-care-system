@@ -84,6 +84,7 @@ export type RescueStackParams = {
         onCancel: () => void;
         staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'> | null | undefined;
         duration: string;
+        rescueId: number;
       };
   DefineRequestCancelReason:
     | undefined

@@ -4,14 +4,20 @@ import { GarageLocation } from '@assets/images';
 import { CurrentLocation } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
 
 type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
 
 const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+  const rescueStore = Container.get(RescueStore);
   const { staff, duration, onCancel } = route.params || {};
-  function cancelRequest() {
+
+  async function cancelRequest() {
+    await rescueStore.getCustomerRejectRescueCases();
     navigation.navigate('DefineRequestCancelReason', { onCancel });
   }
+
   return (
     <NativeBaseProvider>
       <VStack px='4' pt='3'>

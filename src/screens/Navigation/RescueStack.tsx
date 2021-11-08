@@ -51,7 +51,7 @@ export const RescueStack: React.FC = () => {
         name='ConfirmSuggestedRepair'
         component={ConfirmSuggestedRepair}
         options={{
-          title: 'Đề xuất sửa chữa',
+          title: 'Báo giá ban đầu',
           ...navHeaderStyle,
         }}
       />

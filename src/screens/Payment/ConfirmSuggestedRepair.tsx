@@ -12,11 +12,9 @@ const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
         _contentContainerStyle={{
           px: '20px',
           mb: '4',
+          ml: '1',
         }}
       >
-        <Text bold fontSize='2xl'>
-          Báo giá ban đầu
-        </Text>
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>

@@ -71,7 +71,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                   textAlignVertical: 'center',
                 }}
               >
-                Dương Quảng Hàm
+                {`${rescueStore.currentCustomerProcessingRescue?.garage.address}`}
               </Text>
             </HStack>
             <HStack
@@ -96,7 +96,9 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               }}
             >
               <Image source={CurrentLocation} alt='img' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
-              <Text style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}>Lotteria Cầu Giấy</Text>
+              <Text
+                style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}
+              >{`${rescueStore.currentCustomerProcessingRescue?.address}`}</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Thời gian ước tính:</Text>

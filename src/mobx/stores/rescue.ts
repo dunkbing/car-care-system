@@ -176,7 +176,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingStaff() {
     this.startLoading();
-    const { result, error } = await this.apiService.get<any>(apiUrls.currentProcessingGarage);
+    const { result, error } = await this.apiService.get<any>(apiUrls.currentProcessingGarage, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -194,7 +194,7 @@ export default class RescueStore extends BaseStore {
   public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
     console.log(params);
     this.startLoading();
-    const { result, error } = await this.apiService.patch<any>(apiUrls.assignStaff, params);
+    const { result, error } = await this.apiService.patch<any>(apiUrls.assignStaff, params, true);
     console.log(result, error);
 
     if (error) {
@@ -224,7 +224,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToArrived() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.arrivedRescue);
+    const { error } = await this.apiService.patch<any>(apiUrls.arrivedRescue, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -239,7 +239,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToWorking() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.workingRescue);
+    const { error } = await this.apiService.patch<any>(apiUrls.workingRescue, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -253,7 +253,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToDone() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.doneRescue);
+    const { error } = await this.apiService.patch<any>(apiUrls.doneRescue, {}, true);
 
     if (error) {
       this.handleError(error);

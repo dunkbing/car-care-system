@@ -1,7 +1,11 @@
+import { StackScreenProps } from '@react-navigation/stack';
+import { RescueStackParams } from '@screens/Navigation/params';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React from 'react';
 
-const ConfirmSuggestedRepair: React.FC = () => {
+type Props = StackScreenProps<RescueStackParams, 'ConfirmSuggestedRepair'>;
+
+const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
   return (
     <VStack mt='2' px='1'>
       <ScrollView
@@ -85,7 +89,15 @@ const ConfirmSuggestedRepair: React.FC = () => {
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
           Tổng 2.784.800đ
         </Text>
-        <Button mt='10' mb='5' backgroundColor='#34A853' _text={{ color: 'white' }} onPress={() => {}}>
+        <Button
+          mt='10'
+          mb='5'
+          backgroundColor='#34A853'
+          _text={{ color: 'white' }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
           Tiến hành sửa chữa
         </Button>
       </ScrollView>

@@ -65,7 +65,7 @@ export type GarageHomeOptionStackParams = {
   PendingRescueRequest: undefined;
   DetailRequest: { request: AvailableCustomerRescueDetail };
   DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null };
-  Map: { request: AvailableCustomerRescueDetail };
+  Map: { request: AvailableCustomerRescueDetail | null };
   AutomotivePartSuggestion: undefined;
   RepairSuggestion: undefined;
   RejectRequest: undefined;
@@ -82,6 +82,8 @@ export type RescueStackParams = {
     | undefined
     | {
         onCancel: () => void;
+        staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'> | null | undefined;
+        duration: string;
       };
   DefineRequestCancelReason:
     | undefined
@@ -89,4 +91,5 @@ export type RescueStackParams = {
         onCancel: (() => void) | undefined;
       };
   GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
+  ConfirmSuggestedRepair: undefined;
 };

@@ -1,3 +1,4 @@
+import { RESCUE_STATUS } from '@utils/constants';
 import { CarModel } from './car';
 import { Location } from './common';
 import { GarageModel } from './garage';
@@ -67,7 +68,7 @@ export type AvailableCustomerRescueDetail = {
   description: string;
   address: string;
   location: Location | null;
-  status: number;
+  status: RESCUE_STATUS;
   car: CarModel | null;
   garage: GarageModel;
   rescueCase: RescueCase;
@@ -76,6 +77,6 @@ export type AvailableCustomerRescueDetail = {
 };
 
 export type RescueState = {
-  currentStatus: number;
+  currentStatus: RESCUE_STATUS;
   estimatedArrivalTime: number;
 };

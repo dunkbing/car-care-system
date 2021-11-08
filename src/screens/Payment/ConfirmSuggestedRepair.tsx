@@ -23,7 +23,7 @@ const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
             Láng đĩa phanh trước
           </Text>
           <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>250.000đ x2</Text>
+            <Text>250.000đ x 2</Text>
             <Text>500.000đ</Text>
           </HStack>
         </VStack>

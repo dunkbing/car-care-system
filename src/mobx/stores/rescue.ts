@@ -9,6 +9,7 @@ import {
   GarageRescueHistoryModel,
   RescueCase,
   RescueDetailRequest,
+  RejectCase,
 } from '@models/rescue';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
@@ -44,6 +45,8 @@ export default class RescueStore extends BaseStore {
       garageRescueHistories: observable,
       pendingRescueRequests: observable,
       rescueCases: observable,
+      customerRejectedCases: observable,
+      currentStaffRescueState: observable,
       findHistories: action,
       createRescueDetail: action,
       assignStaff: action,
@@ -72,6 +75,8 @@ export default class RescueStore extends BaseStore {
   garageRescueHistories: Array<GarageRescueHistoryModel> = [];
   rescueCases: Array<RescueCase> = [];
   pendingRescueRequests: Array<AvailableCustomerRescueDetail> = [];
+
+  customerRejectedCases: Array<RejectCase> = [];
 
   /**
    * get current user's rescue histories.
@@ -287,11 +292,15 @@ export default class RescueStore extends BaseStore {
   public async getCustomerRejectRescueCases() {
     this.startLoading();
 
-    const { error } = await this.apiService.get<any>(apiUrls.customerRejectedCases);
+    const { error, result } = await this.apiService.getPlural<RejectCase>(apiUrls.customerRejectedCases, {}, true);
 
     if (error) {
       this.handleError(error);
     } else {
+      const cases = result || [];
+      runInAction(() => {
+        this.customerRejectedCases = [...cases] || [];
+      });
       this.handleSuccess();
     }
   }
@@ -299,10 +308,11 @@ export default class RescueStore extends BaseStore {
   /**
    * customer reject current rescue case
    */
-  public async customerRejectCurrentRescueCase() {
+  public async customerRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
     this.startLoading();
 
-    const { error } = await this.apiService.patch<any>(apiUrls.customerRejectCurrentCase);
+    const { error } = await this.apiService.patch<any>(apiUrls.customerRejectCurrentCase, params, true);
+    console.log(error, params);
 
     if (error) {
       this.handleError(error);

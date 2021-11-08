@@ -66,11 +66,11 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           id={garageStore.garage!.id.toString()}
           coordinate={[garageStore.garage!.location.longitude, garageStore.garage!.location.latitude]}
         />
-        {request?.location && (
+        {request?.customerCurrentLocation && (
           <MapboxGL.PointAnnotation
             key='pointAnnotation'
             id='pointAnnotation'
-            coordinate={[request?.location?.longitude, request?.location?.latitude]}
+            coordinate={[request?.customerCurrentLocation?.longitude, request?.customerCurrentLocation?.latitude]}
           >
             <View
               style={{

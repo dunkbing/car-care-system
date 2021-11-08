@@ -16,6 +16,11 @@ export type RescueCase = {
   name: string;
 };
 
+export type RejectCase = {
+  id: number;
+  reason: string;
+};
+
 export type Staff = {
   id: number;
   firstName: string;
@@ -67,7 +72,8 @@ export type AvailableCustomerRescueDetail = {
   id: number;
   description: string;
   address: string;
-  location: Location | null;
+  customerCurrentLocation: Location | null;
+  rescueLocation: Location | null;
   status: RESCUE_STATUS;
   car: CarModel | null;
   garage: GarageModel;

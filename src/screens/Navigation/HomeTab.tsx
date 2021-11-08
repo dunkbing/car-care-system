@@ -11,13 +11,15 @@ import { navHeaderStyle } from './roots';
 import { GarageHome } from '@screens/Home';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { ACCOUNT_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
 import { observer } from 'mobx-react';
+import RescueStore from '@mobx/stores/rescue';
 
 const CustomerTab = createBottomTabNavigator<CustomerTabParams>();
 const GarageTab = createBottomTabNavigator<GarageTabParams>();
 
-export const CustomerHomeTab: React.FC = () => {
+export const CustomerHomeTab: React.FC = observer(() => {
+  const rescueStore = Container.get(RescueStore);
   return (
     <CustomerTab.Navigator
       screenOptions={({ route }) => ({
@@ -38,10 +40,29 @@ export const CustomerHomeTab: React.FC = () => {
       })}
     >
       <CustomerTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='RescueHome' component={RescueStack} />
-      <CustomerTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='ProfileHome' component={CustomerSettings} />
+      <CustomerTab.Screen
+        options={{ tabBarShowLabel: false, headerShown: false }}
+        name='ProfileHome'
+        component={CustomerSettings}
+        listeners={{
+          tabPress: (e) => {
+            const status = rescueStore.currentCustomerProcessingRescue?.status;
+            switch (status) {
+              case RESCUE_STATUS.ACCEPTED:
+              case RESCUE_STATUS.ARRIVING:
+              case RESCUE_STATUS.ARRIVED:
+              case RESCUE_STATUS.WORKING:
+                e.preventDefault();
+                break;
+              default:
+                break;
+            }
+          },
+        }}
+      />
     </CustomerTab.Navigator>
   );
-};
+});
 
 export const GarageHomeTab: React.FC = observer(() => {
   const authStore = Container.get(AuthStore);

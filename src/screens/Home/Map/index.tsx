@@ -125,6 +125,16 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [definedCarStatus]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      void rescueStore.getCurrentProcessingCustomer();
+    }, 5 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [rescueStore]);
+
+  useEffect(() => {
     void locationService
       .requestPermission()
       .then((location) => {
@@ -495,6 +505,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
         />
       </Box>
       {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
+      rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
           <Center>

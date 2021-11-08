@@ -10,6 +10,8 @@ export type CustomerModel = {
   phoneNumber: string;
   email: string;
   address: string;
+  taxCode: string;
+  avatarUrl: string;
   password: string;
 };
 

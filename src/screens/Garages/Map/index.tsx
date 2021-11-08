@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Center, Text, View } from 'native-base';
@@ -44,6 +45,10 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
       e.preventDefault();
     });
   }, [navigation]);
+
+  useEffect(() => {
+    void rescueStore.getCurrentProcessingStaff();
+  }, [rescueStore]);
   //#endregion
 
   const { request } = route.params || {};
@@ -109,12 +114,15 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
       >
         <AssignedEmployee
           viewDetail={() => {}}
-          name={`${request?.staff?.firstName} ${request?.staff?.lastName}`}
-          avatarUrl={`${request?.staff.avatarUrl}`}
+          name={`${request?.customer?.firstName} ${request?.customer?.lastName}`}
+          avatarUrl={`${request?.customer?.avatarUrl}`}
           phoneNumber={`${request?.staff?.phoneNumber}`}
         />
       </Center>
-      {!(rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) && (
+      {!(
+        rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ||
+        rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED
+      ) && (
         <View
           style={{
             width: '100%',
@@ -131,7 +139,8 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           </Text>
         </View>
       )}
-      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
+      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ||
+      rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED ? (
         <TouchableOpacity
           style={{
             width: '100%',

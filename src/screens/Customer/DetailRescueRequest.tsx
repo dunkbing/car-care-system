@@ -48,7 +48,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               space={3}
               mt={5}
               style={{
-                height: 50,
+                height: 80,
                 backgroundColor: '#F2F2F2',
                 borderColor: '#7E7979',
                 borderRadius: 3,
@@ -69,7 +69,9 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                   fontWeight: 'normal',
                   fontSize: 15,
                   textAlignVertical: 'center',
+                  marginRight: 60,
                 }}
+                numberOfLines={3}
               >
                 {`${rescueStore.currentCustomerProcessingRescue?.garage.address}`}
               </Text>
@@ -80,7 +82,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               mb={5}
               style={{
                 flexDirection: 'row',
-                height: 50,
+                height: 80,
                 backgroundColor: '#F2F2F2',
                 borderColor: '#7E7979',
                 borderRadius: 3,
@@ -97,7 +99,8 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
             >
               <Image source={CurrentLocation} alt='img' size={'xs'} style={{ marginLeft: 10, alignSelf: 'center' }} />
               <Text
-                style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center' }}
+                style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center', marginRight: 60 }}
+                numberOfLines={3}
               >{`${rescueStore.currentCustomerProcessingRescue?.address}`}</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

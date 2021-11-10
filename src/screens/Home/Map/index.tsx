@@ -157,6 +157,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           } else if (carStore.cars.length === 1) {
             car = carStore.cars[0];
           }
+          console.log(rescueStore.currentCustomerProcessingRescue);
           if (rescueStore.currentCustomerProcessingRescue) {
             switch (rescueStore.currentCustomerProcessingRescue.status) {
               case RESCUE_STATUS.PENDING:
@@ -179,8 +180,35 @@ const Map: React.FC<Props> = ({ navigation }) => {
               case RESCUE_STATUS.ACCEPTED: {
                 const { garage } = rescueStore.currentCustomerProcessingRescue;
                 dialogStore.openMsgDialog({
-                  message: `${garage.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
+                  message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
                   type: DIALOG_TYPE.CONFIRM,
+                  onAgreed: () => {
+                    const { rescueLocation } = mapState;
+                    const garageLocation = garage.location;
+                    sheetRef.current?.snapTo(1);
+                    if (rescueLocation) {
+                      cameraRef.current?.fitBounds(
+                        [rescueLocation.longitude, rescueLocation.latitude],
+                        [garageLocation.longitude, garageLocation.latitude],
+                        150,
+                        1.5,
+                      );
+                      void mapService
+                        .getDirections({
+                          api_key: GOONG_API_KEY,
+                          origin: `${rescueLocation.latitude},${rescueLocation.longitude}`,
+                          destination: `${garageLocation.latitude},${garageLocation.longitude}`,
+                        })
+                        .then(({ result }) => {
+                          if (result?.routes && result.routes.length > 0) {
+                            setMapState({
+                              ...mapState,
+                              rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
+                            });
+                          }
+                        });
+                    }
+                  },
                 });
                 break;
               }
@@ -285,7 +313,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {
-      if (rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.IDLE) {
+      if (!rescueStore.currentCustomerProcessingRescue) {
         setMapState({
           ...mapState,
           garage,
@@ -306,7 +334,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
    * process sos request(accept or reject)
    */
   const processSosRequest = async () => {
-    const { garage } = mapState;
     await rescueStore.createRescueDetail(mapState.rescueDetail);
 
     if (rescueStore.state === STORE_STATUS.ERROR) {
@@ -315,37 +342,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    dialogStore.openMsgDialog({
-      message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
-      type: DIALOG_TYPE.CONFIRM,
-      onAgreed: () => {
-        const { rescueLocation } = mapState;
-        const garageLocation = garage!.location;
-        sheetRef.current?.snapTo(1);
-        if (rescueLocation) {
-          cameraRef.current?.fitBounds(
-            [rescueLocation.longitude, rescueLocation.latitude],
-            [garageLocation.longitude, garageLocation.latitude],
-            150,
-            1.5,
-          );
-          void mapService
-            .getDirections({
-              api_key: GOONG_API_KEY,
-              origin: `${rescueLocation.latitude},${rescueLocation.longitude}`,
-              destination: `${garageLocation.latitude},${garageLocation.longitude}`,
-            })
-            .then(({ result }) => {
-              if (result?.routes && result.routes.length > 0) {
-                setMapState({
-                  ...mapState,
-                  rescueRoute: polyline.decode(result.routes[0].overview_polyline.points),
-                });
-              }
-            });
-        }
-      },
-    });
+    await rescueStore.getCurrentProcessingCustomer();
   };
 
   /**

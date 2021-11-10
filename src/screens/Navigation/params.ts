@@ -68,6 +68,7 @@ export type GarageHomeOptionStackParams = {
   Map: { request: AvailableCustomerRescueDetail | null };
   AutomotivePartSuggestion: undefined;
   RepairSuggestion: undefined;
+  Payment: undefined;
   RejectRequest: undefined;
   Feedback: undefined;
 };

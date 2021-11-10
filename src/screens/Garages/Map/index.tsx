@@ -30,6 +30,22 @@ Logger.setLogCallback((log) => {
   return false;
 });
 
+const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
+  <View
+    style={{
+      width: '100%',
+      height: 50,
+      backgroundColor: 'white',
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'absolute',
+      top: 0,
+    }}
+  >
+    {children}
+  </View>
+);
+
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Map'>;
 
 const Map: React.FC<Props> = ({ navigation, route }) => {
@@ -47,7 +63,11 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
   }, [navigation]);
 
   useEffect(() => {
-    void rescueStore.getCurrentProcessingStaff();
+    const interval = setInterval(() => {
+      void rescueStore.getCurrentProcessingStaff();
+    }, 5 * 1000);
+
+    return () => clearInterval(interval);
   }, [rescueStore]);
   //#endregion
 
@@ -90,21 +110,19 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           </MapboxGL.PointAnnotation>
         )}
       </MapboxGL.MapView>
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          backgroundColor: 'white',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-          top: 0,
-        }}
-      >
-        <Text bold fontSize='lg'>
-          Đang di chuyển
-        </Text>
-      </View>
+      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING ? (
+        <ViewWrapper>
+          <Text bold fontSize='lg'>
+            Đang di chuyển
+          </Text>
+        </ViewWrapper>
+      ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
+        <ViewWrapper>
+          <Text bold fontSize='lg'>
+            Đang tiến hành sửa chữa
+          </Text>
+        </ViewWrapper>
+      ) : null}
       <Center
         style={{
           width: '100%',
@@ -119,10 +137,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           phoneNumber={`${request?.staff?.phoneNumber}`}
         />
       </Center>
-      {!(
-        rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ||
-        rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED
-      ) && (
+      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING && (
         <View
           style={{
             width: '100%',
@@ -139,8 +154,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           </Text>
         </View>
       )}
-      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ||
-      rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED ? (
+      {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <TouchableOpacity
           style={{
             width: '100%',
@@ -153,14 +167,46 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           }}
           onPress={async () => {
             await rescueStore.changeRescueStatusToDone();
-            navigation.goBack();
+
+            if (rescueStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${rescueStore.errorMessage}`);
+              return;
+            } else {
+              navigation.navigate('Payment');
+            }
           }}
         >
           <Text bold color='white' fontSize='lg'>
             Hoàn thành sửa chữa
           </Text>
         </TouchableOpacity>
-      ) : (
+      ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED ? (
+        <TouchableOpacity
+          style={{
+            width: '100%',
+            height: 50,
+            backgroundColor: '#34A853',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            bottom: 0,
+          }}
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToDone();
+
+            if (rescueStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${rescueStore.errorMessage}`);
+              return;
+            } else {
+              navigation.navigate('Payment');
+            }
+          }}
+        >
+          <Text bold color='white' fontSize='lg'>
+            Tiến hành sửa chữa
+          </Text>
+        </TouchableOpacity>
+      ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING ? (
         <TouchableOpacity
           onPress={async () => {
             await rescueStore.changeRescueStatusToArrived();
@@ -186,7 +232,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
             Xác nhận đã đến nơi
           </Text>
         </TouchableOpacity>
-      )}
+      ) : null}
     </Box>
   );
 };

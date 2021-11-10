@@ -29,7 +29,7 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
           <Text bold width='65%' fontSize='md'>
             {garage?.name}
           </Text>
-          <Link onPress={viewGarageDetail} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}>
+          <Link mt={-3} onPress={viewGarageDetail} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}>
             Xem thông tin garage
           </Link>
           <Button
@@ -39,6 +39,8 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
             }}
             w='65%'
             mt='1'
+            bg='#0092FE'
+            _text={{ color: 'white' }}
           >
             Gửi yêu cầu
           </Button>

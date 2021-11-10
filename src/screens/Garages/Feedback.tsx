@@ -1,5 +1,6 @@
 import AuthStore from '@mobx/stores/auth';
 import { StackScreenProps } from '@react-navigation/stack';
+import { rootNavigation } from '@screens/Navigation';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { ACCOUNT_TYPES } from '@utils/constants';
 import { observer } from 'mobx-react';
@@ -58,7 +59,7 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
 
           <Button
             onPress={() => {
-              navigation.goBack();
+              navigation.popToTop();
             }}
             style={{
               marginVertical: 50,

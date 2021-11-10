@@ -67,7 +67,7 @@ const DetailAssignRequest: React.FC<Props> = ({ navigation, route }) => {
             </View>
           </View>
           <View>
-            <Label name={'Mazda CX8 - Trắng'} />
+            <Label name={`${car?.brandName} ${car?.modelName}`} />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
               <Label name={'Biển số:'} />
               <Text fontSize={16}>{car?.licenseNumber}</Text>

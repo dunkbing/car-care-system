@@ -70,6 +70,7 @@ export default class AuthStore extends BaseStore {
           this.state = STORE_STATUS.SUCCESS;
           this.userType = user?.accountType;
           this.garageStore.setGarage(user?.garage as any);
+          this.apiService.accessToken = user?.accessToken;
           setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
         });
       }

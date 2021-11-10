@@ -1,7 +1,11 @@
+import { StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React from 'react';
 
-const Payment: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
+
+const Payment: React.FC<Props> = ({ navigation }) => {
   return (
     <VStack mt='2' px='1'>
       <ScrollView
@@ -117,7 +121,15 @@ const Payment: React.FC = () => {
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
           Tổng 2.784.800đ
         </Text>
-        <Button mt='10' mb='5' backgroundColor='#E86870' _text={{ color: 'white' }} onPress={() => {}}>
+        <Button
+          mt='10'
+          mb='5'
+          backgroundColor='#E86870'
+          _text={{ color: 'white' }}
+          onPress={() => {
+            navigation.navigate('Feedback');
+          }}
+        >
           Xác nhận thanh toán
         </Button>
       </ScrollView>

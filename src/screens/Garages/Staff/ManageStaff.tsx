@@ -24,7 +24,17 @@ const StaffView: React.FC<StaffViewProps> = ({ staff, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} alt='img' size={'sm'} mr={1} />
+        <Image
+          source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff}
+          alt='img'
+          size={'sm'}
+          mr={1}
+          style={{
+            height: 70,
+            width: 70,
+            borderRadius: 50,
+          }}
+        />
         <Text ml={7} style={{ textAlignVertical: 'center', fontSize: 20 }}>
           {staff.lastName} {staff.firstName}
         </Text>

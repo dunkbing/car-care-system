@@ -28,9 +28,11 @@ const Register: React.FC<Props> = ({ navigation }) => {
   return (
     <NativeBaseProvider>
       <ScrollView
+        h='100%'
         _contentContainerStyle={{
           px: '20px',
           mb: '4',
+          backgroundColor: 'white',
         }}
       >
         <Box safeArea flex={1} p={2} w='90%' mx='auto'>

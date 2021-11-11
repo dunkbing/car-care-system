@@ -83,7 +83,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
         px='5'
         mt='5'
         contentContainerStyle={{ marginBottom: 50 }}
-        height='60%'
+        height='85%'
         refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
         {rescueStore.state === STORE_STATUS.LOADING ? (

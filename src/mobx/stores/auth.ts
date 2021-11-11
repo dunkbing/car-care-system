@@ -13,12 +13,7 @@ import Container, { Service } from 'typedi';
 import GarageStore from './garage';
 import { ApiService } from '@mobx/services/api-service';
 import BaseStore from './base-store';
-
-const apiUrls = {
-  customerLogin: 'auth/customers/login',
-  garageLogin: 'auth/staffs/login',
-  register: 'auth/register',
-};
+import { authApi } from '@mobx/services/api-types';
 
 @Service()
 export default class AuthStore extends BaseStore {
@@ -42,7 +37,7 @@ export default class AuthStore extends BaseStore {
 
   public async login(loginQuery: LoginQueryModel, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(apiUrls.customerLogin, loginQuery, true);
+      const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(authApi.customerLogin, loginQuery, true);
       if (error) {
         runInAction(() => {
           this.user = null;
@@ -58,7 +53,7 @@ export default class AuthStore extends BaseStore {
         });
       }
     } else {
-      const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(apiUrls.garageLogin, loginQuery, true);
+      const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(authApi.garageLogin, loginQuery, true);
       if (error) {
         runInAction(() => {
           this.user = null;
@@ -78,7 +73,7 @@ export default class AuthStore extends BaseStore {
   }
 
   public async register(registerData: RegisterQueryModel) {
-    const { error } = await this.apiService.post<RegisterResponseModel>(apiUrls.register, registerData, true);
+    const { error } = await this.apiService.post<RegisterResponseModel>(authApi.register, registerData, true);
     if (error) {
       runInAction(() => {
         this.user = null;

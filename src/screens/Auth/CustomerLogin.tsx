@@ -12,7 +12,6 @@ import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
 import { STORE_STATUS } from '@utils/constants';
 import GarageStore from '@mobx/stores/garage';
-import GarageService from '@mobx/services/garage';
 import { GoogleLogo } from '@assets/images';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
@@ -20,14 +19,11 @@ type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 const CustomerLogin: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
   const garageStore = Container.get(GarageStore);
-  const garageService = Container.get(GarageService);
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values).then(() => {
       const user = authStore.user as CustomerLoginResponseModel;
       if (user?.defaultGarageId) {
-        void garageService.findOne(user.defaultGarageId).then(({ result: garage }) => {
-          garageStore.setCustomerDefaultGarage(garage as any);
-        });
+        void garageStore.getOne(user.defaultGarageId);
       }
     });
 

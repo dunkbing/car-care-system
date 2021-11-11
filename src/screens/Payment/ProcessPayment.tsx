@@ -52,45 +52,45 @@ const ProcessPayment: React.FC = () => {
           <Text bold fontSize='sm'>
             Láng đĩa phanh trước
           </Text>
-          <HStack space={230}>
-            <Text>250.000đ</Text>
-            <Text>x2</Text>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>250.000đ x 2</Text>
+            <Text>500.000đ</Text>
           </HStack>
         </VStack>
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Lọc dầu
           </Text>
-          <HStack space={230}>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>150.000đ x 1</Text>
             <Text>150.000đ</Text>
-            <Text>x1</Text>
           </HStack>
         </VStack>
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Lọc xăng
           </Text>
-          <HStack space={230}>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>850.000đ x 1</Text>
             <Text>850.000đ</Text>
-            <Text>x1</Text>
           </HStack>
         </VStack>
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Bugi
           </Text>
-          <HStack space={237}>
-            <Text>88.700đ</Text>
-            <Text>x4</Text>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>88.700đ x 4</Text>
+            <Text>354.800đ</Text>
           </HStack>
         </VStack>
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Gioăng nắp dàn cò
           </Text>
-          <HStack space={230}>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>480.000đ x 1</Text>
             <Text>480.000đ</Text>
-            <Text>x1</Text>
           </HStack>
         </VStack>
         <Text mt='5' bold fontSize='xl'>
@@ -100,18 +100,18 @@ const ProcessPayment: React.FC = () => {
           <Text bold fontSize='sm'>
             Công thợ
           </Text>
-          <HStack space={230}>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>200.000đ x 1</Text>
             <Text>200.000đ</Text>
-            <Text>x1</Text>
           </HStack>
         </VStack>
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Phí vận chuyển
           </Text>
-          <HStack space={230}>
+          <HStack style={{ justifyContent: 'space-between' }}>
+            <Text>250.000đ x 1</Text>
             <Text>250.000đ</Text>
-            <Text>x1</Text>
           </HStack>
         </VStack>
         <Text mt='10' bold fontSize='2xl' textAlign='right'>

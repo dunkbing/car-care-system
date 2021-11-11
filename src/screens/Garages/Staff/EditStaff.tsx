@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, HStack, Avatar, Center, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, HStack, Avatar, Center, ScrollView, Radio, Text } from 'native-base';
 import FormInput from '@components/form/FormInput';
 import { AvatarStaff } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -37,14 +37,7 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
 
   return (
     <NativeBaseProvider>
-      <ScrollView
-        _contentContainerStyle={{
-          px: '20px',
-          mb: '4',
-          backgroundColor: 'white',
-          height: '100%',
-        }}
-      >
+      <ScrollView h='100%' _contentContainerStyle={{ px: '20px', mb: '4', backgroundColor: 'white' }}>
         <Box safeArea flex={1} p={2} w='90%' h='100%' mx='auto'>
           <Center>
             <Avatar mt={5} size='xl' bg='lightBlue.400' source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} />
@@ -66,6 +59,34 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
               placeholder='Nhập tên nhân viên'
               keyboardType='ascii-capable'
             />
+            <Radio.Group
+              defaultValue='1'
+              name='myRadioGroup'
+              accessibilityLabel=''
+              style={{
+                flexDirection: 'row',
+              }}
+            >
+              <HStack space={3} mt={-2}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    marginTop: 10,
+                  }}
+                >
+                  Giới tính
+                </Text>
+                <Radio value='1' my={1}>
+                  Nam
+                </Radio>
+                <Radio value='2' my={1}>
+                  Nữ
+                </Radio>
+                <Radio value='3' my={1}>
+                  Khác
+                </Radio>
+              </HStack>
+            </Radio.Group>
             <FormInput
               value={staff.phoneNumber}
               onChangeText={(phoneNumber) => setStaff({ ...staff, phoneNumber })}
@@ -81,6 +102,22 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
               label='Email'
               placeholder='Nhập email'
               keyboardType='email-address'
+            />
+            <FormInput
+              value={staff.dateOfBirth}
+              onChangeText={(dateOfBirth) => setStaff({ ...staff, dateOfBirth })}
+              isRequired
+              label='Ngày sinh'
+              placeholder='Nhập ngày sinh'
+              keyboardType='ascii-capable'
+            />
+            <FormInput
+              value={staff.address}
+              onChangeText={(address) => setStaff({ ...staff, address })}
+              isRequired
+              label='Địa chỉ'
+              placeholder='Nhập địa chỉ'
+              keyboardType='ascii-capable'
             />
             <HStack space={60} mt={3}>
               <Button

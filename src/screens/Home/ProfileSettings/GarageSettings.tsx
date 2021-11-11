@@ -18,8 +18,8 @@ const GarageSettings: React.FC<Props> = () => {
   const authStore = Container.get(AuthStore);
   return (
     <SafeAreaView>
-      <ScrollView style={{ margin: 20 }}>
-        <VStack mt='10'>
+      <ScrollView style={{ backgroundColor: 'white', height: '100%' }}>
+        <VStack mt='10' style={{ margin: 20 }}>
           <OptionProfile />
           <OptionItem
             text='Thông tin cá nhân'

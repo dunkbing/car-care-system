@@ -127,7 +127,7 @@ const Payment: React.FC<Props> = ({ navigation }) => {
           backgroundColor='#E86870'
           _text={{ color: 'white' }}
           onPress={() => {
-            navigation.navigate('Feedback');
+            navigation.push('Feedback');
           }}
         >
           Xác nhận thanh toán

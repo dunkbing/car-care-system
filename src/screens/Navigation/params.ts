@@ -64,7 +64,7 @@ export type GarageHomeOptionStackParams = {
   HistoryDetail: { rescue: Pick<GarageRescueHistoryModel, 'car' | 'staff' | 'createAt' | 'customer' | 'customerFeedback'> };
   PendingRescueRequest: undefined;
   DetailRequest: { request: AvailableCustomerRescueDetail };
-  DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null };
+  DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null; checking?: boolean };
   Map: { request: AvailableCustomerRescueDetail | null };
   AutomotivePartSuggestion: undefined;
   RepairSuggestion: undefined;

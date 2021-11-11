@@ -144,13 +144,15 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
         <Center>
           <Button
             onPress={async () => {
-              await rescueStore.changeRescueStatusToWorking();
+              await rescueStore.changeRescueStatusToArrived();
 
               if (rescueStore.state === STORE_STATUS.ERROR) {
                 toast.show(rescueStore.errorMessage);
               } else {
                 navigation.pop(2);
               }
+
+              await rescueStore.changeRescueStatusToWorking();
             }}
             style={{
               backgroundColor: '#34A853',

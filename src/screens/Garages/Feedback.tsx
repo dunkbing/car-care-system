@@ -56,10 +56,11 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
               elevation: 6,
             }}
           />
-
           <Button
             onPress={() => {
-              navigation.popToTop();
+              navigation.pop(2);
+              rootNavigation.goBack();
+              rootNavigation.goBack();
             }}
             style={{
               marginVertical: 50,

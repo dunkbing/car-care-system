@@ -13,6 +13,7 @@ import {
 } from '@models/rescue';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 const apiUrls = {
   customerHistories: 'rescues/histories/customer',
@@ -63,6 +64,7 @@ export default class RescueStore extends BaseStore {
       getRescueCases: action,
     });
     void this.findHistories('');
+    this.rescuesRef = firestore().collection('rescues');
   }
 
   private readonly apiService = Container.get(ApiService);
@@ -77,6 +79,20 @@ export default class RescueStore extends BaseStore {
   pendingRescueRequests: Array<AvailableCustomerRescueDetail> = [];
 
   customerRejectedCases: Array<RejectCase> = [];
+
+  rescuesRef: FirebaseFirestoreTypes.CollectionReference<FirebaseFirestoreTypes.DocumentData>;
+
+  public setCurrentCustomerProcessingRescue(rescue: AvailableCustomerRescueDetail) {
+    runInAction(() => {
+      this.currentCustomerProcessingRescue = { ...rescue };
+    });
+  }
+
+  public setCurrentStaffProcessingRescue(rescue: AvailableCustomerRescueDetail) {
+    runInAction(() => {
+      this.currentStaffProcessingRescue = { ...rescue };
+    });
+  }
 
   /**
    * get current user's rescue histories.
@@ -173,6 +189,12 @@ export default class RescueStore extends BaseStore {
         this.currentCustomerProcessingRescue = result;
       });
       this.handleSuccess();
+
+      if (this.currentCustomerProcessingRescue) {
+        await this.rescuesRef
+          .doc(`${this.currentCustomerProcessingRescue?.id}`)
+          .set({ status: this.currentCustomerProcessingRescue?.status });
+      }
     }
   }
 
@@ -183,6 +205,7 @@ export default class RescueStore extends BaseStore {
     this.startLoading();
     const { result, error } = await this.apiService.get<any>(apiUrls.currentProcessingGarage, {}, true);
 
+    console.log(result, error);
     if (error) {
       this.handleError(error);
     } else {
@@ -190,6 +213,9 @@ export default class RescueStore extends BaseStore {
         this.currentStaffProcessingRescue = result;
       });
       this.handleSuccess();
+      if (this.currentStaffProcessingRescue) {
+        await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: this.currentStaffProcessingRescue?.status });
+      }
     }
   }
 
@@ -199,13 +225,15 @@ export default class RescueStore extends BaseStore {
   public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
     console.log(params);
     this.startLoading();
-    const { result, error } = await this.apiService.patch<any>(apiUrls.assignStaff, params, true);
+    const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(apiUrls.assignStaff, params, true);
     console.log(result, error);
 
     if (error) {
       this.handleError(error);
     } else {
       this.handleSuccess();
+      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.ACCEPTED } as any;
+      await this.rescuesRef.doc(`${result?.rescueDetailId}`).set({ status: RESCUE_STATUS.ACCEPTED });
     }
   }
 
@@ -221,6 +249,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
       this.handleSuccess();
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.ARRIVING });
     }
   }
 
@@ -236,6 +265,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
       this.handleSuccess();
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.ARRIVED });
     }
   }
 
@@ -250,6 +280,8 @@ export default class RescueStore extends BaseStore {
       this.handleError(error);
     } else {
       this.handleSuccess();
+      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.WORKING });
     }
   }
 
@@ -264,6 +296,8 @@ export default class RescueStore extends BaseStore {
       this.handleError(error);
     } else {
       this.handleSuccess();
+      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.DONE } as any;
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.DONE });
     }
   }
 

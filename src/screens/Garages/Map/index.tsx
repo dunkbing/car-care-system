@@ -5,8 +5,8 @@ import { Box, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
 import MapboxGL, { Logger } from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 
+import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import GarageStore from '@mobx/stores/garage';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { Container } from 'typedi';
@@ -56,19 +56,56 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
 
   //#region hooks
   const cameraRef = useRef<MapboxGL.Camera>(null);
+
   useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
-      e.preventDefault();
+    return navigation.addListener('focus', () => {
+      void rescueStore.getCurrentProcessingStaff().then(() => {
+        if (!rescueStore.currentStaffProcessingRescue) {
+          navigation.goBack();
+        }
+      });
     });
-  }, [navigation]);
+  }, [navigation, rescueStore]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      void rescueStore.getCurrentProcessingStaff();
-    }, 5 * 1000);
+    const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot((snapShot) => {
+      console.log(snapShot.data());
+      if (!snapShot.data()) return;
 
-    return () => clearInterval(interval);
-  }, [rescueStore]);
+      const { status } = snapShot.data() as { status: number };
+      console.log(status);
+      switch (status) {
+        case RESCUE_STATUS.ACCEPTED: {
+          break;
+        }
+        case RESCUE_STATUS.ARRIVING: {
+          break;
+        }
+        case RESCUE_STATUS.ARRIVED: {
+          break;
+        }
+        case RESCUE_STATUS.WORKING: {
+          break;
+        }
+        case RESCUE_STATUS.DONE: {
+          break;
+        }
+        default:
+          break;
+      }
+    });
+
+    return unsub;
+  }, [rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
+
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', (e) => {
+      console.log(rescueStore.currentStaffProcessingRescue?.status);
+      if (rescueStore.currentStaffProcessingRescue && rescueStore.currentStaffProcessingRescue?.status !== RESCUE_STATUS.DONE) {
+        e.preventDefault();
+      }
+    });
+  }, [navigation, rescueStore.currentStaffProcessingRescue, rescueStore.currentStaffProcessingRescue?.status]);
   //#endregion
 
   const { request } = route.params || {};
@@ -172,7 +209,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
               toast.show(`${rescueStore.errorMessage}`);
               return;
             } else {
-              navigation.navigate('Payment');
+              navigation.push('Payment');
             }
           }}
         >
@@ -180,42 +217,10 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
             Hoàn thành sửa chữa
           </Text>
         </TouchableOpacity>
-      ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED ? (
-        <TouchableOpacity
-          style={{
-            width: '100%',
-            height: 50,
-            backgroundColor: '#34A853',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'absolute',
-            bottom: 0,
-          }}
-          onPress={async () => {
-            await rescueStore.changeRescueStatusToDone();
-
-            if (rescueStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${rescueStore.errorMessage}`);
-              return;
-            } else {
-              navigation.navigate('Payment');
-            }
-          }}
-        >
-          <Text bold color='white' fontSize='lg'>
-            Tiến hành sửa chữa
-          </Text>
-        </TouchableOpacity>
       ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING ? (
         <TouchableOpacity
-          onPress={async () => {
-            await rescueStore.changeRescueStatusToArrived();
-
-            if (rescueStore.state === STORE_STATUS.ERROR) {
-              toast.show(rescueStore.errorMessage);
-            } else {
-              navigation.navigate('AutomotivePartSuggestion');
-            }
+          onPress={() => {
+            navigation.navigate('AutomotivePartSuggestion');
           }}
           activeOpacity={0.8}
           style={{

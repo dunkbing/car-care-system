@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FormInput from '@components/form/FormInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Avatar, Box, Button, Center, HStack, ScrollView, VStack } from 'native-base';
+import { Avatar, Box, Button, Center, HStack, Radio, ScrollView, Text, VStack } from 'native-base';
 import { Container } from 'typedi';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
@@ -48,6 +48,34 @@ const Profile: React.FC<Props> = () => {
             keyboardType='ascii-capable'
             defaultValue={`${user?.lastName} ${user?.firstName}`}
           />
+          <Radio.Group
+            defaultValue='1'
+            name='myRadioGroup'
+            accessibilityLabel=''
+            style={{
+              flexDirection: 'row',
+            }}
+          >
+            <HStack space={3} mt={-2}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  marginTop: 10,
+                }}
+              >
+                Giới tính
+              </Text>
+              <Radio value='1' my={1}>
+                Nam
+              </Radio>
+              <Radio value='2' my={1}>
+                Nữ
+              </Radio>
+              <Radio value='3' my={1}>
+                Khác
+              </Radio>
+            </HStack>
+          </Radio.Group>
           <FormInput
             isRequired
             label='Số điện thoại'
@@ -93,21 +121,23 @@ const Profile: React.FC<Props> = () => {
         {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
           <FormInput label='Mã số thuế' placeholder='Mã số thuế' keyboardType='phone-pad' />
         )}
-        <Center>
-          <HStack space={10} mt={5} mb={5}>
-            <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
-              Lưu
-            </Button>
-            <Button
-              style={{ alignSelf: 'center', width: '40%', height: 40 }}
-              bgColor='#EA4335'
-              _text={{ color: 'white' }}
-              onPress={() => rootNavigation.goBack()}
-            >
-              Hủy
-            </Button>
-          </HStack>
-        </Center>
+        {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
+          <Center>
+            <HStack space={10} mt={5} mb={5}>
+              <Button style={{ alignSelf: 'center', width: '40%', height: 40 }} colorScheme='green' _text={{ color: 'white' }}>
+                Lưu
+              </Button>
+              <Button
+                style={{ alignSelf: 'center', width: '40%', height: 40 }}
+                bgColor='#EA4335'
+                _text={{ color: 'white' }}
+                onPress={() => rootNavigation.goBack()}
+              >
+                Hủy
+              </Button>
+            </HStack>
+          </Center>
+        )}
       </Box>
     </ScrollView>
   );

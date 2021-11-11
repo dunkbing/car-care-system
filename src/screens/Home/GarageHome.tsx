@@ -6,11 +6,12 @@ import { headerColor } from '@screens/shared/colors';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
+import { ACCOUNT_TYPES, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import { TouchableOpacity } from 'react-native';
 import GarageStore from '@mobx/stores/garage';
 import { rootNavigation } from '@screens/Navigation/roots';
 import RescueStore from '@mobx/stores/rescue';
+import toast from '@utils/toast';
 
 const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPress?: () => void }) => {
   return (
@@ -47,7 +48,9 @@ const ManagerOption: React.FC = () => {
           <OptionItem
             name='Yêu cầu cứu hộ'
             imgSrc={RequestImg}
-            onPress={() => {
+            onPress={async () => {
+              await rescueStore.getCurrentProcessingStaff();
+
               if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
                 rootNavigation.navigate('GarageHomeOptions', {
                   screen: 'Map',
@@ -56,7 +59,7 @@ const ManagerOption: React.FC = () => {
               } else {
                 rootNavigation.navigate('GarageHomeOptions', {
                   screen: 'DetailAssignedRequest',
-                  params: { request: rescueStore.currentStaffProcessingRescue },
+                  params: { request: rescueStore.currentStaffProcessingRescue, checking: true },
                 });
               }
             }}
@@ -113,6 +116,12 @@ const StaffOption: React.FC = () => {
             onPress={async () => {
               await rescueStore.getCurrentProcessingStaff();
 
+              if (rescueStore.state === STORE_STATUS.ERROR) {
+                toast.show(`${rescueStore.errorMessage}`);
+                return;
+              }
+
+              console.log(rescueStore.currentStaffProcessingRescue);
               if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
                 rootNavigation.navigate('GarageHomeOptions', {
                   screen: 'Map',
@@ -121,7 +130,7 @@ const StaffOption: React.FC = () => {
               } else {
                 rootNavigation.navigate('GarageHomeOptions', {
                   screen: 'DetailAssignedRequest',
-                  params: { request: rescueStore.currentStaffProcessingRescue },
+                  params: { request: rescueStore.currentStaffProcessingRescue, checking: true },
                 });
               }
             }}

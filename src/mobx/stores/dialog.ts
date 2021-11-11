@@ -42,6 +42,7 @@ export default class DialogStore {
   }
 
   public closeMsgDialog() {
+    if (this.msgDialogState.state === DialogState.CLOSE) return;
     runInAction(() => (this.msgDialogState = { ...this.msgDialogState, state: DialogState.CLOSE }));
   }
 

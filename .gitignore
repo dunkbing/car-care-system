@@ -64,3 +64,4 @@ buck-out/
 
 # misc
 .env
+google-services.json

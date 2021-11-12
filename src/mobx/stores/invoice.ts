@@ -3,7 +3,7 @@ import Container, { Service } from 'typedi';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { invoiceApi } from '@mobx/services/api-types';
-import { CreateProposalRequest, UpdateProposalRequest } from '@models/invoice';
+import { CreateProposalRequest, InvoiceProposal, UpdateProposalRequest } from '@models/invoice';
 
 export enum FeedbackTypes {
   CUSTOMER,
@@ -22,15 +22,18 @@ export default class InvoiceStore extends BaseStore {
 
   private readonly apiService = Container.get(ApiService);
 
+  invoiceProposal: InvoiceProposal | null = null;
+
   // Create a proposal (draft invoice)
   public async create(proposal: CreateProposalRequest) {
     this.startLoading();
-    const { error } = await this.apiService.post(invoiceApi.create, proposal, true);
+    const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.create, proposal, true);
 
     if (error) {
       this.handleError(error);
     } else {
       this.handleSuccess();
+      this.invoiceProposal = result;
     }
   }
 

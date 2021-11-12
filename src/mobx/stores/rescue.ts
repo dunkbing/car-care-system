@@ -146,7 +146,7 @@ export default class RescueStore extends BaseStore {
   public async createRescueDetail(rescueDetail: RescueDetailRequest) {
     this.startLoading();
 
-    const { result, error } = await this.apiService.post<any>(rescueApi.createRescueDetail, rescueDetail);
+    const { result, error } = await this.apiService.post<any>(rescueApi.createRescueDetail, rescueDetail, true);
 
     if (error) {
       this.handleError(error);
@@ -163,7 +163,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingCustomer() {
     this.startLoading();
-    const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(rescueApi.currentProcessingCustomer);
+    const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(rescueApi.currentProcessingCustomer, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -176,7 +176,7 @@ export default class RescueStore extends BaseStore {
       if (this.currentCustomerProcessingRescue) {
         await this.rescuesRef
           .doc(`${this.currentCustomerProcessingRescue?.id}`)
-          .set({ status: this.currentCustomerProcessingRescue?.status });
+          .update({ status: this.currentCustomerProcessingRescue?.status });
       }
     }
   }
@@ -197,7 +197,7 @@ export default class RescueStore extends BaseStore {
       });
       this.handleSuccess();
       if (this.currentStaffProcessingRescue) {
-        await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: this.currentStaffProcessingRescue?.status });
+        await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).update({ status: this.currentStaffProcessingRescue?.status });
       }
     }
   }
@@ -232,7 +232,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
       this.handleSuccess();
-      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.ARRIVING });
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).update({ status: RESCUE_STATUS.ARRIVING });
     }
   }
 
@@ -248,7 +248,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
       this.handleSuccess();
-      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.ARRIVED });
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).update({ status: RESCUE_STATUS.ARRIVED });
     }
   }
 
@@ -264,7 +264,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.handleSuccess();
       this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
-      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.WORKING });
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).update({ status: RESCUE_STATUS.WORKING });
     }
   }
 
@@ -280,7 +280,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.handleSuccess();
       this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.DONE } as any;
-      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).set({ status: RESCUE_STATUS.DONE });
+      await this.rescuesRef.doc(`${this.currentStaffProcessingRescue?.id}`).update({ status: RESCUE_STATUS.DONE });
     }
   }
 

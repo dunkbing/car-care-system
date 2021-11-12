@@ -1,9 +1,9 @@
 /* eslint-disable indent */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
-import MapboxGL, { Logger } from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
 
 import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
@@ -15,20 +15,12 @@ import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
 import RescueStore from '@mobx/stores/rescue';
 import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
+import { mapService } from '@mobx/services/map';
+import polyline from '@mapbox/polyline';
+import { withProgress } from '@mobx/services/config';
+import { parallel } from '@utils/parallel';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
-
-Logger.setLogCallback((log) => {
-  const { message } = log;
-
-  if (
-    /Request failed due to a permanent error: Canceled/.exec(message) ||
-    /Request failed due to a permanent error: Socket Closed/.exec(message)
-  ) {
-    return true;
-  }
-  return false;
-});
 
 const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
   <View
@@ -56,6 +48,9 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
 
   //#region hooks
   const cameraRef = useRef<MapboxGL.Camera>(null);
+  const [rescueRoute, setRescueRoute] = useState<[number, number][] | null>(null);
+  const [duration, setDuration] = useState('');
+  //#endregion
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -79,6 +74,30 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.ARRIVING: {
+          let rescueRoute: [number, number][] | null;
+          const garageLocation = rescueStore.currentStaffProcessingRescue!.garage.location;
+          const { rescueLocation } = rescueStore.currentStaffProcessingRescue!;
+          void withProgress(
+            parallel(
+              mapService.getDirections({
+                api_key: GOONG_API_KEY,
+                origin: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                destination: `${garageLocation.latitude},${garageLocation.longitude}`,
+              }),
+              mapService.getDistanceMatrix({
+                api_key: GOONG_API_KEY,
+                origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+                destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+                vehicle: 'car',
+              }),
+            ),
+          ).then(([{ result: direction }, { result: distanceMatrix }]) => {
+            if (direction?.routes && direction.routes.length > 0) {
+              rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
+            }
+            setRescueRoute(rescueRoute);
+            setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
+          });
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
@@ -96,7 +115,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
     });
 
     return unsub;
-  }, [rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
+  }, [rescueStore.currentStaffProcessingRescue, rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
 
   useEffect(() => {
     return navigation.addListener('beforeRemove', (e) => {
@@ -128,6 +147,26 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           id={garageStore.garage!.id.toString()}
           coordinate={[garageStore.garage!.location.longitude, garageStore.garage!.location.latitude]}
         />
+        {rescueRoute && (
+          <MapboxGL.ShapeSource
+            id='line1'
+            shape={{
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  properties: { color: 'green' },
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: [...rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
+                  },
+                },
+              ],
+            }}
+          >
+            <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 5, lineJoin: 'bevel', lineColor: '#2884d4' }} />
+          </MapboxGL.ShapeSource>
+        )}
         {request?.customerCurrentLocation && (
           <MapboxGL.PointAnnotation
             key='pointAnnotation'
@@ -187,7 +226,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           }}
         >
           <Text bold fontSize='md'>
-            Thời gian di chuyển dự kiến: 15 phút
+            Thời gian di chuyển dự kiến: {duration}
           </Text>
         </View>
       )}

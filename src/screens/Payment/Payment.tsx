@@ -1,11 +1,20 @@
+import RescueStore from '@mobx/stores/rescue';
+import InvoiceStore from '@mobx/stores/invoice';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React from 'react';
+import Container from 'typedi';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
-const Payment: React.FC<Props> = ({ navigation }) => {
+const Payment: React.FC<Props> = observer(({ navigation }) => {
+  const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
+
   return (
     <VStack mt='2' px='1'>
       <ScrollView
@@ -126,8 +135,14 @@ const Payment: React.FC<Props> = ({ navigation }) => {
           mb='5'
           backgroundColor='#E86870'
           _text={{ color: 'white' }}
-          onPress={() => {
-            navigation.push('Feedback');
+          onPress={async () => {
+            await invoiceStore.staffConfirmsPayment(rescueStore.currentStaffProcessingRescue?.id as number);
+
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${invoiceStore.errorMessage}`);
+            } else {
+              navigation.push('Feedback');
+            }
           }}
         >
           Xác nhận thanh toán
@@ -135,6 +150,6 @@ const Payment: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
     </VStack>
   );
-};
+});
 
 export default Payment;

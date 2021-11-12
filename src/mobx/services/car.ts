@@ -1,16 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
 import { ResponseError, ResponsePlural, ResponseSingular, ServiceResult } from './config';
-import { CarDetailModel, CreateCarRequestModel, CarResponseModel, UpdateCarRequestModel } from '@models/car';
+import { CarDetailModel, CreateCarRequestModel, CarResponseModel } from '@models/car';
 import { Service } from 'typedi';
 import { BaseService } from './base-service';
-
-const path = 'cars';
+import { carApi } from './api-types';
 
 @Service()
 export default class CarService extends BaseService {
   public async find(): Promise<ServiceResult<CarResponseModel[]>> {
     try {
-      const response = await axios.get<any, AxiosResponse<ResponsePlural<CarResponseModel>>>(`${path}`);
+      const response = await axios.get<any, AxiosResponse<ResponsePlural<CarResponseModel>>>(`${carApi.getMany}`);
       const result = response.data.data.result;
       return { result, error: null };
     } catch (error) {
@@ -20,7 +19,7 @@ export default class CarService extends BaseService {
 
   public async findOne(id: number): Promise<ServiceResult<CarDetailModel>> {
     try {
-      const response = await axios.get<any, AxiosResponse<ResponseSingular<CarDetailModel>>>(`${path}/${id}`);
+      const response = await axios.get<any, AxiosResponse<ResponseSingular<CarDetailModel>>>(carApi.get(id));
       const result = response.data.data.result;
       return { result, error: null };
     } catch (error) {
@@ -37,7 +36,7 @@ export default class CarService extends BaseService {
       formData.append(key, value);
     }
     try {
-      const response = await axios.post<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}`, formData, {
+      const response = await axios.post<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(carApi.create, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const { data } = response;
@@ -52,24 +51,9 @@ export default class CarService extends BaseService {
     }
   }
 
-  public async update(car: UpdateCarRequestModel): Promise<boolean> {
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(car)) {
-      formData.append(key, value);
-    }
-    try {
-      const response = await axios.put<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      return response.data.executeMessage === 'Success';
-    } catch (error) {
-      return false;
-    }
-  }
-
   public async delete(id: number): Promise<boolean> {
     try {
-      const response = await axios.delete<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(`${path}/${id}`);
+      const response = await axios.delete<any, AxiosResponse<ResponseSingular<CarResponseModel>>>(carApi.delete(id));
       return response.data.executeMessage === 'Success';
     } catch (error) {
       return false;

@@ -8,6 +8,13 @@ export const carBrandApi = {
   brands: 'brands',
 };
 
+export const carApi = {
+  create: 'cars',
+  getMany: 'cars',
+  delete: (id: number) => `cars/${id}`,
+  get: (id: number) => `cars/${id}`,
+};
+
 export const carModelApi = {
   models: (brandId: number) => `models/${brandId}`,
 };

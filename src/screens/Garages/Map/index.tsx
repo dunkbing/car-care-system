@@ -65,12 +65,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
-      console.log(snapShot.data());
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingStaff();
       const { status } = snapShot.data() as { status: number };
-      console.log(status);
       switch (status) {
         case RESCUE_STATUS.ACCEPTED: {
           break;
@@ -106,7 +104,6 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.WORKING: {
-          console.log('working', rescueStore.currentStaffProcessingRescue?.status);
           break;
         }
         case RESCUE_STATUS.DONE: {
@@ -123,7 +120,6 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
 
   useEffect(() => {
     return navigation.addListener('beforeRemove', (e) => {
-      console.log(rescueStore.currentStaffProcessingRescue?.status);
       if (rescueStore.currentStaffProcessingRescue && rescueStore.currentStaffProcessingRescue?.status !== RESCUE_STATUS.DONE) {
         e.preventDefault();
       }

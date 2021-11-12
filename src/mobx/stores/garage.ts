@@ -12,7 +12,6 @@ export default class GarageStore extends BaseStore {
   constructor() {
     super();
     makeObservable(this, {
-      state: observable,
       customerDefaultGarage: observable,
       garage: observable,
       garages: observable,

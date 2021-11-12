@@ -10,14 +10,14 @@ export default class BrandStore {
   constructor() {
     makeObservable(this, {
       brands: observable,
-      getBrands: action,
+      getMany: action,
     });
-    void this.getBrands();
+    void this.getMany();
   }
 
   brands: Array<CarBrandModel> = [];
 
-  public async getBrands() {
+  public async getMany() {
     const { error, result } = await this.apiService.getPlural<CarBrandModel>(carBrandApi.brands, {}, true);
 
     if (error) {

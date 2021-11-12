@@ -4,6 +4,10 @@ export const authApi = {
   register: 'auth/register',
 };
 
+export const automotivePartApi = {
+  getMany: 'automotive-parts',
+};
+
 export const carBrandApi = {
   brands: 'brands',
 };

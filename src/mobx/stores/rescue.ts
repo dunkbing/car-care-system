@@ -21,8 +21,6 @@ export default class RescueStore extends BaseStore {
   constructor() {
     super();
     makeObservable(this, {
-      state: observable,
-      errorMessage: observable,
       customerRescueHistories: observable,
       currentCustomerProcessingRescue: observable,
       currentStaffProcessingRescue: observable,

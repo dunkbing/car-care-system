@@ -18,16 +18,16 @@ const AssignedEmployee = ({ name, avatarUrl, viewDetail, phoneNumber }: Props) =
   }
   return (
     <Box width='90%' style={{ backgroundColor: 'white' }} rounded='3' shadow='2'>
-      <HStack space={4} px='2' py='2'>
+      <HStack space={4} px='2' py='2' style={{ justifyContent: 'space-between' }}>
         <Avatar bg='cyan.500' source={avatarUrl ? { uri: avatarUrl } : AvatarStaff} />
         <Center width='45%'>
           <Text>{name}</Text>
         </Center>
         <TouchableOpacity onPress={callEmp}>
-          <IonIcon name='call' size={35} />
+          <IonIcon style={{ marginTop: 5 }} name='call' size={35} />
         </TouchableOpacity>
         <TouchableOpacity onPress={viewDetail}>
-          <FaIcon name='user-o' size={35} />
+          <FaIcon style={{ marginTop: 5 }} name='user-o' size={35} />
         </TouchableOpacity>
       </HStack>
     </Box>

@@ -12,6 +12,11 @@ export const carModelApi = {
   models: (brandId: number) => `models/${brandId}`,
 };
 
+export const feedbackApi = {
+  customerFeedback: 'feedback/customers', // Create a feedback from garage to customer
+  garageFeedback: 'feedback/garages', // Create a feedback from customer to garag
+};
+
 export const garageApi = {
   getGarages: 'garages',
 };

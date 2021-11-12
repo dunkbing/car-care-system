@@ -40,7 +40,7 @@ const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Map'>;
 
-const Map: React.FC<Props> = ({ navigation, route }) => {
+const Map: React.FC<Props> = observer(({ navigation, route }) => {
   //#region stores
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
@@ -63,10 +63,12 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
   }, [navigation, rescueStore]);
 
   useEffect(() => {
-    const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot((snapShot) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
       console.log(snapShot.data());
       if (!snapShot.data()) return;
 
+      await rescueStore.getCurrentProcessingStaff();
       const { status } = snapShot.data() as { status: number };
       console.log(status);
       switch (status) {
@@ -104,6 +106,7 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.WORKING: {
+          console.log('working', rescueStore.currentStaffProcessingRescue?.status);
           break;
         }
         case RESCUE_STATUS.DONE: {
@@ -115,7 +118,8 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
     });
 
     return unsub;
-  }, [rescueStore.currentStaffProcessingRescue, rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
 
   useEffect(() => {
     return navigation.addListener('beforeRemove', (e) => {
@@ -279,6 +283,6 @@ const Map: React.FC<Props> = ({ navigation, route }) => {
       ) : null}
     </Box>
   );
-};
+});
 
-export default observer(Map);
+export default Map;

@@ -4,6 +4,8 @@ import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { invoiceApi } from '@mobx/services/api-types';
 import { CreateProposalRequest, InvoiceProposal, UpdateProposalRequest } from '@models/invoice';
+import firestore from '@react-native-firebase/firestore';
+import RescueStore from './rescue';
 
 export enum FeedbackTypes {
   CUSTOMER,
@@ -21,6 +23,7 @@ export default class InvoiceStore extends BaseStore {
   }
 
   private readonly apiService = Container.get(ApiService);
+  private readonly rescueStore = Container.get(RescueStore);
 
   invoiceProposal: InvoiceProposal | null = null;
 
@@ -28,6 +31,8 @@ export default class InvoiceStore extends BaseStore {
   public async create(proposal: CreateProposalRequest) {
     this.startLoading();
     const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.create, proposal, true);
+    console.log(result);
+    await firestore().collection('rescues').doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`).update({ invoiceId: result?.id });
 
     if (error) {
       this.handleError(error);

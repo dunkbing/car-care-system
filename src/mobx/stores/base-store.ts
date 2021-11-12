@@ -1,9 +1,16 @@
 import { STORE_STATUS } from '@utils/constants';
-import { runInAction } from 'mobx';
+import { makeObservable, observable, runInAction } from 'mobx';
 
 export default class BaseStore {
   state: STORE_STATUS = STORE_STATUS.IDLE;
   errorMessage = '';
+
+  constructor() {
+    makeObservable(this, {
+      state: observable,
+      errorMessage: observable,
+    });
+  }
 
   protected handleError(error: Error | any) {
     this.state = STORE_STATUS.ERROR;

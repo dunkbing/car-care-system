@@ -25,7 +25,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
   const carService = Container.get(CarService);
 
   useEffect(() => {
-    void carBrandStore.getBrands();
+    void carBrandStore.getMany();
     void carStore.findOne(route.params.car.id);
     void carService.findOne(route.params.car.id).then(({ result }) => {
       void carModelStore.getModels(result?.brand.id as number);

@@ -167,7 +167,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const obserRescueStatus = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
-      console.log('snapshot data: ', snapShot.data());
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
@@ -191,7 +190,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
           });
           break;
         case RESCUE_STATUS.ACCEPTED: {
-          console.log('rescue accepted');
           const { garage, rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
           dialogStore.openMsgDialog({
             message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
@@ -280,7 +278,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      console.log('focus');
       return obserRescueStatus();
     });
   }, [navigation, obserRescueStatus, rescueStore]);

@@ -24,7 +24,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   const carStore = Container.get(CarStore);
 
   useEffect(() => {
-    void carBrandStore.getBrands();
+    void carBrandStore.getMany();
   }, [carBrandStore]);
 
   const [brand, setBrand] = useState(-1);

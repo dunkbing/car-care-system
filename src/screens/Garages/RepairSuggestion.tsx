@@ -8,8 +8,11 @@ import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import InvoiceStore from '@mobx/stores/invoice';
+import AutomotivePartStore from '@mobx/stores/automotive-part';
+import { AutomotivePartModel } from '@models/automotive-part';
+import formatMoney from '@utils/format-money';
 
-const CategoryDetail: React.FC = ({ categoryName, price }) => {
+const CategoryDetail: React.FC<Partial<AutomotivePartModel>> = ({ name, price }) => {
   return (
     <View my={3}>
       <Text
@@ -18,7 +21,7 @@ const CategoryDetail: React.FC = ({ categoryName, price }) => {
           fontSize: 16,
         }}
       >
-        {categoryName}
+        {name}
       </Text>
       <View
         style={{
@@ -33,7 +36,7 @@ const CategoryDetail: React.FC = ({ categoryName, price }) => {
             height: 35,
           }}
         >
-          {price}đ
+          {formatMoney(price as number)}
         </Text>
         <InputSpinner
           max={300}
@@ -66,6 +69,7 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
+  const automotivePartStore = Container.get(AutomotivePartStore);
   return (
     <ScrollView>
       <VStack px={15} py={25}>
@@ -108,11 +112,9 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
           </Button>
         </View>
         <View>
-          <CategoryDetail categoryName='Láng đĩa phanh trước' price='250.000' />
-          <CategoryDetail categoryName='Lọc dầu' price='150.000' />
-          <CategoryDetail categoryName='Lọc xăng' price='850.000' />
-          <CategoryDetail categoryName='Bugi' price='354.800' />
-          <CategoryDetail categoryName='Gioăng nắp dàn cò' price='480.000' />
+          {automotivePartStore.chosenParts.map((part) => (
+            <CategoryDetail key={part.id} {...part} />
+          ))}
         </View>
         <Text
           style={{
@@ -124,8 +126,8 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
           Dịch vụ
         </Text>
         <View>
-          <CategoryDetail categoryName='Công thợ' price='200.000' />
-          <CategoryDetail categoryName='Phí di chuyển' price='250.000' />
+          <CategoryDetail name='Công thợ' price={200000} />
+          <CategoryDetail name='Phí di chuyển' price={250000} />
         </View>
         <View
           style={{

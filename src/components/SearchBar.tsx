@@ -28,6 +28,7 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
     }),
     [onSearch],
   );
+
   function handleTextChange(text: string) {
     setState({
       query: text,
@@ -37,13 +38,14 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
       void searchDebounce(text);
     }
   }
+
   return (
     <Center mt={props.mt as any}>
       <Input
         placeholder={placeholder}
-        placeholderTextColor='black'
+        placeholderTextColor='#8A8D91'
         value={state.query}
-        bg='white'
+        bg='#F1F1F4'
         onChangeText={handleTextChange}
         width={width}
         borderRadius='5'

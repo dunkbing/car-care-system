@@ -1,16 +1,21 @@
-import React from 'react';
-import { Button, Checkbox, NativeBaseProvider, Text, View, VStack } from 'native-base';
-import SearchBar from '../../components/SearchBar';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { useEffect } from 'react';
+import { FlatList } from 'react-native';
+import { Button, Checkbox, NativeBaseProvider, Spinner, Text, View, VStack } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+
+import SearchBar from '../../components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { AutomotivePartModel } from '@models/automotive-part';
+import AutomotivePartStore from '@mobx/stores/automotive-part';
+import { withProgress } from '@mobx/services/config';
+import { STORE_STATUS } from '@utils/constants';
+import formatMoney from '@utils/format-money';
 
-type AutomotivepartProps = {
-  name: string;
-  price: string;
-};
-
-const AutomotivePart: React.FC<AutomotivepartProps> = ({ name, price }) => {
+const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) => {
+  const automotivePartStore = Container.get(AutomotivePartStore);
+  const { name, price } = automotivePart;
   return (
     <View
       style={{
@@ -31,20 +36,57 @@ const AutomotivePart: React.FC<AutomotivepartProps> = ({ name, price }) => {
           justifyContent: 'space-between',
         }}
       >
-        <Text>{price}đ</Text>
-        <Checkbox accessibilityLabel={name} value='' />
+        <Text>{formatMoney(price)}</Text>
+        <Checkbox
+          accessibilityLabel={name}
+          value=''
+          onChange={(value: boolean) => {
+            if (value) {
+              automotivePartStore.addPart(automotivePart);
+            } else {
+              automotivePartStore.removePart(automotivePart);
+            }
+          }}
+        />
       </View>
     </View>
   );
-};
+});
+
+const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
+  const automotivePartStore = Container.get(AutomotivePartStore);
+
+  return (
+    <Button onPress={onPress} isDisabled={automotivePartStore.chosenParts.length === 0}>
+      Thêm các mục đã chọn
+    </Button>
+  );
+});
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSuggestion'>;
 
-const AutomotivePartSuggestion: React.FC<Props> = ({ navigation }) => {
+const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
+  //#region store
+  const automotivePartStore = Container.get(AutomotivePartStore);
+  //#endregion
+
+  //#region hooks
+
+  useEffect(() => {
+    void withProgress(automotivePartStore.getMany());
+  }, [automotivePartStore]);
+  //#endregion
+
   return (
     <NativeBaseProvider>
-      <VStack px={15} p={25} height='100%'>
-        <SearchBar placeholder='Tìm kiếm thiết bị ' />
+      <VStack px={15} p={25} height='100%' backgroundColor='white'>
+        <SearchBar
+          placeholder='Tìm kiếm thiết bị'
+          timeout={500}
+          onSearch={(query) => {
+            void automotivePartStore.getMany(query);
+          }}
+        />
         <Text
           style={{
             fontWeight: 'bold',
@@ -54,41 +96,25 @@ const AutomotivePartSuggestion: React.FC<Props> = ({ navigation }) => {
         >
           Danh sách thiết bị
         </Text>
-        <ScrollView>
-          <AutomotivePart name='Láng đĩa phanh trước' price='250.000' />
-          <AutomotivePart name='Láng đĩa phanh sau' price='250.000' />
-          <AutomotivePart name='Lọc dầu' price='150.000' />
-          <AutomotivePart name='Lọc xăng' price='850.000' />
-          <AutomotivePart name='Bugi' price='88.700' />
-          <AutomotivePart name='Gioăng nắp dàn cò' price='480.000' />
-          <AutomotivePart name='Dây cao áp' price='450.000' />
-          <AutomotivePart name='Má phanh trước' price='1.045.000' />
-          <AutomotivePart name='Má phanh sau' price='1.210.000' />
-          <AutomotivePart name='Lá côn' price='1.368.000' />
-          <AutomotivePart name='Dây côn' price='561.000' />
-        </ScrollView>
-        <Button
+        {automotivePartStore.state === STORE_STATUS.LOADING ? (
+          <Spinner size='lg' />
+        ) : (
+          <FlatList
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            data={automotivePartStore.automotiveParts}
+            renderItem={(item) => {
+              return <AutomotivePart {...item.item} />;
+            }}
+          />
+        )}
+        <AddButton
           onPress={() => {
             navigation.navigate('RepairSuggestion');
           }}
-          style={{
-            backgroundColor: '#34A853',
-            bottom: 0,
-          }}
-        >
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 16,
-              color: 'white',
-            }}
-          >
-            Thêm các mục đã chọn
-          </Text>
-        </Button>
+        />
       </VStack>
     </NativeBaseProvider>
   );
-};
+});
 
 export default AutomotivePartSuggestion;

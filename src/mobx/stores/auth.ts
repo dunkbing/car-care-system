@@ -20,8 +20,6 @@ export default class AuthStore extends BaseStore {
   constructor() {
     super();
     makeObservable(this, {
-      state: observable,
-      errorMessage: observable,
       user: observable,
       userType: observable,
       login: action,
@@ -31,7 +29,6 @@ export default class AuthStore extends BaseStore {
   }
   private readonly apiService = Container.get(ApiService);
   private readonly garageStore = Container.get(GarageStore);
-  state: STORE_STATUS = STORE_STATUS.IDLE;
   user: User | null = null;
   userType: ACCOUNT_TYPES | undefined | null = ACCOUNT_TYPES.CUSTOMER;
 

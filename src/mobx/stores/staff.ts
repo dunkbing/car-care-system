@@ -11,7 +11,6 @@ export default class StaffStore extends BaseStore {
   constructor() {
     super();
     makeObservable(this, {
-      state: observable,
       staffs: observable,
       find: action,
     });

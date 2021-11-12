@@ -27,7 +27,7 @@ export const RescueStack: React.FC = () => {
         name='DetailRescueRequest'
         component={DetailRescueRequest}
         options={{
-          title: 'Tình trạng xe',
+          title: 'Chi tiết cứu hộ',
           ...navHeaderStyle,
         }}
       />
@@ -35,7 +35,7 @@ export const RescueStack: React.FC = () => {
         name='DefineRequestCancelReason'
         component={CancelRescueRequest}
         options={{
-          title: 'Tình trạng xe',
+          title: 'Hủy yêu cầu',
           ...navHeaderStyle,
         }}
       />

@@ -15,8 +15,8 @@ export const carApi = {
   get: (id: number) => `cars/${id}`,
 };
 
-export const carModelApi = {
-  models: (brandId: number) => `models/${brandId}`,
+export const customerApi = {
+  setDefaultGarage: 'customers/default-garage',
 };
 
 export const feedbackApi = {
@@ -26,6 +26,18 @@ export const feedbackApi = {
 
 export const garageApi = {
   getGarages: 'garages',
+};
+
+export const invoiceApi = {
+  create: 'invoices',
+  update: 'invoices',
+  accepProposal: (invoiceId: number) => `invoices/accept-proposal/${invoiceId}`,
+  customerConfirmPayment: (invoiceId: number) => `invoices/customers/payment-confirmations/${invoiceId}`,
+  staffConfirmPayment: (invoiceId: number) => `invoices/staffs/payment-confirmations/${invoiceId}`,
+};
+
+export const carModelApi = {
+  models: (brandId: number) => `models/${brandId}`,
 };
 
 export const rescueApi = {
@@ -44,4 +56,13 @@ export const rescueApi = {
   customerRejectedCases: 'rescues/reject-cases/customers',
   customerRejectCurrentCase: 'rescues/reject-cases/customers',
   garageRejectedCases: 'rescues/reject-cases/garages',
+};
+
+export const staffApi = {
+  create: 'staffs',
+  getMany: 'staffs',
+  managerUpdate: 'staffs/manager-update-staffs', // Manager update staff info
+  staffUpdate: 'staffs/staff-update-own-info', // Staff update his / her own info
+  delete: (id: number) => `staffs/${id}`,
+  get: (id: number) => `staffs/${id}`,
 };

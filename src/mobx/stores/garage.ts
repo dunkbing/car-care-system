@@ -1,10 +1,11 @@
 import 'reflect-metadata';
 import { GarageModel } from '@models/garage';
-import GarageService from '@mobx/services/garage';
 import { STORE_STATUS } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import BaseStore from './base-store';
+import { ApiService } from '@mobx/services/api-service';
+import { garageApi } from '@mobx/services/api-types';
 
 @Service()
 export default class GarageStore extends BaseStore {
@@ -19,7 +20,7 @@ export default class GarageStore extends BaseStore {
     });
   }
 
-  private readonly garageService = Container.get(GarageService);
+  private readonly apiService = Container.get(ApiService);
 
   // customer side
   customerDefaultGarage: GarageModel | null = null;
@@ -42,7 +43,7 @@ export default class GarageStore extends BaseStore {
 
   public async searchGarage(keyword: string) {
     this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.garageService.find(keyword);
+    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getGarages, { keyword });
 
     if (error) {
       runInAction(() => {
@@ -59,7 +60,8 @@ export default class GarageStore extends BaseStore {
 
   public async getOne(id: number) {
     this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.garageService.findOne(id);
+    const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.getGarages}/${id}`);
+
     if (error) {
       this.handleError(error);
     } else {

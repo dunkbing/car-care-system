@@ -14,24 +14,7 @@ import {
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-
-const apiUrls = {
-  customerHistories: 'rescues/histories/customer',
-  garageHistories: 'rescues/histories/garage',
-  cases: 'rescues/cases',
-  createRescueDetail: 'rescues/details',
-  currentProcessingCustomer: 'rescues/available-details/customer',
-  currentProcessingGarage: 'rescues/available-details/staff',
-  assignStaff: 'rescues/details/assign-staff',
-  arrivingRescue: 'rescues/details/arriving-rescue',
-  arrivedRescue: 'rescues/details/arrived-rescue',
-  workingRescue: 'rescues/details/working-rescue',
-  doneRescue: 'rescues/details/done-rescue',
-  pendingDetails: 'rescues/pending-details',
-  customerRejectedCases: 'rescues/reject-cases/customers',
-  customerRejectCurrentCase: 'rescues/reject-cases/customers',
-  garageRejectedCases: 'rescues/reject-cases/garages',
-};
+import { rescueApi } from '@mobx/services/api-types';
 
 @Service()
 export default class RescueStore extends BaseStore {
@@ -103,7 +86,7 @@ export default class RescueStore extends BaseStore {
     this.state = STORE_STATUS.LOADING;
 
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(apiUrls.customerHistories, {
+      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(rescueApi.customerHistories, {
         keyword,
       });
 
@@ -119,7 +102,7 @@ export default class RescueStore extends BaseStore {
         });
       }
     } else {
-      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistoryModel>(apiUrls.garageHistories, {
+      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistoryModel>(rescueApi.garageHistories, {
         keyword,
       });
 
@@ -143,7 +126,7 @@ export default class RescueStore extends BaseStore {
   public async getRescueCases() {
     this.startLoading();
 
-    const { result, error } = await this.apiService.getPlural<RescueCase>(apiUrls.cases, {}, true);
+    const { result, error } = await this.apiService.getPlural<RescueCase>(rescueApi.cases, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -163,7 +146,7 @@ export default class RescueStore extends BaseStore {
   public async createRescueDetail(rescueDetail: RescueDetailRequest) {
     this.startLoading();
 
-    const { result, error } = await this.apiService.post<any>(apiUrls.createRescueDetail, rescueDetail);
+    const { result, error } = await this.apiService.post<any>(rescueApi.createRescueDetail, rescueDetail);
 
     if (error) {
       this.handleError(error);
@@ -180,7 +163,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingCustomer() {
     this.startLoading();
-    const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(apiUrls.currentProcessingCustomer);
+    const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(rescueApi.currentProcessingCustomer);
 
     if (error) {
       this.handleError(error);
@@ -203,7 +186,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingStaff() {
     this.startLoading();
-    const { result, error } = await this.apiService.get<any>(apiUrls.currentProcessingGarage, {}, true);
+    const { result, error } = await this.apiService.get<any>(rescueApi.currentProcessingGarage, {}, true);
 
     console.log(result, error);
     if (error) {
@@ -225,7 +208,7 @@ export default class RescueStore extends BaseStore {
   public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
     console.log(params);
     this.startLoading();
-    const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(apiUrls.assignStaff, params, true);
+    const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(rescueApi.assignStaff, params, true);
     console.log(result, error);
 
     if (error) {
@@ -242,7 +225,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToArriving(params: { status: RESCUE_STATUS; estimatedArrivalTime: number }) {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.arrivingRescue, params, true);
+    const { error } = await this.apiService.patch<any>(rescueApi.arrivingRescue, params, true);
 
     if (error) {
       this.handleError(error);
@@ -258,7 +241,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToArrived() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.arrivedRescue, {}, true);
+    const { error } = await this.apiService.patch<any>(rescueApi.arrivedRescue, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -274,7 +257,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToWorking() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.workingRescue, {}, true);
+    const { error } = await this.apiService.patch<any>(rescueApi.workingRescue, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -290,7 +273,7 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToDone() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(apiUrls.doneRescue, {}, true);
+    const { error } = await this.apiService.patch<any>(rescueApi.doneRescue, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -307,7 +290,7 @@ export default class RescueStore extends BaseStore {
   public async getPendingRescueRequests() {
     this.startLoading();
 
-    const { result, error } = await this.apiService.getPlural<AvailableCustomerRescueDetail>(apiUrls.pendingDetails);
+    const { result, error } = await this.apiService.getPlural<AvailableCustomerRescueDetail>(rescueApi.pendingDetails);
 
     if (error) {
       this.handleError(error);
@@ -326,7 +309,7 @@ export default class RescueStore extends BaseStore {
   public async getCustomerRejectRescueCases() {
     this.startLoading();
 
-    const { error, result } = await this.apiService.getPlural<RejectCase>(apiUrls.customerRejectedCases, {}, true);
+    const { error, result } = await this.apiService.getPlural<RejectCase>(rescueApi.customerRejectedCases, {}, true);
 
     if (error) {
       this.handleError(error);
@@ -345,7 +328,7 @@ export default class RescueStore extends BaseStore {
   public async customerRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
     this.startLoading();
 
-    const { error } = await this.apiService.patch<any>(apiUrls.customerRejectCurrentCase, params, true);
+    const { error } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
     console.log(error, params);
 
     if (error) {
@@ -361,7 +344,7 @@ export default class RescueStore extends BaseStore {
   public async getGarageRejectRescueCases() {
     this.startLoading();
 
-    const { error } = await this.apiService.get<any>(apiUrls.garageRejectedCases);
+    const { error } = await this.apiService.get<any>(rescueApi.garageRejectedCases);
 
     if (error) {
       this.handleError(error);

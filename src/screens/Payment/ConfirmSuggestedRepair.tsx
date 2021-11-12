@@ -1,11 +1,19 @@
+import React from 'react';
+import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
+import firestore from '@react-native-firebase/firestore';
+import Container from 'typedi';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
-import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
-import React from 'react';
+import RescueStore from '@mobx/stores/rescue';
+import InvoiceStore from '@mobx/stores/invoice';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<RescueStackParams, 'ConfirmSuggestedRepair'>;
 
 const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
+  const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
   return (
     <VStack mt='2' px='1'>
       <ScrollView
@@ -92,8 +100,17 @@ const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
           mb='5'
           backgroundColor='#34A853'
           _text={{ color: 'white' }}
-          onPress={() => {
-            navigation.goBack();
+          onPress={async () => {
+            const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
+            const res = await firestore().collection('rescues').doc(`${rescueId}`).get();
+            const { invoiceId } = res.data() as { invoiceId: number };
+            await invoiceStore.acceptProposal(invoiceId);
+
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${invoiceStore.errorMessage}`);
+            } else {
+              navigation.goBack();
+            }
           }}
         >
           Tiến hành sửa chữa

@@ -20,7 +20,6 @@ const GarageTab = createBottomTabNavigator<GarageTabParams>();
 
 export const CustomerHomeTab: React.FC = observer(() => {
   const rescueStore = Container.get(RescueStore);
-  console.log('hometab', rescueStore.currentCustomerProcessingRescue);
   return (
     <CustomerTab.Navigator
       screenOptions={({ route }) => ({

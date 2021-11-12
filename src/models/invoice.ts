@@ -14,3 +14,11 @@ export type CreateProposalRequest = {
 };
 
 export type UpdateProposalRequest = CreateProposalRequest;
+
+export type InvoiceProposal = {
+  id: number;
+  automotivePartInvoices: Array<AutomotivePartInvoice>;
+  serviceInvoices: Array<ServiceInvoice>;
+  status: number;
+  total: number;
+};

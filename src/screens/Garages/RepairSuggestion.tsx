@@ -7,6 +7,7 @@ import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
+import InvoiceStore from '@mobx/stores/invoice';
 
 const CategoryDetail: React.FC = ({ categoryName, price }) => {
   return (
@@ -64,6 +65,7 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
 const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
   return (
     <ScrollView>
       <VStack px={15} py={25}>
@@ -152,6 +154,11 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
                 navigation.pop(2);
               }
 
+              await invoiceStore.create({
+                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
+                automotivePartInvoices: [],
+                serviceInvoices: [],
+              });
               await rescueStore.changeRescueStatusToWorking();
             }}
             style={{

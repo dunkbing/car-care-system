@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable indent */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
 import { Box, Button, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
@@ -34,6 +35,7 @@ import toast from '@utils/toast';
 import { parallel } from '@utils/parallel';
 import { ServiceResult, withProgress } from '@mobx/services/config';
 import { CarModel } from '@models/car';
+import RescueStatusBar from './RescueStatusBar';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -83,7 +85,8 @@ const Map: React.FC<Props> = ({ navigation }) => {
     longitude: 105.8544441,
   });
   const [rescueLocation, setRescueLocation] = useState<Pick<Location, 'longitude' | 'latitude'>>();
-  const [route, setRoute] = useState<[number, number][] | null>(null);
+  const [rescueRoute, setRescueRoute] = useState<[number, number][] | null>(null);
+  const [duration, setDuration] = useState('');
   const [garage, setGarage] = useState<GarageModel | null>(null);
   const [rescueRequestDetail, setRescueRequestDetail] = useState<RescueDetailRequest>({
     carId: -1,
@@ -102,7 +105,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   });
   const [places, setPlaces] = useState<Place[]>([]);
   const [definedCarStatus, setDefinedCarStatus] = useState(false);
-  const [duration, setDuration] = useState('');
   const sheetRef = useRef<BottomSheet>(null);
 
   /**
@@ -162,9 +164,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!rescueStore.currentCustomerProcessingRescue) return;
-
+  const obserRescueStatus = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
       console.log('snapshot data: ', snapShot.data());
@@ -214,7 +214,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
                   })
                   .then(({ result }) => {
                     if (result?.routes && result.routes.length > 0) {
-                      setRoute(polyline.decode(result.routes[0].overview_polyline.points));
+                      setRescueRoute(polyline.decode(result.routes[0].overview_polyline.points));
                     }
                   });
               }
@@ -252,7 +252,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             if (direction?.routes && direction.routes.length > 0) {
               rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
             }
-            setRoute(rescueRoute);
+            setRescueRoute(rescueRoute);
             setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
           });
           break;
@@ -267,7 +267,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
-          setRoute(null);
+          setRescueRoute(null);
           dialogStore.closeMsgDialog();
           break;
         }
@@ -276,9 +276,23 @@ const Map: React.FC<Props> = ({ navigation }) => {
       }
     });
     return unsub;
+  }, [dialogStore, navigation, rescueStore]);
+
+  useEffect(() => {
+    return navigation.addListener('focus', () => {
+      console.log('focus');
+      return obserRescueStatus();
+    });
+  }, [navigation, obserRescueStatus, rescueStore]);
+
+  useEffect(() => {
+    if (!rescueStore.currentCustomerProcessingRescue) return;
+
+    return obserRescueStatus();
   }, [
     dialogStore,
     navigation,
+    obserRescueStatus,
     rescueLocation?.latitude,
     rescueLocation?.longitude,
     rescueStore,
@@ -289,6 +303,8 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const cameraRef = useRef<MapboxGL.Camera>(null);
 
   //#endregion hooks
+
+  
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {
@@ -321,7 +337,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     await rescueStore.getCurrentProcessingCustomer();
 
     if (rescueStore.currentCustomerProcessingRescue?.id) {
-      void rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue.id}`).set({
+      void rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue.id}`).update({
         status: rescueStore.currentCustomerProcessingRescue.status,
       });
     }
@@ -405,7 +421,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
           visible={false}
         />
-        {route && (
+        {rescueRoute && (
           <MapboxGL.ShapeSource
             id='line1'
             shape={{
@@ -416,7 +432,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
                   properties: { color: 'green' },
                   geometry: {
                     type: 'LineString',
-                    coordinates: [...route.map(([latitude, longitude]) => [longitude, latitude])],
+                    coordinates: [...rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
                   },
                 },
               ],
@@ -505,30 +521,23 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
         />
       </Box>
-      {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
+      {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ACCEPTED ||
+      rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
           <Center>
-            <AssignedEmployee
-              viewDetail={viewDetailRescueRequest}
-              name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
-              avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
-              phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
-            />
+            {(rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED) && (
+              <AssignedEmployee
+                viewDetail={viewDetailRescueRequest}
+                name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
+                avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
+                phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
+              />
+            )}
           </Center>
           <Center width='100%' backgroundColor='white' py='3' mt={2}>
-            {rescueStore.currentCustomerProcessingRescue.status === RESCUE_STATUS.ARRIVING ? (
-              <Center>
-                <Text>Cứu hộ sẽ đến trong</Text>
-                <Text bold>{duration}</Text>
-              </Center>
-            ) : (
-              <Center>
-                <Text bold>Đang trong quá trình sửa chữa.</Text>
-                <Text bold>Quý khách vui lòng chờ</Text>
-              </Center>
-            )}
+            <RescueStatusBar status={rescueStore.currentCustomerProcessingRescue?.status} duration={duration} />
           </Center>
         </Box>
       ) : (

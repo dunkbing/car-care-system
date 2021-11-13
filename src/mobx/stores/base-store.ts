@@ -24,7 +24,11 @@ export default class BaseStore {
       }
     } else {
       runInAction(() => {
-        this.errorMessage = `Có lỗi xảy ra: ${error.message}`;
+        if (error.message) {
+          this.errorMessage = `Có lỗi xảy ra: ${error.message}`;
+        } else {
+          this.errorMessage = JSON.stringify(error);
+        }
       });
     }
   }

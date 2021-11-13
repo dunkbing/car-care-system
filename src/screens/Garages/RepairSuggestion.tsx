@@ -70,6 +70,8 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
+
+  const total: number = automotivePartStore.chosenParts.map((part) => part.price).reduce((prev, curr) => prev + curr, 0);
   return (
     <ScrollView>
       <VStack px={15} py={25}>
@@ -142,7 +144,7 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
               fontSize: 20,
             }}
           >
-            Tổng: 2.784.800đ
+            Tổng: {formatMoney(total)}
           </Text>
         </View>
         <Center>

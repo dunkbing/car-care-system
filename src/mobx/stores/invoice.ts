@@ -82,6 +82,7 @@ export default class InvoiceStore extends BaseStore {
   public async staffConfirmsPayment(invoiceId: number) {
     this.startLoading();
     const { error } = await this.apiService.patch(invoiceApi.staffConfirmPayment(invoiceId), {}, true);
+    console.log(error);
 
     if (error) {
       this.handleError(error);

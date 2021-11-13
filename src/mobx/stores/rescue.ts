@@ -144,15 +144,13 @@ export default class RescueStore extends BaseStore {
   public async createRescueDetail(rescueDetail: RescueDetailRequest) {
     this.startLoading();
 
-    const { result, error } = await this.apiService.post<any>(rescueApi.createRescueDetail, rescueDetail, true);
+    const { result, error } = await this.apiService.post<AvailableCustomerRescueDetail>(rescueApi.createRescueDetail, rescueDetail, true);
 
     if (error) {
       this.handleError(error);
     } else {
-      runInAction(() => {
-        this.rescueCases.push(result);
-      });
       this.handleSuccess();
+      await this.rescuesRef.doc(`${result?.id}`).set({ status: RESCUE_STATUS.PENDING }).catch(console.error);
     }
   }
 
@@ -172,9 +170,11 @@ export default class RescueStore extends BaseStore {
       this.handleSuccess();
 
       if (this.currentCustomerProcessingRescue) {
+        console.log(this.currentCustomerProcessingRescue);
         await this.rescuesRef
           .doc(`${this.currentCustomerProcessingRescue?.id}`)
-          .update({ status: this.currentCustomerProcessingRescue?.status });
+          .update({ status: this.currentCustomerProcessingRescue?.status })
+          .catch(console.error);
       }
     }
   }
@@ -214,7 +214,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.handleSuccess();
       this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.ACCEPTED } as any;
-      await this.rescuesRef.doc(`${result?.rescueDetailId}`).set({ status: RESCUE_STATUS.ACCEPTED });
+      await this.rescuesRef.doc(`${result?.rescueDetailId}`).set({ status: RESCUE_STATUS.ACCEPTED, invoiceId: -1 });
     }
   }
 

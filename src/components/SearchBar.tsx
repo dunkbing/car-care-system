@@ -34,9 +34,7 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
       query: text,
       showList: true,
     });
-    if (text) {
-      void searchDebounce(text);
-    }
+    void searchDebounce(text);
   }
 
   return (
@@ -59,7 +57,15 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
             ml='3'
             size='6'
             color='blue.400'
-            as={<AntIcon onPress={() => setState({ ...state, query: '' })} name='closecircleo' />}
+            as={
+              <AntIcon
+                onPress={() => {
+                  setState({ ...state, query: '' });
+                  void searchDebounce('');
+                }}
+                name='closecircleo'
+              />
+            }
           />
         }
       />

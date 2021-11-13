@@ -62,6 +62,10 @@ export const rescueApi = {
   garageRejectedCases: 'rescues/reject-cases/garages',
 };
 
+export const serviceApi = {
+  getMany: 'services',
+};
+
 export const staffApi = {
   create: 'staffs',
   getMany: 'staffs',

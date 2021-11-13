@@ -29,7 +29,7 @@ export default class RescueStore extends BaseStore {
       rescueCases: observable,
       customerRejectedCases: observable,
       currentStaffRescueState: observable,
-      findHistories: action,
+      getHistories: action,
       createRescueDetail: action,
       assignStaff: action,
       changeRescueStatusToArriving: action,
@@ -39,12 +39,12 @@ export default class RescueStore extends BaseStore {
       customerRejectCurrentRescueCase: action,
       getCurrentProcessingCustomer: action,
       getCurrentProcessingStaff: action,
-      getCustomerRejectRescueCases: action,
-      getGarageRejectRescueCases: action,
+      getCustomerRejectedRescueCases: action,
+      getGarageRejectedRescueCases: action,
       getPendingRescueRequests: action,
       getRescueCases: action,
     });
-    void this.findHistories('');
+    void this.getHistories('');
     this.rescuesRef = firestore().collection('rescues');
   }
 
@@ -80,7 +80,7 @@ export default class RescueStore extends BaseStore {
    * @param keyword
    * @param userType
    */
-  public async findHistories(keyword: string, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
+  public async getHistories(keyword: string, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
     this.state = STORE_STATUS.LOADING;
 
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
@@ -304,7 +304,7 @@ export default class RescueStore extends BaseStore {
   /**
    * get all reject rescue cases customer side
    */
-  public async getCustomerRejectRescueCases() {
+  public async getCustomerRejectedRescueCases() {
     this.startLoading();
 
     const { error, result } = await this.apiService.getPlural<RejectCase>(rescueApi.customerRejectedCases, {}, true);
@@ -339,7 +339,7 @@ export default class RescueStore extends BaseStore {
   /**
    * get all reject rescue cases garage side
    */
-  public async getGarageRejectRescueCases() {
+  public async getGarageRejectedRescueCases() {
     this.startLoading();
 
     const { error } = await this.apiService.get<any>(rescueApi.garageRejectedCases);

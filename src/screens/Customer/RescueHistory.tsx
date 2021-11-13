@@ -65,11 +65,11 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
 
   const onRefresh = React.useCallback(() => {
-    void rescueStore.findHistories('');
+    void rescueStore.getHistories('');
   }, [rescueStore]);
 
   useEffect(() => {
-    void rescueStore.findHistories('');
+    void rescueStore.getHistories('');
   }, [rescueStore]);
 
   return (
@@ -80,7 +80,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
         width='90%'
         mt='5'
         onSearch={(query) => {
-          void rescueStore.findHistories(query);
+          void rescueStore.getHistories(query);
         }}
       />
       <ScrollView

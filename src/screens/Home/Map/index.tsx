@@ -160,7 +160,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     if (Platform.OS === 'android') {
       void MapboxGL.requestAndroidLocationPermissions();
     }
-    void garageStore.searchGarage('');
+    void garageStore.getMany('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -178,7 +178,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             message: 'Quý khách vui lòng chờ garage phản hồi',
             type: DIALOG_TYPE.CANCEL,
             onRefused: async () => {
-              await rescueStore.getCustomerRejectRescueCases();
+              await rescueStore.getCustomerRejectedRescueCases();
 
               if (rescueStore.state === STORE_STATUS.ERROR) {
                 toast.show('Không thể tải dữ liệu');

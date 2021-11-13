@@ -43,11 +43,11 @@ type ScreenProps = StackScreenProps<ProfileStackParams | AuthStackParams, 'Searc
 const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
   const onRefresh = React.useCallback(() => {
-    void garageStore.searchGarage('');
+    void garageStore.getMany('');
   }, [garageStore]);
 
   useEffect(() => {
-    void garageStore.searchGarage('');
+    void garageStore.getMany('');
   }, [garageStore]);
 
   function onDone() {
@@ -72,7 +72,7 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
         timeout={500}
         width='90%'
         onSearch={(text: string) => {
-          void garageStore.searchGarage(text);
+          void garageStore.getMany(text);
         }}
         mt='5'
       />

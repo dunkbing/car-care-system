@@ -14,7 +14,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
   const { staff, duration, onCancel } = route.params || {};
 
   async function cancelRequest() {
-    await rescueStore.getCustomerRejectRescueCases();
+    await rescueStore.getCustomerRejectedRescueCases();
     navigation.navigate('DefineRequestCancelReason', { onCancel });
   }
 

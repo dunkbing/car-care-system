@@ -23,7 +23,7 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
     await authStore.login(values).then(() => {
       const user = authStore.user as CustomerLoginResponseModel;
       if (user?.defaultGarageId) {
-        void garageStore.getOne(user.defaultGarageId);
+        void garageStore.get(user.defaultGarageId);
       }
     });
 

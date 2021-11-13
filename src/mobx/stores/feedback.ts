@@ -10,13 +10,13 @@ export default class FeedbackStore extends BaseStore {
   constructor() {
     super();
     makeObservable(this, {
-      createFeedback: action,
+      create: action,
     });
   }
 
   private readonly apiService = Container.get(ApiService);
 
-  public async createFeedback(feedbackType: keyof typeof feedbackApi, feedback: FeedbackRequestParams) {
+  public async create(feedbackType: keyof typeof feedbackApi, feedback: FeedbackRequestParams) {
     this.startLoading();
     const { error } = await this.apiService.post(feedbackType, feedback, true);
 

@@ -15,7 +15,8 @@ export default class GarageStore extends BaseStore {
       customerDefaultGarage: observable,
       garage: observable,
       garages: observable,
-      searchGarage: action,
+      getMany: action,
+      get: action,
     });
   }
 
@@ -40,7 +41,7 @@ export default class GarageStore extends BaseStore {
     });
   }
 
-  public async searchGarage(keyword: string) {
+  public async getMany(keyword: string) {
     this.state = STORE_STATUS.LOADING;
     const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getGarages, { keyword });
 
@@ -57,7 +58,7 @@ export default class GarageStore extends BaseStore {
     }
   }
 
-  public async getOne(id: number) {
+  public async get(id: number) {
     this.state = STORE_STATUS.LOADING;
     const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.getGarages}/${id}`);
 

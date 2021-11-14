@@ -3,4 +3,6 @@ export type AutomotivePartModel = {
   name: string;
   unit: string;
   price: number;
+  quantity?: number;
+  checked?: boolean;
 };

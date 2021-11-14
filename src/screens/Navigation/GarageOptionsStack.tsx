@@ -7,21 +7,22 @@ import DefaultGarage from '@screens/Garages/DefaultGarage';
 import ManageCustomer from '@screens/Garages/ManageCustomer';
 import RescueHistory from '@screens/Garages/RescueHistory';
 import { navHeaderStyle } from './roots';
-import PendingRequest from '@screens/Garages/PendingRequest';
+import PendingRequest from '@screens/Garages/Request/PendingRequest';
 import { TouchableOpacity } from 'react-native';
-import CustomerCarStatus from '@screens/Garages/CustomerCarStatus';
+import CustomerCarStatus from '@screens/Customer/CustomerCarStatus';
 import HistoryDetail from '@screens/Garages/HistoryDetail';
-import DetailRequest from '@screens/Garages/DetailRequest';
-import RejectRequest from '@screens/Garages/RejectRequest';
-import DetailAssignRequest from '@screens/Garages/DetailAssignRequest';
+import DetailRequest from '@screens/Garages/Request/DetailRequest';
+import RejectRequest from '@screens/Garages/Request/RejectRequest';
+import DetailAssignRequest from '@screens/Garages/Request/DetailAssignRequest';
 import { ManageStaff, AddStaff, EditStaff } from '@screens/Garages/Staff';
 import Map from '@screens/Garages/Map';
-import AutomotivePartSuggestion from '@screens/Garages/AutomotivePartSuggestion';
-import GarageRepairSuggestion from '@screens/Garages/RepairSuggestion';
-import Payment from '@screens/Payment/Payment';
+import AutomotivePartSuggestion from '@screens/Garages/RepairSuggestion/AutomotivePartSuggestion';
+import GarageRepairSuggestion from '@screens/Garages/RepairSuggestion/RepairSuggestion';
+import Payment from '@screens/Payment/GaragePayment';
 import Feedback from '@screens/Garages/Feedback';
 import DetailRescueRequest from '@screens/Customer/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
+import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -87,6 +88,11 @@ export const GarageOptionsStack: React.FC = () => {
         name='AutomotivePartSuggestion'
         component={AutomotivePartSuggestion}
         options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }}
+      />
+      <Stack.Screen
+        name='ServiceSuggestion'
+        component={ServiceSuggestion}
+        options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }}
       />
       <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />

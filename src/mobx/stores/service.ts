@@ -14,11 +14,15 @@ export default class ServiceStore extends BaseStore {
       services: observable,
       chosenServices: observable,
       getMany: action,
+      addService: action,
+      removeService: action,
+      updateQuantity: action,
+      clearServices: action,
     });
   }
 
   services: Array<ServiceModel> = [];
-  chosenServices: Array<ServiceModel> = [];
+  chosenServices: Map<number, ServiceModel> = new Map();
 
   public async getMany(keyword?: string): Promise<void> {
     this.startLoading();
@@ -27,29 +31,42 @@ export default class ServiceStore extends BaseStore {
     if (error) {
       this.handleError(error);
     } else {
-      this.handleSuccess();
       const services = result || [];
+      for (const service of services) {
+        if (this.chosenServices.get(service.id)) {
+          service.checked = true;
+        }
+      }
       runInAction(() => {
         this.services = [...services];
       });
+      this.handleSuccess();
     }
   }
 
-  public addPart(part: ServiceModel): void {
+  public addService(service: ServiceModel): void {
+    if (!service.quantity) service.quantity = 1;
     runInAction(() => {
-      this.chosenServices = [...this.chosenServices, part];
+      this.chosenServices.set(service.id, service);
     });
   }
 
-  public removePart(part: ServiceModel): void {
+  public removeService(service: ServiceModel): void {
     runInAction(() => {
-      this.chosenServices = this.chosenServices.filter((p) => p.id !== part.id);
+      this.chosenServices.delete(service.id);
     });
   }
 
-  public clearParts(): void {
+  public updateQuantity(id: number, quantity: number): void {
     runInAction(() => {
-      this.chosenServices = [];
+      const service = this.chosenServices.get(id);
+      if (service) service.quantity = quantity;
+    });
+  }
+
+  public clearServices(): void {
+    runInAction(() => {
+      this.chosenServices.clear();
     });
   }
 }

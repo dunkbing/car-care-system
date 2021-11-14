@@ -6,7 +6,7 @@ import { GarageTabParams, CustomerTabParams } from './params';
 import CustomerSettings from '@screens/Home/ProfileSettings/CustomerSettings';
 import GarageSettings from '@screens/Home/ProfileSettings/GarageSettings';
 import { RescueStack } from './RescueStack';
-import PendingRequest from '@screens/Garages/PendingRequest';
+import PendingRequest from '@screens/Garages/Request/PendingRequest';
 import { navHeaderStyle } from './roots';
 import { GarageHome } from '@screens/Home';
 import Container from 'typedi';
@@ -20,6 +20,7 @@ const GarageTab = createBottomTabNavigator<GarageTabParams>();
 
 export const CustomerHomeTab: React.FC = observer(() => {
   const rescueStore = Container.get(RescueStore);
+  console.log('customer hom tab', rescueStore.currentCustomerProcessingRescue);
   return (
     <CustomerTab.Navigator
       screenOptions={({ route }) => ({

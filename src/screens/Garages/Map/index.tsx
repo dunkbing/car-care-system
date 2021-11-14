@@ -267,6 +267,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             } else if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(`${invoiceStore.errorMessage}`);
             }
+
+            const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+            console.log(invoiceId);
+            await invoiceStore.getGarageInvoiceDetail(invoiceId);
             navigation.push('Payment');
           }}
         >

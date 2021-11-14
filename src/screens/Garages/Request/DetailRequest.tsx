@@ -81,7 +81,12 @@ const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
             >
               Chọn nhân viên
             </Button>
-            <Button onPress={() => navigation.navigate('RejectRequest')} style={{ width: 130, backgroundColor: '#EA4335' }}>
+            <Button
+              onPress={() => {
+                navigation.navigate('RejectRequest');
+              }}
+              style={{ width: 130, backgroundColor: '#EA4335' }}
+            >
               Từ chối
             </Button>
           </View>

@@ -37,6 +37,7 @@ export default class RescueStore extends BaseStore {
       changeRescueStatusToWorking: action,
       changeRescueStatusToDone: action,
       customerRejectCurrentRescueCase: action,
+      garageRejectCurrentRescueCase: action,
       getCurrentProcessingCustomer: action,
       getCurrentProcessingStaff: action,
       getCustomerRejectedRescueCases: action,
@@ -169,6 +170,9 @@ export default class RescueStore extends BaseStore {
       this.handleSuccess();
 
       if (this.currentCustomerProcessingRescue) {
+        if (!this.firebaseStore.rescueDoc) {
+          this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentCustomerProcessingRescue.id}`);
+        }
         await this.firebaseStore
           .update(`${this.currentCustomerProcessingRescue?.id}`, { status: this.currentCustomerProcessingRescue?.status })
           .catch(console.error);
@@ -191,6 +195,9 @@ export default class RescueStore extends BaseStore {
       });
       this.handleSuccess();
       if (this.currentStaffProcessingRescue) {
+        if (!this.firebaseStore.rescueDoc) {
+          this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentStaffProcessingRescue.id}`);
+        }
         await this.firebaseStore
           .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
           .catch(console.error);
@@ -349,6 +356,22 @@ export default class RescueStore extends BaseStore {
       runInAction(() => {
         this.garageRejectedCases = [...cases] || [];
       });
+      this.handleSuccess();
+    }
+  }
+
+  /**
+   * garage reject current rescue case
+   */
+  public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
+    this.startLoading();
+
+    const { error } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
+    console.log(error, params);
+
+    if (error) {
+      this.handleError(error);
+    } else {
       this.handleSuccess();
     }
   }

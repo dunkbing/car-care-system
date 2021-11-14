@@ -27,7 +27,7 @@ import SearchBar from '@components/SearchBar';
 import Marker from '../../../components/map/Marker';
 import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
-import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
+import { INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import RescueStore from '@mobx/stores/rescue';
 import { RescueDetailRequest } from '@models/rescue';
 import CarStore from '@mobx/stores/car';
@@ -37,6 +37,7 @@ import { ServiceResult, withProgress } from '@mobx/services/config';
 import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
+import InvoiceStore from '@mobx/stores/invoice';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -79,6 +80,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const dialogStore = Container.get(DialogStore);
   const rescueStore = Container.get(RescueStore);
   const firebaseStore = Container.get(FirebaseStore);
+  const invoiceStore = Container.get(InvoiceStore);
   //#endregion stores
 
   //#region hooks
@@ -168,11 +170,11 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
   const observeRescueStatus = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const unsub = firebaseStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
+    const unsub = firebaseStore.rescueDoc?.onSnapshot(async (snapShot) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
-      const { status, invoiceId } = snapShot.data() as { status: number, invoiceId: number };
+      const { status, invoiceId, invoiceStatus } = snapShot.data() as { status: number, invoiceId: number, invoiceStatus: number };
       switch (status) {
         case RESCUE_STATUS.PENDING:
           dialogStore.openMsgDialog({
@@ -259,10 +261,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
         }
         case RESCUE_STATUS.ARRIVED: {
           dialogStore.closeMsgDialog();
-
-          if (invoiceId && invoiceId > 0) {
-            navigation.navigate('ConfirmSuggestedRepair');
-          }
+          await invoiceStore.getCustomerInvoiceDetail(invoiceId);
           break;
         }
         case RESCUE_STATUS.WORKING: {
@@ -270,16 +269,28 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
+          console.log('done');
           setRescueRoute(null);
           dialogStore.closeMsgDialog();
+          navigation.navigate('Payment');
           break;
         }
         default:
           break;
       }
+      switch (invoiceStatus) {
+        case INVOICE_STATUS.DRAFT: {
+          await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+          navigation.navigate('ConfirmSuggestedRepair');
+          break;
+        }
+        default:
+          console.log('invoiceStatus', invoiceStatus);
+          break;
+      }
     });
     return unsub;
-  }, [dialogStore, firebaseStore.rescuesRef, navigation, rescueStore]);
+  }, [dialogStore, firebaseStore.rescueDoc, invoiceStore, navigation, rescueStore]);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -534,7 +545,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <Box width='100%' pt={height * 0.8} position='absolute' alignSelf='center'>
-          <Center backgroundColor='white' h='50'>
+          <Center>
             {(rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED) ? (
               <AssignedEmployee
                 viewDetail={viewDetailRescueRequest}
@@ -542,7 +553,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
                 avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
                 phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
               />
-            ) : <Text bold>Đang đợi nhân viên khởi hành</Text>}
+            ) : <Center w='100%' backgroundColor='white' h='50'><Text bold>Đang đợi nhân viên khởi hành</Text></Center>}
           </Center>
         </Box>
       ) : (

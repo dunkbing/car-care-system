@@ -18,7 +18,7 @@ export default class AutomotivePartStore extends BaseStore {
   }
 
   automotiveParts: Array<AutomotivePartModel> = [];
-  chosenParts: Array<AutomotivePartModel> = [];
+  chosenParts: Map<number, AutomotivePartModel> = new Map();
 
   public async getMany(keyword?: string): Promise<void> {
     this.startLoading();
@@ -27,29 +27,42 @@ export default class AutomotivePartStore extends BaseStore {
     if (error) {
       this.handleError(error);
     } else {
-      this.handleSuccess();
       const automotiveParts = result || [];
       runInAction(() => {
+        for (const part of automotiveParts) {
+          if (this.chosenParts.get(part.id)) {
+            part.checked = true;
+          }
+        }
         this.automotiveParts = [...automotiveParts];
       });
+      this.handleSuccess();
     }
   }
 
   public addPart(part: AutomotivePartModel): void {
+    if (!part.quantity) part.quantity = 1;
     runInAction(() => {
-      this.chosenParts = [...this.chosenParts, part];
+      this.chosenParts.set(part.id, part);
     });
   }
 
   public removePart(part: AutomotivePartModel): void {
     runInAction(() => {
-      this.chosenParts = this.chosenParts.filter((p) => p.id !== part.id);
+      this.chosenParts.delete(part.id);
+    });
+  }
+
+  public updateQuantity(id: number, quantity: number): void {
+    runInAction(() => {
+      const part = this.chosenParts.get(id);
+      if (part) part.quantity = quantity;
     });
   }
 
   public clearParts(): void {
     runInAction(() => {
-      this.chosenParts = [];
+      this.chosenParts.clear();
     });
   }
 }

@@ -5,14 +5,14 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 
-import SearchBar from '../../components/SearchBar';
+import SearchBar from '../../../components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { AutomotivePartModel } from '@models/automotive-part';
 import AutomotivePartStore from '@mobx/stores/automotive-part';
-import { withProgress } from '@mobx/services/config';
 import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
 import RescueStore from '@mobx/stores/rescue';
+import ServiceStore from '@mobx/stores/service';
 
 const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
@@ -39,9 +39,11 @@ const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) 
       >
         <Text>{formatMoney(price)}</Text>
         <Checkbox
+          defaultIsChecked={automotivePart.checked}
           accessibilityLabel={name}
           value=''
           onChange={(value: boolean) => {
+            automotivePart.checked = value;
             if (value) {
               automotivePartStore.addPart(automotivePart);
             } else {
@@ -58,7 +60,7 @@ const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
 
   return (
-    <Button onPress={onPress} isDisabled={automotivePartStore.chosenParts.length === 0}>
+    <Button onPress={onPress} isDisabled={automotivePartStore.chosenParts.size === 0}>
       Thêm các mục đã chọn
     </Button>
   );
@@ -70,6 +72,7 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
   //#region store
   const rescueStore = Container.get(RescueStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
+  const serviceStore = Container.get(ServiceStore);
   //#endregion
 
   //#region hooks
@@ -82,11 +85,15 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
   }, [navigation, rescueStore.currentStaffProcessingRescue?.status]);
 
   useEffect(() => {
+    console.log('automotive part suggestion', rescueStore.currentStaffProcessingRescue?.status);
     if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
       navigation.goBack();
     }
-    void withProgress(automotivePartStore.getMany());
   }, [automotivePartStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
+
+  useEffect(() => {
+    void automotivePartStore.getMany();
+  }, [automotivePartStore]);
   //#endregion
 
   return (
@@ -121,7 +128,11 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
         )}
         <AddButton
           onPress={() => {
-            navigation.navigate('RepairSuggestion');
+            if (serviceStore.chosenServices.size === 0) {
+              navigation.navigate('ServiceSuggestion');
+            } else {
+              navigation.navigate('RepairSuggestion');
+            }
           }}
         />
       </VStack>

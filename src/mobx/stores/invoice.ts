@@ -31,8 +31,12 @@ export default class InvoiceStore extends BaseStore {
   public async create(proposal: CreateProposalRequest) {
     this.startLoading();
     const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.create, proposal, true);
-    console.log(result);
-    await firestore().collection('rescues').doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`).update({ invoiceId: result?.id });
+    console.log('invoice', result);
+    await firestore()
+      .collection('rescues')
+      .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
+      .update({ invoiceId: result?.id })
+      .catch(console.error);
 
     if (error) {
       this.handleError(error);

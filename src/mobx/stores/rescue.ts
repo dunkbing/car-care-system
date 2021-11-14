@@ -60,6 +60,7 @@ export default class RescueStore extends BaseStore {
   pendingRescueRequests: Array<AvailableCustomerRescueDetail> = [];
 
   customerRejectedCases: Array<RejectCase> = [];
+  garageRejectedCases: Array<RejectCase> = [];
 
   public setCurrentCustomerProcessingRescue(rescue: AvailableCustomerRescueDetail) {
     runInAction(() => {
@@ -190,7 +191,9 @@ export default class RescueStore extends BaseStore {
       });
       this.handleSuccess();
       if (this.currentStaffProcessingRescue) {
-        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status });
+        await this.firebaseStore
+          .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
+          .catch(console.error);
       }
     }
   }
@@ -257,7 +260,7 @@ export default class RescueStore extends BaseStore {
     } else {
       this.handleSuccess();
       this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
-      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING });
+      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING }).catch(console.error);
     }
   }
 
@@ -337,11 +340,15 @@ export default class RescueStore extends BaseStore {
   public async getGarageRejectedRescueCases() {
     this.startLoading();
 
-    const { error } = await this.apiService.get<any>(rescueApi.garageRejectedCases);
+    const { error, result } = await this.apiService.getPlural<RejectCase>(rescueApi.garageRejectedCases, {}, true);
 
     if (error) {
       this.handleError(error);
     } else {
+      const cases = result || [];
+      runInAction(() => {
+        this.garageRejectedCases = [...cases] || [];
+      });
       this.handleSuccess();
     }
   }

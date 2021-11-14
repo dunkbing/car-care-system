@@ -17,9 +17,11 @@ import DetailAssignRequest from '@screens/Garages/DetailAssignRequest';
 import { ManageStaff, AddStaff, EditStaff } from '@screens/Garages/Staff';
 import Map from '@screens/Garages/Map';
 import AutomotivePartSuggestion from '@screens/Garages/AutomotivePartSuggestion';
-import RepairSuggestion from '@screens/Garages/RepairSuggestion';
+import GarageRepairSuggestion from '@screens/Garages/RepairSuggestion';
 import Payment from '@screens/Payment/Payment';
 import Feedback from '@screens/Garages/Feedback';
+import DetailRescueRequest from '@screens/Customer/DetailRescueRequest';
+import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -63,10 +65,30 @@ export const GarageOptionsStack: React.FC = () => {
         options={{ title: 'Chi tiết yêu cầu', ...navHeaderStyle }}
       />
       <Stack.Screen name='Map' component={Map} options={{ headerShown: false }} />
+      <Stack.Screen
+        name='DetailRescueRequest'
+        component={DetailRescueRequest}
+        options={{
+          title: 'Chi tiết cứu hộ',
+          ...navHeaderStyle,
+        }}
+      />
+      <Stack.Screen
+        name='DefineRequestCancelReason'
+        component={CancelRescueRequest}
+        options={{
+          title: 'Hủy yêu cầu',
+          ...navHeaderStyle,
+        }}
+      />
       <Stack.Screen name='Payment' component={Payment} options={{ title: 'Thanh toán', ...navHeaderStyle }} />
       <Stack.Screen name='Feedback' component={Feedback} options={{ title: 'Góp ý cho khách hàng', ...navHeaderStyle }} />
-      <Stack.Screen name='AutomotivePartSuggestion' component={AutomotivePartSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
-      <Stack.Screen name='RepairSuggestion' component={RepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
+      <Stack.Screen
+        name='AutomotivePartSuggestion'
+        component={AutomotivePartSuggestion}
+        options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }}
+      />
+      <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />
     </Stack.Navigator>
   );

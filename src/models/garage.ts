@@ -10,6 +10,7 @@ export type GarageModel = {
   email: string;
   imageUrl: string;
   location: Location;
+  isAnyStaffAvailable?: boolean;
 };
 
 export const loginValidationSchema = yup.object({

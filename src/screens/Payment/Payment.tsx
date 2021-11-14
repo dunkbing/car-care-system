@@ -1,4 +1,3 @@
-import RescueStore from '@mobx/stores/rescue';
 import InvoiceStore from '@mobx/stores/invoice';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
@@ -8,12 +7,13 @@ import React from 'react';
 import Container from 'typedi';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
+import FirebaseStore from '@mobx/stores/firebase';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
 const Payment: React.FC<Props> = observer(({ navigation }) => {
-  const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
 
   return (
     <VStack mt='2' px='1'>
@@ -136,7 +136,9 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
           backgroundColor='#E86870'
           _text={{ color: 'white' }}
           onPress={async () => {
-            await invoiceStore.staffConfirmsPayment(rescueStore.currentStaffProcessingRescue?.id as number);
+            const data = await firebaseStore.get<{ invoiceId: number }>();
+            console.log('hoan thanh sua chua', data);
+            await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(`${invoiceStore.errorMessage}`);

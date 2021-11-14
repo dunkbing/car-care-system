@@ -10,8 +10,9 @@ import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { AutomotivePartModel } from '@models/automotive-part';
 import AutomotivePartStore from '@mobx/stores/automotive-part';
 import { withProgress } from '@mobx/services/config';
-import { STORE_STATUS } from '@utils/constants';
+import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
+import RescueStore from '@mobx/stores/rescue';
 
 const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
@@ -67,14 +68,25 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSugges
 
 const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
   //#region store
+  const rescueStore = Container.get(RescueStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   //#endregion
 
   //#region hooks
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', (e) => {
+      if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED) {
+        e.preventDefault();
+      }
+    });
+  }, [navigation, rescueStore.currentStaffProcessingRescue?.status]);
 
   useEffect(() => {
+    if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
+      navigation.goBack();
+    }
     void withProgress(automotivePartStore.getMany());
-  }, [automotivePartStore]);
+  }, [automotivePartStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
   //#endregion
 
   return (

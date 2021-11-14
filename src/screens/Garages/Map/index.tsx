@@ -19,6 +19,8 @@ import { mapService } from '@mobx/services/map';
 import polyline from '@mapbox/polyline';
 import { withProgress } from '@mobx/services/config';
 import { parallel } from '@utils/parallel';
+import InvoiceStore from '@mobx/stores/invoice';
+import FirebaseStore from '@mobx/stores/firebase';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -44,6 +46,8 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   //#region stores
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
   //#endregion store
 
   //#region hooks
@@ -64,7 +68,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
+    const unsub = firebaseStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingStaff();
@@ -101,6 +105,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
+          navigation.navigate('AutomotivePartSuggestion');
           break;
         }
         case RESCUE_STATUS.WORKING: {
@@ -116,7 +121,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
 
     return unsub;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rescueStore.currentStaffProcessingRescue?.id, rescueStore.rescuesRef]);
+  }, [rescueStore.currentStaffProcessingRescue?.id, firebaseStore.rescuesRef]);
 
   useEffect(() => {
     return navigation.addListener('beforeRemove', (e) => {
@@ -127,7 +132,20 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   }, [navigation, rescueStore.currentStaffProcessingRescue, rescueStore.currentStaffProcessingRescue?.status]);
   //#endregion
 
+  //#region misc
   const { request } = route.params || {};
+
+  function viewDetailRescueRequest() {
+    navigation.navigate('DetailRescueRequest', {
+      onCancel: () => {
+        // setMapState({ ...mapState, rescueState: RESCUE_STATUS.REJECTED });
+      },
+      person: rescueStore.currentStaffProcessingRescue?.customer,
+      duration,
+      rescueId: rescueStore.currentStaffProcessingRescue?.id as number,
+    });
+  }
+  //#endregion
 
   return (
     <Box style={{ ...StyleSheet.absoluteFillObject, height: '100%', width: '100%' }}>
@@ -207,7 +225,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
         }}
       >
         <AssignedEmployee
-          viewDetail={() => {}}
+          viewDetail={viewDetailRescueRequest}
           name={`${request?.customer?.firstName} ${request?.customer?.lastName}`}
           avatarUrl={`${request?.customer?.avatarUrl}`}
           phoneNumber={`${request?.staff?.phoneNumber}`}
@@ -246,10 +264,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
 
             if (rescueStore.state === STORE_STATUS.ERROR) {
               toast.show(`${rescueStore.errorMessage}`);
-              return;
-            } else {
-              navigation.push('Payment');
+            } else if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${invoiceStore.errorMessage}`);
             }
+            navigation.push('Payment');
           }}
         >
           <Text bold color='white' fontSize='lg'>
@@ -258,7 +276,8 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
         </TouchableOpacity>
       ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING ? (
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToArrived();
             navigation.navigate('AutomotivePartSuggestion');
           }}
           activeOpacity={0.8}

@@ -2,6 +2,7 @@ import { CarDetailModel } from '@models/car';
 import { GarageModel } from '@models/garage';
 import { AvailableCustomerRescueDetail, CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
 import { StaffModel } from '@models/staff';
+import { CustomerModel } from '@models/user';
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type StackParams = {
@@ -66,6 +67,20 @@ export type GarageHomeOptionStackParams = {
   DetailRequest: { request: AvailableCustomerRescueDetail };
   DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null; checking?: boolean };
   Map: { request: AvailableCustomerRescueDetail | null };
+  DetailRescueRequest:
+    | undefined
+    | {
+        onCancel: () => void;
+        person: Pick<CustomerModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'> | null | undefined;
+        duration: string;
+        rescueId: number;
+        isStaff?: boolean;
+      };
+  DefineRequestCancelReason:
+    | undefined
+    | {
+        onCancel: (() => void) | undefined;
+      };
   AutomotivePartSuggestion: undefined;
   RepairSuggestion: undefined;
   Payment: undefined;
@@ -83,9 +98,10 @@ export type RescueStackParams = {
     | undefined
     | {
         onCancel: () => void;
-        staff: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'> | null | undefined;
+        person: Pick<StaffModel, 'id' | 'firstName' | 'lastName' | 'phoneNumber' | 'avatarUrl'> | null | undefined;
         duration: string;
         rescueId: number;
+        isStaff?: boolean;
       };
   DefineRequestCancelReason:
     | undefined

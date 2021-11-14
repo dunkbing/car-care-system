@@ -60,6 +60,11 @@ export const rescueApi = {
   customerRejectedCases: 'rescues/reject-cases/customers',
   customerRejectCurrentCase: 'rescues/reject-cases/customers',
   garageRejectedCases: 'rescues/reject-cases/garages',
+  garageRejectCurrentCase: 'rescues/reject-cases/garages',
+};
+
+export const serviceApi = {
+  getMany: 'services',
 };
 
 export const staffApi = {

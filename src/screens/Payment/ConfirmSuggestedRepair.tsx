@@ -11,7 +11,7 @@ import toast from '@utils/toast';
 
 type Props = StackScreenProps<RescueStackParams, 'ConfirmSuggestedRepair'>;
 
-const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
+const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   return (
@@ -120,4 +120,4 @@ const ConfirmSuggestedRepair: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-export default ConfirmSuggestedRepair;
+export default CustomerConfirmRepairSuggestion;

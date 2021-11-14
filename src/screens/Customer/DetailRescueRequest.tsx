@@ -3,18 +3,24 @@ import { Button, Center, HStack, Image, NativeBaseProvider, Text, View, VStack }
 import { GarageLocation } from '@assets/images';
 import { CurrentLocation } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
-import { RescueStackParams } from '@screens/Navigation/params';
+import { GarageHomeOptionStackParams, RescueStackParams } from '@screens/Navigation/params';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 
-type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
+type Props = StackScreenProps<RescueStackParams | GarageHomeOptionStackParams, 'DetailRescueRequest'>;
 
 const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
-  const { staff, duration, onCancel } = route.params || {};
+  const { person, duration, isStaff, onCancel } = route.params || {};
+  const garage = rescueStore.currentCustomerProcessingRescue?.garage || rescueStore.currentStaffProcessingRescue?.garage;
+  const address = rescueStore.currentCustomerProcessingRescue?.address || rescueStore.currentStaffProcessingRescue?.address;
 
   async function cancelRequest() {
-    await rescueStore.getCustomerRejectedRescueCases();
+    if (isStaff) {
+      await rescueStore.getGarageRejectedRescueCases();
+    } else {
+      await rescueStore.getCustomerRejectedRescueCases();
+    }
     navigation.navigate('DefineRequestCancelReason', { onCancel });
   }
 
@@ -30,10 +36,10 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
           <View w='90%'>
             <HStack space={5} mb={5} mt={5} style={{ justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>
-                Nhân viên
+                {isStaff ? 'Nhân viên' : 'Khách hàng'}
               </Text>
               <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1} textAlign='right'>
-                {`${staff?.lastName} ${staff?.firstName}`}
+                {`${person?.lastName} ${person?.firstName}`}
               </Text>
             </HStack>
             <HStack space={5} mb={5} style={{ justifyContent: 'space-between' }}>
@@ -41,7 +47,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 Số điện thoại
               </Text>
               <Text style={{ fontWeight: 'normal', fontSize: 18 }} numberOfLines={1}>
-                {`${staff?.phoneNumber}`}
+                {`${person?.phoneNumber}`}
               </Text>
             </HStack>
             <HStack
@@ -73,7 +79,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
                 }}
                 numberOfLines={3}
               >
-                {`${rescueStore.currentCustomerProcessingRescue?.garage.address}`}
+                {`${garage?.address}`}
               </Text>
             </HStack>
             <HStack
@@ -101,7 +107,7 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
               <Text
                 style={{ fontWeight: 'normal', fontSize: 15, textAlignVertical: 'center', marginRight: 60 }}
                 numberOfLines={3}
-              >{`${rescueStore.currentCustomerProcessingRescue?.address}`}</Text>
+              >{`${address}`}</Text>
             </HStack>
             <HStack space={5} mt={5} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Thời gian ước tính:</Text>

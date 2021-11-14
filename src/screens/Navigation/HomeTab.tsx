@@ -37,7 +37,7 @@ export const CustomerHomeTab: React.FC = observer(() => {
         },
         tabBarActiveTintColor: '#0066FF',
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: { display: rescueStore.currentCustomerProcessingRescue ? 'none' : 'flex' },
+        tabBarStyle: { display: rescueStore.currentCustomerProcessingRescue !== null ? 'none' : 'flex' },
       })}
     >
       <CustomerTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='RescueHome' component={RescueStack} />

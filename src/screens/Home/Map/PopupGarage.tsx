@@ -32,18 +32,22 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
           <Link mt={-3} onPress={viewGarageDetail} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}>
             Xem thông tin garage
           </Link>
-          <Button
-            onPress={async () => {
-              await rescueStore.getRescueCases();
-              handleSos?.();
-            }}
-            w='65%'
-            mt='1'
-            bg='#0092FE'
-            _text={{ color: 'white' }}
-          >
-            Gửi yêu cầu
-          </Button>
+          {garage?.isAnyStaffAvailable ? (
+            <Button
+              onPress={async () => {
+                await rescueStore.getRescueCases();
+                handleSos?.();
+              }}
+              w='65%'
+              mt='1'
+              bg='#0092FE'
+              _text={{ color: 'white' }}
+            >
+              Gửi yêu cầu
+            </Button>
+          ) : (
+            <Text color='red'>Hiện tại tất cả nhân viên sửa chữa đều đang bận</Text>
+          )}
         </VStack>
       </HStack>
     </Box>

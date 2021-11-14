@@ -66,7 +66,7 @@ const CategoryDetail: React.FC<Partial<AutomotivePartModel>> = ({ name, price })
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
-const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
+const GarageRepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
@@ -150,20 +150,21 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
         <Center>
           <Button
             onPress={async () => {
-              await rescueStore.changeRescueStatusToArrived();
-
-              if (rescueStore.state === STORE_STATUS.ERROR) {
-                toast.show(rescueStore.errorMessage);
-              } else {
-                navigation.pop(2);
-              }
-
               await invoiceStore.create({
                 rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
                 automotivePartInvoices: [],
                 serviceInvoices: [],
               });
+              console.log('create');
               await rescueStore.changeRescueStatusToWorking();
+              console.log('working');
+              await rescueStore.getCurrentProcessingStaff();
+              console.log('get stff');
+              if (rescueStore.state === STORE_STATUS.ERROR) {
+                toast.show(rescueStore.errorMessage);
+              } else {
+                navigation.pop(2);
+              }
             }}
             style={{
               backgroundColor: '#34A853',
@@ -178,4 +179,4 @@ const RepairSuggestion: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-export default RepairSuggestion;
+export default GarageRepairSuggestion;

@@ -36,6 +36,7 @@ import { parallel } from '@utils/parallel';
 import { ServiceResult, withProgress } from '@mobx/services/config';
 import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
+import FirebaseStore from '@mobx/stores/firebase';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -77,6 +78,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const carStore = Container.get(CarStore);
   const dialogStore = Container.get(DialogStore);
   const rescueStore = Container.get(RescueStore);
+  const firebaseStore = Container.get(FirebaseStore);
   //#endregion stores
 
   //#region hooks
@@ -164,13 +166,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obserRescueStatus = useCallback(() => {
+  const observeRescueStatus = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const unsub = rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
+    const unsub = firebaseStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
-      const { status } = snapShot.data() as { status: number };
+      const { status, invoiceId } = snapShot.data() as { status: number, invoiceId: number };
       switch (status) {
         case RESCUE_STATUS.PENDING:
           dialogStore.openMsgDialog({
@@ -257,7 +259,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
         }
         case RESCUE_STATUS.ARRIVED: {
           dialogStore.closeMsgDialog();
-          navigation.navigate('ConfirmSuggestedRepair');
+
+          if (invoiceId && invoiceId > 0) {
+            navigation.navigate('ConfirmSuggestedRepair');
+          }
           break;
         }
         case RESCUE_STATUS.WORKING: {
@@ -274,27 +279,28 @@ const Map: React.FC<Props> = ({ navigation }) => {
       }
     });
     return unsub;
-  }, [dialogStore, navigation, rescueStore]);
+  }, [dialogStore, firebaseStore.rescuesRef, navigation, rescueStore]);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      return obserRescueStatus();
+      void rescueStore.getCurrentProcessingCustomer();
+      return observeRescueStatus();
     });
-  }, [navigation, obserRescueStatus, rescueStore]);
+  }, [navigation, observeRescueStatus, rescueStore]);
 
   useEffect(() => {
     if (!rescueStore.currentCustomerProcessingRescue) return;
 
-    return obserRescueStatus();
+    return observeRescueStatus();
   }, [
     dialogStore,
     navigation,
-    obserRescueStatus,
+    observeRescueStatus,
     rescueLocation?.latitude,
     rescueLocation?.longitude,
     rescueStore,
     rescueStore.currentCustomerProcessingRescue?.id,
-    rescueStore.rescuesRef,
+    firebaseStore.rescuesRef,
   ]);
 
   const cameraRef = useRef<MapboxGL.Camera>(null);
@@ -334,7 +340,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     await rescueStore.getCurrentProcessingCustomer();
 
     if (rescueStore.currentCustomerProcessingRescue?.id) {
-      void rescueStore.rescuesRef.doc(`${rescueStore.currentCustomerProcessingRescue.id}`).update({
+      void firebaseStore.update(`${rescueStore.currentCustomerProcessingRescue.id}`, {
         status: rescueStore.currentCustomerProcessingRescue.status,
       });
     }
@@ -377,9 +383,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
       onCancel: () => {
         // setMapState({ ...mapState, rescueState: RESCUE_STATUS.REJECTED });
       },
-      staff: rescueStore.currentCustomerProcessingRescue?.staff,
+      person: rescueStore.currentCustomerProcessingRescue?.staff,
       duration,
       rescueId: rescueStore.currentCustomerProcessingRescue?.id as number,
+      isStaff: true,
     });
   }
 
@@ -486,55 +493,56 @@ const Map: React.FC<Props> = ({ navigation }) => {
           );
         })}
       </MapboxGL.MapView>
-      <Box pt={10}>
-        <SearchBar
-          placeholder='Nhập vị trí cần cứu hộ'
-          timeout={500}
-          width='90%'
-          onSearch={searchPlaces}
-          listProps={{
-            data: places,
-            keyExtractor: (item: Place) => item.place_id,
-            renderItem: ({ item }: ListRenderItemInfo<Place>) => (
-              <View pl='3' py='1' width='100%' backgroundColor='white'>
-                <Text fontSize='md'>{item.description}</Text>
-              </View>
-            ),
-          }}
-          onItemPress={async ({ item }: ListRenderItemInfo<Place>) => {
-            const { result } = await mapService.getPlaceDetail({ api_key: GOONG_API_KEY, place_id: item.place_id });
-            const resLo = {
-              latitude: result?.result.geometry.location.lat || rescueLocation?.latitude || userLocation.latitude,
-              longitude: result?.result.geometry.location.lng || rescueLocation?.longitude || userLocation.longitude,
-            };
-            setRescueLocation({
-              ...resLo,
-            });
-            setRescueRequestDetail({
-              ...rescueRequestDetail,
-              address: item.description,
-              rescueLocation: resLo,
-            });
-          }}
-        />
-      </Box>
+      {
+        !rescueStore.currentCustomerProcessingRescue &&
+        <Box pt={10}>
+          <SearchBar
+            placeholder='Nhập vị trí cần cứu hộ'
+            timeout={500}
+            width='90%'
+            onSearch={searchPlaces}
+            listProps={{
+              data: places,
+              keyExtractor: (item: Place) => item.place_id,
+              renderItem: ({ item }: ListRenderItemInfo<Place>) => (
+                <View pl='3' py='1' width='100%' backgroundColor='white'>
+                  <Text fontSize='md'>{item.description}</Text>
+                </View>
+              ),
+            }}
+            onItemPress={async ({ item }: ListRenderItemInfo<Place>) => {
+              const { result } = await mapService.getPlaceDetail({ api_key: GOONG_API_KEY, place_id: item.place_id });
+              const resLo = {
+                latitude: result?.result.geometry.location.lat || rescueLocation?.latitude || userLocation.latitude,
+                longitude: result?.result.geometry.location.lng || rescueLocation?.longitude || userLocation.longitude,
+              };
+              setRescueLocation({
+                ...resLo,
+              });
+              setRescueRequestDetail({
+                ...rescueRequestDetail,
+                address: item.description,
+                rescueLocation: resLo,
+              });
+            }}
+          />
+        </Box>
+      }
+      <RescueStatusBar status={rescueStore.currentCustomerProcessingRescue?.status} duration={duration} />
       {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ACCEPTED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
-        <Box width='100%' pt={height * 0.7} position='absolute' alignSelf='center'>
-          <Center>
-            {(rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED) && (
+        <Box width='100%' pt={height * 0.8} position='absolute' alignSelf='center'>
+          <Center backgroundColor='white' h='50'>
+            {(rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED) ? (
               <AssignedEmployee
                 viewDetail={viewDetailRescueRequest}
                 name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
                 avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
                 phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
               />
-            )}
-          </Center>
-          <Center width='100%' backgroundColor='white' py='3' mt={2}>
-            <RescueStatusBar status={rescueStore.currentCustomerProcessingRescue?.status} duration={duration} />
+            ) : <Text bold>Đang đợi nhân viên khởi hành</Text>}
           </Center>
         </Box>
       ) : (

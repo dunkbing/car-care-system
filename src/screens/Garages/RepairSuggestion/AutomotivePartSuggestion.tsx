@@ -5,7 +5,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 
-import SearchBar from '../../components/SearchBar';
+import SearchBar from '../../../components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { AutomotivePartModel } from '@models/automotive-part';
 import AutomotivePartStore from '@mobx/stores/automotive-part';

@@ -82,6 +82,7 @@ export type GarageHomeOptionStackParams = {
         onCancel: (() => void) | undefined;
       };
   AutomotivePartSuggestion: undefined;
+  ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
   Payment: undefined;
   RejectRequest: undefined;
@@ -110,4 +111,5 @@ export type RescueStackParams = {
       };
   GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
   ConfirmSuggestedRepair: undefined;
+  Payment: undefined;
 };

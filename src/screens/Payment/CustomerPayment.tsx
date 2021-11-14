@@ -8,12 +8,18 @@ import Container from 'typedi';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
+import RescueStore from '@mobx/stores/rescue';
+import formatMoney from '@utils/format-money';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
 const Payment: React.FC<Props> = observer(({ navigation }) => {
+  const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const firebaseStore = Container.get(FirebaseStore);
+
+  const { currentCustomerProcessingRescue } = rescueStore;
+  const { customerInvoiceDetail } = invoiceStore;
 
   return (
     <VStack mt='2' px='1'>
@@ -31,104 +37,67 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             <Text bold fontSize='lg'>
               Khách hàng:
             </Text>
-            <Text fontSize='lg'>Lê Đức Anh</Text>
+            <Text fontSize='lg'>
+              {`${currentCustomerProcessingRescue?.customer?.lastName} ${currentCustomerProcessingRescue?.customer?.firstName}`}
+            </Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
               Loại xe:
             </Text>
-            <Text fontSize='lg'>Mazda CX5</Text>
+            <Text fontSize='lg'>{`${currentCustomerProcessingRescue?.car?.brandName} ${currentCustomerProcessingRescue?.car?.modelName}`}</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
               Biển số:
             </Text>
-            <Text fontSize='lg'>30A 13045</Text>
+            <Text fontSize='lg'>{`${currentCustomerProcessingRescue?.car?.licenseNumber}`}</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
               Màu xe:
             </Text>
-            <Text fontSize='lg'>Trắng</Text>
+            <Text fontSize='lg'>{`${currentCustomerProcessingRescue?.car?.color}`}</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>
               Mã số thuế:
             </Text>
-            <Text fontSize='lg'>0102859048</Text>
+            <Text fontSize='lg'>{`${currentCustomerProcessingRescue?.customer?.taxCode}`}</Text>
           </HStack>
         </VStack>
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Láng đĩa phanh trước
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>250.000đ x 2</Text>
-            <Text>500.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Lọc dầu
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>150.000đ x 1</Text>
-            <Text>150.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Lọc xăng
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>850.000đ x 1</Text>
-            <Text>850.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Bugi
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>88.700đ x 4</Text>
-            <Text>354.800đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Gioăng nắp dàn cò
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>480.000đ x 1</Text>
-            <Text>480.000đ</Text>
-          </HStack>
-        </VStack>
+        {customerInvoiceDetail?.automotivePartInvoices.map((part) => (
+          <VStack key={part.id} mt={3}>
+            <Text bold fontSize='sm'>
+              {`${part.automotivePart.name}`}
+            </Text>
+            <HStack style={{ justifyContent: 'space-between' }}>
+              <Text>
+                {formatMoney(part.price)} x {part.quantity}
+              </Text>
+              <Text>{formatMoney(part.price * part.quantity)}</Text>
+            </HStack>
+          </VStack>
+        ))}
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Công thợ
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>200.000đ x 1</Text>
-            <Text>200.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Phí vận chuyển
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>250.000đ x 1</Text>
-            <Text>250.000đ</Text>
-          </HStack>
-        </VStack>
+        {customerInvoiceDetail?.serviceInvoices.map((service) => (
+          <VStack key={service.id} mt={3}>
+            <Text bold fontSize='sm'>
+              {service.service.name}
+            </Text>
+            <HStack style={{ justifyContent: 'space-between' }}>
+              <Text>{formatMoney(service.price)} x 1</Text>
+              <Text>{formatMoney(service.price)}</Text>
+            </HStack>
+          </VStack>
+        ))}
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng 2.784.800đ
+          Tổng {formatMoney(customerInvoiceDetail?.total || 0)}
         </Text>
         <Button
           mt='10'
@@ -137,8 +106,8 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
           _text={{ color: 'white' }}
           onPress={async () => {
             const data = await firebaseStore.get<{ invoiceId: number }>();
-            console.log('hoan thanh sua chua', data);
-            await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
+            console.log('customer confirm payment', data);
+            await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(`${invoiceStore.errorMessage}`);
@@ -147,7 +116,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             }
           }}
         >
-          Xác nhận thanh toán
+          Xác nhận đã thanh toán
         </Button>
       </ScrollView>
     </VStack>

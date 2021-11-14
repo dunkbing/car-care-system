@@ -38,6 +38,8 @@ export const invoiceApi = {
   accepProposal: (invoiceId: number) => `invoices/accept-proposal/${invoiceId}`,
   customerConfirmPayment: (invoiceId: number) => `invoices/customers/payment-confirmations/${invoiceId}`,
   staffConfirmPayment: (invoiceId: number) => `invoices/staffs/payment-confirmations/${invoiceId}`,
+  getCustomerInvoiceDetail: (invoiceId: number) => `invoices/customer-invoice-details/${invoiceId}`,
+  getGarageInvoiceDetail: (invoiceId: number) => `invoices/garage-invoice-details/${invoiceId}`,
 };
 
 export const carModelApi = {

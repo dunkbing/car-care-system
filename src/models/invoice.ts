@@ -1,3 +1,7 @@
+import { INVOICE_STATUS } from '@utils/constants';
+import { AutomotivePartModel } from './automotive-part';
+import { ServiceModel } from './service';
+
 export type ServiceInvoice = {
   serviceId: number;
 };
@@ -17,8 +21,25 @@ export type UpdateProposalRequest = CreateProposalRequest;
 
 export type InvoiceProposal = {
   id: number;
-  automotivePartInvoices: Array<AutomotivePartInvoice>;
-  serviceInvoices: Array<ServiceInvoice>;
   status: number;
   total: number;
+  serviceInvoices: Array<ServiceInvoice>;
+  automotivePartInvoices: Array<AutomotivePartInvoice>;
+};
+
+export type InvoiceDetail = {
+  id: number;
+  total: number;
+  status: INVOICE_STATUS;
+  serviceInvoices: Array<{
+    id: number;
+    price: number;
+    service: ServiceModel;
+  }>;
+  automotivePartInvoices: Array<{
+    id: number;
+    quantity: number;
+    price: number;
+    automotivePart: AutomotivePartModel;
+  }>;
 };

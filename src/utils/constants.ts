@@ -34,7 +34,8 @@ export enum Gender {
 export enum INVOICE_STATUS {
   DRAFT,
   PENDING,
-  PAID,
+  CUSTOMER_CONFIRM_PAID,
+  STAFF_CONFIRM_PAID,
 }
 
 export enum REJECT_SIDE {

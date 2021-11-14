@@ -8,12 +8,14 @@ import RescueStore from '@mobx/stores/rescue';
 import InvoiceStore from '@mobx/stores/invoice';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
+import formatMoney from '@utils/format-money';
 
 type Props = StackScreenProps<RescueStackParams, 'ConfirmSuggestedRepair'>;
 
 const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
+
   return (
     <VStack mt='2' px='1'>
       <ScrollView
@@ -26,63 +28,39 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Láng đĩa phanh trước
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>250.000đ x 2</Text>
-            <Text>500.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Lọc dầu
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>150.000đ x 1</Text>
-            <Text>150.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Lọc xăng
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>850.000đ x 1</Text>
-            <Text>850.000đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Bugi
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>88.700đ x 4</Text>
-            <Text>354.800đ</Text>
-          </HStack>
-        </VStack>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Gioăng nắp dàn cò
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>480.000đ x 1</Text>
-            <Text>480.000đ</Text>
-          </HStack>
-        </VStack>
+        {invoiceStore.customerInvoiceDetail?.automotivePartInvoices.map(({ id, automotivePart }) => {
+          return (
+            <VStack mt={3} key={id}>
+              <Text bold fontSize='sm'>
+                {automotivePart.name}
+              </Text>
+              <HStack style={{ justifyContent: 'space-between' }}>
+                <Text>
+                  {formatMoney(automotivePart.price)} x {automotivePart.quantity}
+                </Text>
+                <Text>{formatMoney(automotivePart.price * (automotivePart?.quantity || 1))}</Text>
+              </HStack>
+            </VStack>
+          );
+        })}
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Công thợ
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>200.000đ x 1</Text>
-            <Text>200.000đ</Text>
-          </HStack>
-        </VStack>
+        {invoiceStore.customerInvoiceDetail?.serviceInvoices.map(({ id, service }) => {
+          return (
+            <VStack mt={3} key={id}>
+              <Text bold fontSize='sm'>
+                {service.name}
+              </Text>
+              <HStack style={{ justifyContent: 'space-between' }}>
+                <Text>
+                  {formatMoney(service.price)} x {service.quantity}
+                </Text>
+                <Text>{formatMoney(service.price * (service.quantity || 1))}</Text>
+              </HStack>
+            </VStack>
+          );
+        })}
         <VStack mt={3}>
           <Text bold fontSize='sm'>
             Phí vận chuyển
@@ -113,7 +91,7 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
             }
           }}
         >
-          Tiến hành sửa chữa
+          Xác nhận sửa chữa
         </Button>
       </ScrollView>
     </VStack>

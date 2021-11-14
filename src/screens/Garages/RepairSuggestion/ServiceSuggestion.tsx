@@ -7,16 +7,15 @@ import Container from 'typedi';
 
 import SearchBar from '../../../components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { AutomotivePartModel } from '@models/automotive-part';
-import AutomotivePartStore from '@mobx/stores/automotive-part';
 import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
 import RescueStore from '@mobx/stores/rescue';
 import ServiceStore from '@mobx/stores/service';
+import { ServiceModel } from '@models/service';
 
-const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) => {
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const { name, price } = automotivePart;
+const Service: React.FC<ServiceModel> = observer((service) => {
+  const serviceStore = Container.get(ServiceStore);
+  const { name, price } = service;
   return (
     <View
       style={{
@@ -39,15 +38,13 @@ const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) 
       >
         <Text>{formatMoney(price)}</Text>
         <Checkbox
-          defaultIsChecked={automotivePart.checked}
           accessibilityLabel={name}
           value=''
           onChange={(value: boolean) => {
-            automotivePart.checked = value;
             if (value) {
-              automotivePartStore.addPart(automotivePart);
+              serviceStore.addService(service);
             } else {
-              automotivePartStore.removePart(automotivePart);
+              serviceStore.removeService(service);
             }
           }}
         />
@@ -57,10 +54,10 @@ const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) 
 });
 
 const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
-  const automotivePartStore = Container.get(AutomotivePartStore);
+  const serviceStore = Container.get(ServiceStore);
 
   return (
-    <Button onPress={onPress} isDisabled={automotivePartStore.chosenParts.size === 0}>
+    <Button onPress={onPress} isDisabled={serviceStore.chosenServices.size === 0}>
       Thêm các mục đã chọn
     </Button>
   );
@@ -68,42 +65,32 @@ const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSuggestion'>;
 
-const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
+const ServiceSuggestion: React.FC<Props> = observer(({ navigation }) => {
   //#region store
   const rescueStore = Container.get(RescueStore);
-  const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
   //#endregion
 
   //#region hooks
   useEffect(() => {
-    return navigation.addListener('beforeRemove', (e) => {
-      if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED) {
-        e.preventDefault();
-      }
-    });
-  }, [navigation, rescueStore.currentStaffProcessingRescue?.status]);
-
-  useEffect(() => {
-    console.log('automotive part suggestion', rescueStore.currentStaffProcessingRescue?.status);
     if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
       navigation.goBack();
     }
-  }, [automotivePartStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
+  }, [serviceStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
 
   useEffect(() => {
-    void automotivePartStore.getMany();
-  }, [automotivePartStore]);
+    void serviceStore.getMany();
+  }, [serviceStore]);
   //#endregion
 
   return (
     <NativeBaseProvider>
       <VStack px={15} p={25} height='100%' backgroundColor='white'>
         <SearchBar
-          placeholder='Tìm kiếm thiết bị'
+          placeholder='Tìm kiếm dịch vụ'
           timeout={500}
           onSearch={(query) => {
-            void automotivePartStore.getMany(query);
+            void serviceStore.getMany(query);
           }}
         />
         <Text
@@ -113,26 +100,22 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
             marginVertical: 25,
           }}
         >
-          Danh sách thiết bị
+          Danh sách dịch vụ
         </Text>
-        {automotivePartStore.state === STORE_STATUS.LOADING ? (
+        {serviceStore.state === STORE_STATUS.LOADING ? (
           <Spinner size='lg' />
         ) : (
           <FlatList
             keyExtractor={(item, index) => `${item.id}-${index}`}
-            data={automotivePartStore.automotiveParts}
+            data={serviceStore.services}
             renderItem={(item) => {
-              return <AutomotivePart {...item.item} />;
+              return <Service {...item.item} />;
             }}
           />
         )}
         <AddButton
           onPress={() => {
-            if (serviceStore.chosenServices.size === 0) {
-              navigation.navigate('ServiceSuggestion');
-            } else {
-              navigation.navigate('RepairSuggestion');
-            }
+            navigation.navigate('RepairSuggestion');
           }}
         />
       </VStack>
@@ -140,4 +123,4 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
   );
 });
 
-export default AutomotivePartSuggestion;
+export default ServiceSuggestion;

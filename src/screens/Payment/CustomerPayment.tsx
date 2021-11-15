@@ -5,13 +5,55 @@ import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect } from 'react';
 import Container from 'typedi';
-import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
+import { INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 
 type Props = StackScreenProps<RescueStackParams, 'Payment'>;
+
+const ConfirmButton: React.FC = observer(() => {
+  const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
+
+  switch (invoiceStore.customerInvoiceDetail?.status) {
+    case INVOICE_STATUS.PENDING: {
+      return (
+        <Button
+          mt='10'
+          mb='5'
+          backgroundColor='#E86870'
+          _text={{ color: 'white' }}
+          onPress={async () => {
+            const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
+            const data = await firebaseStore.get<{ invoiceId: number }>();
+            console.log('customer confirm payment', data);
+            await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
+            await firebaseStore.update(`${rescueId}`, {
+              garageConfirm: true,
+            });
+            await invoiceStore.getCustomerInvoiceDetail(data?.invoiceId as any);
+
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(`${invoiceStore.errorMessage}`);
+            }
+          }}
+        >
+          Xác nhận đã thanh toán
+        </Button>
+      );
+    }
+    default: {
+      return (
+        <Button mt='10' mb='5' isDisabled _loading>
+          Vui lòng chờ garage xác nhận
+        </Button>
+      );
+    }
+  }
+});
 
 const Payment: React.FC<Props> = observer(({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
@@ -34,11 +76,17 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
       if (snapshot.exists) {
         const { customerFeedback, status } = snapshot.data() as any;
         if (customerFeedback && status === RESCUE_STATUS.WORKING) {
+          console.log('navigate to feedback');
           navigation.navigate('Feedback');
         }
       }
     });
   }, [firebaseStore.rescueDoc, invoiceStore, navigation]);
+  // useEffect(() => {
+  //   return navigation.addListener('beforeRemove', (e) => {
+  //     e.preventDefault();
+  //   });
+  // }, [navigation]);
 
   return (
     <VStack mt='2' px='1'>
@@ -118,28 +166,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
           Tổng {formatMoney(customerInvoiceDetail?.total || 0)}
         </Text>
-        <Button
-          mt='10'
-          mb='5'
-          backgroundColor='#E86870'
-          _text={{ color: 'white' }}
-          onPress={async () => {
-            const data = await firebaseStore.get<{ invoiceId: number }>();
-            console.log('customer confirm payment', data);
-            await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
-            await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
-              garageConfirm: true,
-            });
-
-            if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${invoiceStore.errorMessage}`);
-            } else {
-              navigation.push('Feedback');
-            }
-          }}
-        >
-          Xác nhận đã thanh toán
-        </Button>
+        <ConfirmButton />
       </ScrollView>
     </VStack>
   );

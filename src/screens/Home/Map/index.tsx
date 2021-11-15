@@ -288,7 +288,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       }
 
       if (customerConfirm && status === RESCUE_STATUS.WORKING) {
-        console.log('status', status);
+        console.log('navigate to payment', status);
         navigation.navigate('Payment');
       }
     });

@@ -18,7 +18,7 @@ export default class FeedbackStore extends BaseStore {
 
   public async create(feedbackType: keyof typeof feedbackApi, feedback: FeedbackRequestParams) {
     this.startLoading();
-    const { error, result } = await this.apiService.post(feedbackApi[feedbackType], feedback, true);
+    const { error, result } = await this.apiService.post(feedbackApi[feedbackType], feedback, true, true);
     console.log('create feedback', result, error, feedback);
 
     if (error) {

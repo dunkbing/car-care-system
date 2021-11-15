@@ -1,22 +1,36 @@
+import React, { useEffect } from 'react';
+import { TextInput } from 'react-native';
+import { Button, Center, Text, View, VStack } from 'native-base';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+import { StackScreenProps } from '@react-navigation/stack';
+import { AirbnbRating } from 'react-native-ratings';
+
 import FeedbackStore from '@mobx/stores/feedback';
 import RescueStore from '@mobx/stores/rescue';
-import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
-import { observer } from 'mobx-react';
-import { Button, Center, Text, View, VStack } from 'native-base';
-import React from 'react';
-import { TextInput } from 'react-native';
-import { AirbnbRating } from 'react-native-ratings';
-import Container from 'typedi';
+import FirebaseStore from '@mobx/stores/firebase';
+import { RESCUE_STATUS } from '@utils/constants';
+import { rootNavigation } from '@screens/Navigation/roots';
 
 type Props = StackScreenProps<ProfileStackParams, 'EditFeedback'>;
+
+function preventGoingBack(e: any) {
+  e.preventDefault();
+}
 
 const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
+  const firebaseStore = Container.get(FirebaseStore);
   const rescue = route.params?.rescue || rescueStore.currentCustomerProcessingRescue || {};
   const [comment, setComment] = React.useState('');
   const [point, setPoint] = React.useState(0);
+
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', preventGoingBack);
+  }, [navigation]);
+
   return (
     <VStack mt='3'>
       <View paddingX={5} paddingY={2}>
@@ -59,12 +73,16 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
           />
           <Button
             onPress={async () => {
+              const rescueDetailId = rescueStore.currentCustomerProcessingRescue?.id as number;
               await feedbackStore.create('garageFeedback', {
-                rescueDetailId: rescueStore.currentCustomerProcessingRescue?.id as number,
+                rescueDetailId,
                 comment,
                 point,
               });
-              navigation.popToTop();
+              await firebaseStore.update(`${rescueDetailId}`, { status: RESCUE_STATUS.DONE });
+              navigation.removeListener('beforeRemove', preventGoingBack);
+              navigation.goBack();
+              navigation.goBack();
             }}
             style={{
               marginVertical: 50,

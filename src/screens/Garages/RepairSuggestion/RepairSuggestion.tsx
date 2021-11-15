@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
-import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
+import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
@@ -118,92 +118,96 @@ const TotalPay: React.FC = observer(() => {
   );
 });
 
-const ConfirmButton: React.FC<{ navigation: StackNavigationProp<GarageHomeOptionStackParams, 'RepairSuggestion'> }> = observer(
-  ({ navigation }) => {
-    const rescueStore = Container.get(RescueStore);
-    const invoiceStore = Container.get(InvoiceStore);
-    const automotivePartStore = Container.get(AutomotivePartStore);
-    const serviceStore = Container.get(ServiceStore);
-    const firebaseStore = Container.get(FirebaseStore);
+const ConfirmButton: React.FC = observer(() => {
+  const rescueStore = Container.get(RescueStore);
+  const invoiceStore = Container.get(InvoiceStore);
+  const automotivePartStore = Container.get(AutomotivePartStore);
+  const serviceStore = Container.get(ServiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
 
-    useEffect(() => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
-        console.log('repair suggestion button', snapshot.data());
-        if (snapshot.exists) {
-          const { invoiceId } = snapshot.data() as { invoiceId: number };
-          if (invoiceId) {
-            await invoiceStore.getGarageInvoiceDetail(invoiceId);
-          }
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
+      console.log('repair suggestion button', snapshot.data());
+      if (snapshot.exists) {
+        const { invoiceId } = snapshot.data() as { invoiceId: number };
+        if (invoiceId) {
+          await invoiceStore.getGarageInvoiceDetail(invoiceId);
         }
-      });
-    }, [firebaseStore.rescueDoc, invoiceStore]);
+      }
+    });
+  }, [firebaseStore.rescueDoc, invoiceStore]);
 
-    switch (invoiceStore.garageInvoiceDetail?.status) {
-      case INVOICE_STATUS.DRAFT: {
-        return (
-          <Button style={{ width: '100%' }} isDisabled isLoading>
-            Vui lòng chờ khách hàng xác nhận
-          </Button>
-        );
-      }
-      case INVOICE_STATUS.PENDING: {
-        return (
-          <Button
-            onPress={async () => {
-              await rescueStore.changeRescueStatusToWorking();
-              await rescueStore.getCurrentProcessingStaff();
-              if (rescueStore.state === STORE_STATUS.ERROR) {
-                toast.show(rescueStore.errorMessage);
-              } else {
-                navigation.popToTop();
-                rootNavigation.navigate('GarageHomeOptions', {
-                  screen: 'Map',
-                  params: { request: rescueStore.currentStaffProcessingRescue },
-                });
-              }
-            }}
-            style={{
-              backgroundColor: '#34A853',
-              width: '100%',
-            }}
-          >
-            Tiến hành sửa chữa
-          </Button>
-        );
-      }
-      default: {
-        return (
-          <Button
-            style={{ backgroundColor: '#34A853', width: '100%' }}
-            onPress={async () => {
-              const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
-                automotivePartId: part.id,
-                quantity: part.quantity || 1,
-              }));
-              const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
-                serviceId: service.id,
-              }));
-              await invoiceStore.create({
-                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
-                automotivePartInvoices,
-                serviceInvoices,
-              });
-            }}
-          >
-            Yêu cầu khách hàng xác nhận
-          </Button>
-        );
-      }
+  switch (invoiceStore.garageInvoiceDetail?.status) {
+    case INVOICE_STATUS.DRAFT: {
+      return (
+        <Button style={{ width: '100%' }} isDisabled isLoading>
+          Vui lòng chờ khách hàng xác nhận
+        </Button>
+      );
     }
-  },
-);
+    case INVOICE_STATUS.PENDING: {
+      return (
+        <Button
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToWorking();
+            await rescueStore.getCurrentProcessingStaff();
+            if (rescueStore.state === STORE_STATUS.ERROR) {
+              toast.show(rescueStore.errorMessage);
+            } else {
+              // navigation.popToTop();
+              rootNavigation.navigate('GarageHomeOptions', {
+                screen: 'Map',
+                params: { request: rescueStore.currentStaffProcessingRescue },
+              });
+            }
+          }}
+          style={{
+            backgroundColor: '#34A853',
+            width: '100%',
+          }}
+        >
+          Tiến hành sửa chữa
+        </Button>
+      );
+    }
+    default: {
+      return (
+        <Button
+          style={{ backgroundColor: '#34A853', width: '100%' }}
+          onPress={async () => {
+            const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
+              automotivePartId: part.id,
+              quantity: part.quantity || 1,
+            }));
+            const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
+              serviceId: service.id,
+            }));
+            await invoiceStore.create({
+              rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
+              automotivePartInvoices,
+              serviceInvoices,
+            });
+          }}
+        >
+          Yêu cầu khách hàng xác nhận
+        </Button>
+      );
+    }
+  }
+});
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
 const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
+
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+    });
+  }, [navigation]);
 
   return (
     <ScrollView>
@@ -236,7 +240,7 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
           </Text>
           <Button
             onPress={() => {
-              navigation.replace('AutomotivePartSuggestion');
+              navigation.navigate('AutomotivePartSuggestion');
             }}
             style={{
               width: '40%',
@@ -269,7 +273,7 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
           </Text>
           <Button
             onPress={() => {
-              navigation.replace('ServiceSuggestion');
+              navigation.navigate('ServiceSuggestion');
             }}
             style={{
               width: '40%',
@@ -286,7 +290,7 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
         </View>
         <TotalPay />
         <Center>
-          <ConfirmButton navigation={navigation} />
+          <ConfirmButton />
         </Center>
       </VStack>
     </ScrollView>

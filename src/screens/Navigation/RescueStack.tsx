@@ -4,11 +4,12 @@ import { RescueStackParams } from './params';
 import { navHeaderStyle } from './roots';
 import DefineCarStatus from '@screens/Customer/DefineCarStatus';
 import { Map } from '@screens/Home';
-import DetailRescueRequest from '@screens/Customer/DetailRescueRequest';
+import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import DefaultGarage from '@screens/Garages/DefaultGarage';
 import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
 import Payment from '@screens/Payment/CustomerPayment';
+import Feedback from '@screens/Customer/Feedback';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -61,6 +62,14 @@ export const RescueStack: React.FC = () => {
         component={Payment}
         options={{
           title: 'Thanh toán',
+          ...navHeaderStyle,
+        }}
+      />
+      <RescueStackNav.Screen
+        name='Feedback'
+        component={Feedback}
+        options={{
+          title: 'Đánh giá dịch vụ',
           ...navHeaderStyle,
         }}
       />

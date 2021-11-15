@@ -13,8 +13,7 @@ import { Container } from 'typedi';
 import Marker from '@components/map/Marker';
 import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
 import RescueStore from '@mobx/stores/rescue';
-import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
-import toast from '@utils/toast';
+import { RESCUE_STATUS } from '@utils/constants';
 import { mapService } from '@mobx/services/map';
 import polyline from '@mapbox/polyline';
 import { withProgress } from '@mobx/services/config';
@@ -260,14 +259,9 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             bottom: 0,
           }}
           onPress={async () => {
-            await rescueStore.changeRescueStatusToDone();
-
-            if (rescueStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${rescueStore.errorMessage}`);
-            } else if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${invoiceStore.errorMessage}`);
-            }
-
+            await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
+              customerConfirm: true,
+            });
             const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
             console.log(invoiceId);
             await invoiceStore.getGarageInvoiceDetail(invoiceId);

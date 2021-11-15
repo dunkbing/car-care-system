@@ -27,9 +27,7 @@ export default class FirebaseStore extends BaseStore {
   }
 
   public async set(key: string, value: any) {
-    if (!this.rescueDoc) {
-      this.rescueDoc = this.rescuesRef.doc(`${key}`);
-    }
+    this.rescueDoc = this.rescuesRef.doc(`${key}`);
     await this.rescuesRef.doc(key).set(value).catch(console.error);
   }
 

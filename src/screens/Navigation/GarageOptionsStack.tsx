@@ -20,7 +20,7 @@ import AutomotivePartSuggestion from '@screens/Garages/RepairSuggestion/Automoti
 import GarageRepairSuggestion from '@screens/Garages/RepairSuggestion/RepairSuggestion';
 import Payment from '@screens/Payment/GaragePayment';
 import Feedback from '@screens/Garages/Feedback';
-import DetailRescueRequest from '@screens/Customer/DetailRescueRequest';
+import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 

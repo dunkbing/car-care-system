@@ -174,7 +174,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
-      const { status, invoiceId, invoiceStatus } = snapShot.data() as { status: number, invoiceId: number, invoiceStatus: number };
+      const { status, invoiceId, invoiceStatus, customerConfirm } = snapShot.data() as { status: number, invoiceId: number, invoiceStatus: number, customerConfirm: boolean };
       switch (status) {
         case RESCUE_STATUS.PENDING:
           dialogStore.openMsgDialog({
@@ -269,10 +269,8 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
-          console.log('done');
           setRescueRoute(null);
           dialogStore.closeMsgDialog();
-          navigation.navigate('Payment');
           break;
         }
         default:
@@ -287,6 +285,11 @@ const Map: React.FC<Props> = ({ navigation }) => {
         default:
           console.log('invoiceStatus', invoiceStatus);
           break;
+      }
+
+      if (customerConfirm && status === RESCUE_STATUS.WORKING) {
+        console.log('status', status);
+        navigation.navigate('Payment');
       }
     });
     return unsub;

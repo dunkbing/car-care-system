@@ -1,17 +1,17 @@
 import InvoiceStore from '@mobx/stores/invoice';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { RescueStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Container from 'typedi';
-import { STORE_STATUS } from '@utils/constants';
+import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
+type Props = StackScreenProps<RescueStackParams, 'Payment'>;
 
 const Payment: React.FC<Props> = observer(({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
@@ -20,6 +20,25 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
 
   const { currentCustomerProcessingRescue } = rescueStore;
   const { customerInvoiceDetail } = invoiceStore;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+      await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+    };
+    void fetchData();
+  }, [firebaseStore, invoiceStore]);
+
+  useEffect(() => {
+    return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const { customerFeedback, status } = snapshot.data() as any;
+        if (customerFeedback && status === RESCUE_STATUS.WORKING) {
+          navigation.navigate('Feedback');
+        }
+      }
+    });
+  }, [firebaseStore.rescueDoc, invoiceStore, navigation]);
 
   return (
     <VStack mt='2' px='1'>
@@ -108,6 +127,9 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             const data = await firebaseStore.get<{ invoiceId: number }>();
             console.log('customer confirm payment', data);
             await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
+            await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
+              garageConfirm: true,
+            });
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(`${invoiceStore.errorMessage}`);

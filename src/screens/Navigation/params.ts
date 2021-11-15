@@ -112,4 +112,5 @@ export type RescueStackParams = {
   GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
   ConfirmSuggestedRepair: undefined;
   Payment: undefined;
+  Feedback: undefined;
 };

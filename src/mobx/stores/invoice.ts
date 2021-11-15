@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
@@ -21,11 +21,14 @@ export default class InvoiceStore extends BaseStore {
     makeObservable(this, {
       invoiceProposal: observable,
       customerInvoiceDetail: observable,
+      garageInvoiceDetail: observable,
       create: action,
       update: action,
       acceptProposal: action,
       customerConfirmsPayment: action,
       staffConfirmsPayment: action,
+      getGarageInvoiceDetail: action,
+      getCustomerInvoiceDetail: action,
     });
   }
 
@@ -42,6 +45,7 @@ export default class InvoiceStore extends BaseStore {
     this.startLoading();
     const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.create, proposal);
     console.log('invoice', result);
+    console.log(`${this.rescueStore.currentStaffProcessingRescue?.id}`);
     await firestore()
       .collection('rescues')
       .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
@@ -118,7 +122,9 @@ export default class InvoiceStore extends BaseStore {
       this.handleError(error);
     } else {
       this.handleSuccess();
-      this.customerInvoiceDetail = result;
+      runInAction(() => {
+        this.customerInvoiceDetail = result;
+      });
     }
   }
 
@@ -133,7 +139,9 @@ export default class InvoiceStore extends BaseStore {
       this.handleError(error);
     } else {
       this.handleSuccess();
-      this.garageInvoiceDetail = result;
+      runInAction(() => {
+        this.garageInvoiceDetail = result;
+      });
     }
   }
 }

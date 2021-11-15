@@ -89,9 +89,23 @@ export class ApiService {
     }
   }
 
-  public async post<Response>(path: string, params?: RequestParams, reportProgress = false): Promise<ServiceResult<Response>> {
+  public async post<Response>(
+    path: string,
+    params?: RequestParams,
+    reportProgress = false,
+    formData = false,
+  ): Promise<ServiceResult<Response>> {
     const headers = this.createRequestHeaders();
-    let promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
+    let promise;
+    if (formData) {
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(params)) {
+        formData.append(key, value);
+      }
+      promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), formData, { headers });
+    } else {
+      promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
+    }
     if (reportProgress) {
       promise = withProgress(promise);
     }

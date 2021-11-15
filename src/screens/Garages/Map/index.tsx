@@ -20,6 +20,8 @@ import { withProgress } from '@mobx/services/config';
 import { parallel } from '@utils/parallel';
 import InvoiceStore from '@mobx/stores/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
+import AutomotivePartStore from '@mobx/stores/automotive-part';
+import ServiceStore from '@mobx/stores/service';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -275,6 +277,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
       ) : rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING ? (
         <TouchableOpacity
           onPress={async () => {
+            const automotivePartStore = Container.get(AutomotivePartStore);
+            const serviceStore = Container.get(ServiceStore);
+            automotivePartStore.clearParts();
+            serviceStore.clearServices();
             await rescueStore.changeRescueStatusToArrived();
             navigation.navigate('AutomotivePartSuggestion');
           }}

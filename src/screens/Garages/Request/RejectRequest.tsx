@@ -2,12 +2,35 @@ import React, { useState } from 'react';
 import { Button, Center, NativeBaseProvider, Select, Text, TextArea, VStack, View } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { rootNavigation } from '@screens/Navigation';
+import RescueStore from '@mobx/stores/rescue';
+import Container from 'typedi';
+import { STORE_STATUS } from '@utils/constants';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
 
-const RejectRequest: React.FC<Props> = () => {
+const RejectRequest: React.FC<Props> = ({ navigation }) => {
+  const [selectedCase, setSelectedCase] = useState('');
   const [reason, setReason] = useState('');
+  const rescueStore = Container.get(RescueStore);
+
+  async function confirmCancel() {
+    if (!selectedCase) {
+      toast.show('Vui lòng chọn lý do hủy yêu cầu');
+      return;
+    }
+    await rescueStore.garageRejectCurrentRescueCase({
+      rejectRescueCaseId: Number(selectedCase),
+      rejectReason: reason || `${rescueStore.customerRejectedCases.find((item) => item.id === Number(selectedCase))?.reason}`,
+    });
+
+    if (rescueStore.state === STORE_STATUS.ERROR) {
+      toast.show(`${rescueStore.errorMessage}`);
+    } else {
+      navigation.popToTop();
+      navigation.goBack();
+    }
+  }
 
   return (
     <NativeBaseProvider>
@@ -29,15 +52,14 @@ const RejectRequest: React.FC<Props> = () => {
                 borderColor: '#AB9898',
                 borderRadius: 3,
               }}
-              selectedValue={reason}
+              selectedValue={selectedCase}
               accessibilityLabel='Chọn một lý do'
               placeholder='Chọn một lý do'
-              onValueChange={(itemValue) => setReason(itemValue)}
+              onValueChange={(itemValue) => setSelectedCase(itemValue)}
             >
-              <Select.Item label='Khách hàng ở quá xa' value='1' />
-              <Select.Item label='Tất cả nhân viên đều đang bận' value='2' />
-              <Select.Item label='Khách hàng gửi yêu cầu không rõ ràng' value='3' />
-              <Select.Item label='Khác' value='4' />
+              {rescueStore.garageRejectedCases.map((item) => (
+                <Select.Item key={item.id} label={`${item.reason}`} value={`${item.id}`} />
+              ))}
             </Select>
           </View>
           <TextArea
@@ -61,14 +83,12 @@ const RejectRequest: React.FC<Props> = () => {
               },
               shadowOpacity: 0.27,
               shadowRadius: 4.65,
-
               elevation: 6,
             }}
+            onChangeText={(text) => setReason(text)}
           />
           <Button
-            onPress={() => {
-              rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
-            }}
+            onPress={confirmCancel}
             style={{
               backgroundColor: '#34A853',
               width: '80%',

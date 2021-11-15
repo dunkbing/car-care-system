@@ -11,7 +11,7 @@ import { navHeaderStyle } from './roots';
 import { GarageHome } from '@screens/Home';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { ACCOUNT_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
 import { observer } from 'mobx-react';
 import RescueStore from '@mobx/stores/rescue';
 
@@ -38,7 +38,12 @@ export const CustomerHomeTab: React.FC = observer(() => {
         },
         tabBarActiveTintColor: '#0066FF',
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: { display: rescueStore.currentCustomerProcessingRescue !== null ? 'none' : 'flex' },
+        tabBarStyle: {
+          display:
+            rescueStore.currentCustomerProcessingRescue && rescueStore.currentCustomerProcessingRescue.status !== RESCUE_STATUS.DONE
+              ? 'none'
+              : 'flex',
+        },
       })}
     >
       <CustomerTab.Screen options={{ tabBarShowLabel: false, headerShown: false }} name='RescueHome' component={RescueStack} />

@@ -41,17 +41,11 @@ import InvoiceStore from '@mobx/stores/invoice';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
-Logger.setLogCallback((log) => {
-  const { message } = log;
-
-  if (
-    /Request failed due to a permanent error: Canceled/.exec(message) ||
-    /Request failed due to a permanent error: Socket Closed/.exec(message)
-  ) {
-    return true;
-  }
-  return false;
+Logger.setLogCallback(() => {
+  return true;
 });
+
+Logger.setLogLevel('info');
 
 const { height } = Dimensions.get('screen');
 
@@ -174,6 +168,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
+
       const { status, invoiceId, invoiceStatus, customerConfirm } = snapShot.data() as { status: number, invoiceId: number, invoiceStatus: number, customerConfirm: boolean };
       switch (status) {
         case RESCUE_STATUS.PENDING:
@@ -225,10 +220,15 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.REJECTED:
+          console.log('rejected');
+          dialogStore.closeMsgDialog();
           dialogStore.openMsgDialog({
             title: 'Garage đã từ chối yêu cầu của bạn',
             message: 'Rất tiếc chúng tôi không thể gửi xe cứu hộ tới vì xe của bạn ở quá xa',
             type: DIALOG_TYPE.CONFIRM,
+            onAgreed: () => {
+              void snapShot.ref.update({ status: RESCUE_STATUS.IDLE });
+            },
           });
           break;
         case RESCUE_STATUS.ARRIVING: {
@@ -287,8 +287,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
       }
 
-      if (customerConfirm && status === RESCUE_STATUS.WORKING) {
-        console.log('navigate to payment', status);
+      if (rescueStore.currentCustomerProcessingRescue && customerConfirm && status === RESCUE_STATUS.WORKING) {
         navigation.navigate('Payment');
       }
     });
@@ -303,8 +302,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [navigation, observeRescueStatus, rescueStore]);
 
   useEffect(() => {
-    if (!rescueStore.currentCustomerProcessingRescue) return;
-
     return observeRescueStatus();
   }, [
     dialogStore,

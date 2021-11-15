@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect } from 'react';
 import Container from 'typedi';
-import { INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
+import { colors, INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
@@ -76,7 +76,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             <Text bold fontSize='lg'>
               Màu xe:
             </Text>
-            <Text fontSize='lg'>{`${currentStaffProcessingRescue?.car?.color}`}</Text>
+            <Text fontSize='lg'>{`${(colors as any)[`${currentStaffProcessingRescue?.car?.color}`] || 'Khác'}`}</Text>
           </HStack>
           <HStack space={2}>
             <Text bold fontSize='lg'>

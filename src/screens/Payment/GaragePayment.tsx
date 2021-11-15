@@ -3,9 +3,9 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Container from 'typedi';
-import { STORE_STATUS } from '@utils/constants';
+import { INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
@@ -20,6 +20,25 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
 
   const { currentStaffProcessingRescue } = rescueStore;
   const { garageInvoiceDetail } = invoiceStore;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+      await invoiceStore.getGarageInvoiceDetail(invoiceId);
+    };
+    void fetchData();
+  }, [firebaseStore, invoiceStore]);
+
+  useEffect(() => {
+    return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const { garageConfirm, invoiceId } = snapshot.data() as any;
+        if (garageConfirm) {
+          void invoiceStore.getGarageInvoiceDetail(invoiceId);
+        }
+      }
+    });
+  }, [firebaseStore.rescueDoc, invoiceStore]);
 
   return (
     <VStack mt='2' px='1'>
@@ -99,25 +118,35 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
           Tổng {formatMoney(garageInvoiceDetail?.total || 0)}
         </Text>
-        <Button
-          mt='10'
-          mb='5'
-          backgroundColor='#E86870'
-          _text={{ color: 'white' }}
-          onPress={async () => {
-            const data = await firebaseStore.get<{ invoiceId: number }>();
-            console.log('hoan thanh sua chua', data);
-            await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
+        {invoiceStore.garageInvoiceDetail?.status === INVOICE_STATUS.PENDING ? (
+          <Button mt='10' mb='5' _loading isDisabled>
+            Vui lòng chờ khách hàng thanh toán
+          </Button>
+        ) : (
+          <Button
+            mt='10'
+            mb='5'
+            backgroundColor='#E86870'
+            _text={{ color: 'white' }}
+            onPress={async () => {
+              const data = await firebaseStore.get<{ invoiceId: number }>();
+              console.log('hoan thanh sua chua', data);
+              await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
+              await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
+                customerFeedback: true,
+                status: RESCUE_STATUS.DONE,
+              });
 
-            if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${invoiceStore.errorMessage}`);
-            } else {
-              navigation.push('Feedback');
-            }
-          }}
-        >
-          Xác nhận đã thanh toán
-        </Button>
+              if (invoiceStore.state === STORE_STATUS.ERROR) {
+                toast.show(`${invoiceStore.errorMessage}`);
+              } else {
+                navigation.push('Feedback');
+              }
+            }}
+          >
+            Xác nhận đã thanh toán
+          </Button>
+        )}
       </ScrollView>
     </VStack>
   );

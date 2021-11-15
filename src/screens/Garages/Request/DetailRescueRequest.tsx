@@ -6,10 +6,12 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams, RescueStackParams } from '@screens/Navigation/params';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
+import { observer } from 'mobx-react';
+import { RESCUE_STATUS } from '@utils/constants';
 
 type Props = StackScreenProps<RescueStackParams | GarageHomeOptionStackParams, 'DetailRescueRequest'>;
 
-const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
+const DetailRescueRequest: React.FC<Props> = observer(({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
   const { person, duration, isStaff, onCancel } = route.params || {};
   const garage = rescueStore.currentCustomerProcessingRescue?.garage || rescueStore.currentStaffProcessingRescue?.garage;
@@ -115,12 +117,14 @@ const DetailRescueRequest: React.FC<Props> = ({ navigation, route }) => {
             </HStack>
           </View>
         </Center>
-        <Button onPress={cancelRequest} style={{ width: 130, backgroundColor: '#EA4335', alignSelf: 'center' }}>
-          Hủy yêu cầu
-        </Button>
+        {!isStaff && Number(rescueStore.currentCustomerProcessingRescue?.status) < RESCUE_STATUS.ARRIVING && (
+          <Button onPress={cancelRequest} style={{ width: 130, backgroundColor: '#EA4335', alignSelf: 'center' }}>
+            Hủy yêu cầu
+          </Button>
+        )}
       </VStack>
     </NativeBaseProvider>
   );
-};
+});
 
 export default DetailRescueRequest;

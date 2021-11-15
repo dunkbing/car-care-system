@@ -182,12 +182,17 @@ const ConfirmButton: React.FC = observer(() => {
             }));
             const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
               serviceId: service.id,
+              quantity: service.quantity || 1,
             }));
             await invoiceStore.create({
               rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
               automotivePartInvoices,
               serviceInvoices,
             });
+
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(invoiceStore.errorMessage);
+            }
           }}
         >
           Yêu cầu khách hàng xác nhận

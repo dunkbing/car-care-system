@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export enum STORE_STATUS {
   IDLE,
   LOADING,
@@ -30,7 +31,7 @@ export enum Gender {
 }
 //#endregion
 
-//#region others
+//#region rescue
 export enum INVOICE_STATUS {
   DRAFT,
   PENDING,
@@ -53,4 +54,16 @@ export enum RESCUE_STATUS {
   DONE,
   IDLE,
 }
+//#endregion
+
+//#region misc
+export const colors = {
+  '#ff0000': 'Đỏ',
+  '#000000': 'Đen',
+  '#ffffff': 'Trắng',
+  '#808080': 'Xám',
+  '#00ff00': 'Lục',
+  '#0000ff': 'Lam',
+  'undefined': 'Khác',
+};
 //#endregion

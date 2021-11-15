@@ -4,6 +4,8 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import { DefaultCar } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import Container from 'typedi';
+import RescueStore from '@mobx/stores/rescue';
 
 const Label: React.FC<{ name: string }> = (props) => {
   return (
@@ -21,6 +23,7 @@ const Label: React.FC<{ name: string }> = (props) => {
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
 
 const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
+  const rescueStore = Container.get(RescueStore);
   const { request } = route.params;
   return (
     <NativeBaseProvider>
@@ -82,7 +85,8 @@ const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
               Chọn nhân viên
             </Button>
             <Button
-              onPress={() => {
+              onPress={async () => {
+                await rescueStore.getGarageRejectedRescueCases();
                 navigation.navigate('RejectRequest');
               }}
               style={{ width: 130, backgroundColor: '#EA4335' }}

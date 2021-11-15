@@ -4,6 +4,7 @@ import { ServiceModel } from './service';
 
 export type ServiceInvoice = {
   serviceId: number;
+  quantity: number;
 };
 
 export type AutomotivePartInvoice = {

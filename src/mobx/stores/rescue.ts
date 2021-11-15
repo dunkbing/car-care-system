@@ -366,8 +366,10 @@ export default class RescueStore extends BaseStore {
   public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
     this.startLoading();
 
-    const { error } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
+    const { error, result } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
     console.log(error, params);
+    console.log(result);
+    await this.firebaseStore.update(`${result}`, { status: RESCUE_STATUS.REJECTED });
 
     if (error) {
       this.handleError(error);

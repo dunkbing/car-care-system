@@ -39,7 +39,6 @@ import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
 
-MapboxGL.setAccessToken(GOONG_API_KEY);
 
 Logger.setLogCallback(() => {
   return true;
@@ -115,6 +114,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [definedCarStatus]);
+
+  useEffect(() => {
+    MapboxGL.setAccessToken(GOONG_API_KEY);
+  }, []);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -323,8 +326,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const cameraRef = useRef<MapboxGL.Camera>(null);
 
   //#endregion hooks
-
-  
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {

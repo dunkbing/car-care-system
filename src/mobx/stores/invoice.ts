@@ -7,7 +7,8 @@ import { CreateProposalRequest, InvoiceDetail, InvoiceProposal, UpdateProposalRe
 import firestore from '@react-native-firebase/firestore';
 import RescueStore from './rescue';
 import FirebaseStore from './firebase';
-import { INVOICE_STATUS } from '@utils/constants';
+import { ACCOUNT_TYPES, INVOICE_STATUS } from '@utils/constants';
+import AuthStore from './auth';
 
 export enum FeedbackTypes {
   CUSTOMER,
@@ -35,6 +36,7 @@ export default class InvoiceStore extends BaseStore {
   private readonly apiService = Container.get(ApiService);
   private readonly rescueStore = Container.get(RescueStore);
   private readonly firebaseStore = Container.get(FirebaseStore);
+  private readonly authStore = Container.get(AuthStore);
 
   invoiceProposal: InvoiceProposal | null = null;
   customerInvoiceDetail: InvoiceDetail | null = null;
@@ -42,11 +44,8 @@ export default class InvoiceStore extends BaseStore {
 
   // Create a proposal (draft invoice)
   public async create(proposal: CreateProposalRequest) {
-    console.log('create proposal', proposal);
     this.startLoading();
     const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.create, proposal);
-    console.log('invoice', result, error);
-    console.log(`${this.rescueStore.currentStaffProcessingRescue?.id}`);
     await firestore()
       .collection('rescues')
       .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
@@ -58,6 +57,11 @@ export default class InvoiceStore extends BaseStore {
     } else {
       this.handleSuccess();
       this.invoiceProposal = result;
+      if (this.authStore.userType === ACCOUNT_TYPES.CUSTOMER) {
+        await this.getCustomerInvoiceDetail(result!.id);
+      } else {
+        await this.getGarageInvoiceDetail(result!.id);
+      }
     }
   }
 
@@ -103,7 +107,6 @@ export default class InvoiceStore extends BaseStore {
   public async staffConfirmsPayment(invoiceId: number) {
     this.startLoading();
     const { error } = await this.apiService.patch(invoiceApi.staffConfirmPayment(invoiceId), {}, true);
-    console.log(error);
 
     if (error) {
       this.handleError(error);
@@ -118,6 +121,7 @@ export default class InvoiceStore extends BaseStore {
   public async getCustomerInvoiceDetail(invoiceId: number) {
     this.startLoading();
     const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getCustomerInvoiceDetail(invoiceId), true);
+    console.log(result);
 
     if (error) {
       this.handleError(error);
@@ -134,7 +138,7 @@ export default class InvoiceStore extends BaseStore {
    */
   public async getGarageInvoiceDetail(invoiceId: number) {
     this.startLoading();
-    const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), true);
+    const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), {}, true);
 
     if (error) {
       this.handleError(error);

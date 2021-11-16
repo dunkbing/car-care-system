@@ -118,25 +118,11 @@ const TotalPay: React.FC = observer(() => {
   );
 });
 
-const ConfirmButton: React.FC = observer(() => {
+const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
-      console.log('repair suggestion button', snapshot.data());
-      if (snapshot.exists) {
-        const { invoiceId } = snapshot.data() as { invoiceId: number };
-        if (invoiceId) {
-          await invoiceStore.getGarageInvoiceDetail(invoiceId);
-        }
-      }
-    });
-  }, [firebaseStore.rescueDoc, invoiceStore]);
 
   switch (invoiceStore.garageInvoiceDetail?.status) {
     case INVOICE_STATUS.DRAFT: {
@@ -150,6 +136,7 @@ const ConfirmButton: React.FC = observer(() => {
       return (
         <Button
           onPress={async () => {
+            onPress?.();
             await rescueStore.changeRescueStatusToWorking();
             await rescueStore.getCurrentProcessingStaff();
             if (rescueStore.state === STORE_STATUS.ERROR) {
@@ -176,6 +163,7 @@ const ConfirmButton: React.FC = observer(() => {
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
+            onPress?.();
             const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
               automotivePartId: part.id,
               quantity: part.quantity || 1,
@@ -207,12 +195,26 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
+  const invoiceStore = Container.get(InvoiceStore);
 
+  // useEffect(() => {
+  //   return navigation.addListener('beforeRemove', (e) => {
+  //     e.preventDefault();
+  //   });
+  // }, [navigation]);
   useEffect(() => {
-    return navigation.addListener('beforeRemove', (e) => {
-      e.preventDefault();
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
+      if (snapshot.exists) {
+        const { invoiceId } = snapshot.data() as { invoiceId: number };
+        console.log('invoiceId', invoiceId);
+        if (invoiceId && invoiceId > 0) {
+          await invoiceStore.getGarageInvoiceDetail(invoiceId);
+        }
+      }
     });
-  }, [navigation]);
+  }, [firebaseStore.rescueDoc, invoiceStore]);
 
   return (
     <ScrollView>
@@ -245,7 +247,7 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
           </Text>
           <Button
             onPress={() => {
-              navigation.navigate('AutomotivePartSuggestion');
+              navigation.replace('AutomotivePartSuggestion');
             }}
             style={{
               width: '40%',
@@ -278,7 +280,7 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
           </Text>
           <Button
             onPress={() => {
-              navigation.navigate('ServiceSuggestion');
+              navigation.replace('ServiceSuggestion');
             }}
             style={{
               width: '40%',
@@ -295,7 +297,13 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
         </View>
         <TotalPay />
         <Center>
-          <ConfirmButton />
+          <ConfirmButton
+            onPress={() => {
+              navigation.addListener('beforeRemove', (e) => {
+                e.preventDefault();
+              });
+            }}
+          />
         </Center>
       </VStack>
     </ScrollView>

@@ -209,10 +209,8 @@ export default class RescueStore extends BaseStore {
    * assign staff to rescue detail.
    */
   public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
-    console.log(params);
     this.startLoading();
     const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(rescueApi.assignStaff, params, true);
-    console.log(result, error);
 
     if (error) {
       this.handleError(error);
@@ -332,7 +330,6 @@ export default class RescueStore extends BaseStore {
     this.startLoading();
 
     const { error } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
-    console.log(error, params);
 
     if (error) {
       this.handleError(error);
@@ -367,8 +364,6 @@ export default class RescueStore extends BaseStore {
     this.startLoading();
 
     const { error, result } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
-    console.log(error, params);
-    console.log(result);
     await this.firebaseStore.update(`${result}`, { status: RESCUE_STATUS.REJECTED });
 
     if (error) {

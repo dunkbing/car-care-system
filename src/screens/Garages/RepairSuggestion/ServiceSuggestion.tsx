@@ -38,6 +38,7 @@ const Service: React.FC<ServiceModel> = observer((service) => {
       >
         <Text>{formatMoney(price)}</Text>
         <Checkbox
+          defaultIsChecked={service.checked}
           accessibilityLabel={name}
           value=''
           onChange={(value: boolean) => {
@@ -115,7 +116,7 @@ const ServiceSuggestion: React.FC<Props> = observer(({ navigation }) => {
         )}
         <AddButton
           onPress={() => {
-            navigation.navigate('RepairSuggestion');
+            navigation.replace('RepairSuggestion');
           }}
         />
       </VStack>

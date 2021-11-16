@@ -29,7 +29,6 @@ const ConfirmButton: React.FC = observer(() => {
           onPress={async () => {
             const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
             const data = await firebaseStore.get<{ invoiceId: number }>();
-            console.log('customer confirm payment', data);
             await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
             await firebaseStore.update(`${rescueId}`, {
               garageConfirm: true,
@@ -76,7 +75,6 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
       if (snapshot.exists) {
         const { customerFeedback, status } = snapshot.data() as any;
         if (customerFeedback && status === RESCUE_STATUS.WORKING) {
-          console.log('navigate to feedback');
           navigation.navigate('Feedback');
         }
       }
@@ -143,7 +141,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             </Text>
             <HStack style={{ justifyContent: 'space-between' }}>
               <Text>
-                {formatMoney(part.price)} x {part.quantity}
+                {formatMoney(part.price)} x {`${part.quantity}`}
               </Text>
               <Text>{formatMoney(part.price * part.quantity)}</Text>
             </HStack>

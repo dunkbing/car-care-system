@@ -77,15 +77,6 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
 
   //#region hooks
   useEffect(() => {
-    return navigation.addListener('beforeRemove', (e) => {
-      if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVED) {
-        e.preventDefault();
-      }
-    });
-  }, [navigation, rescueStore.currentStaffProcessingRescue?.status]);
-
-  useEffect(() => {
-    console.log('automotive part suggestion', rescueStore.currentStaffProcessingRescue?.status);
     if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
       navigation.goBack();
     }
@@ -129,9 +120,9 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
         <AddButton
           onPress={() => {
             if (serviceStore.chosenServices.size === 0) {
-              navigation.navigate('ServiceSuggestion');
+              navigation.replace('ServiceSuggestion');
             } else {
-              navigation.navigate('RepairSuggestion');
+              navigation.replace('RepairSuggestion');
             }
           }}
         />

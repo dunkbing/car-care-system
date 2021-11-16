@@ -13,11 +13,12 @@ import Container from 'typedi';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Feedback'>;
 
-const Feedback: React.FC<Props> = ({ navigation, route }) => {
+const Feedback: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
   const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
   const title = authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Đánh giá dịch vụ đã sử dụng' : 'Gửi góp ý cho khách hàng';
+  const rescue = rescueStore.currentStaffProcessingRescue;
   const user = authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Garage' : 'Tên khách hàng';
 
   const [comment, setComment] = useState('');
@@ -32,7 +33,7 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
           </Text>
         </Center>
         <Text fontWeight='bold'>
-          {user}: <Text>{route.params?.username}</Text>
+          {user}: <Text>{`${rescue?.customer?.lastName} ${rescue?.customer?.firstName}`}</Text>
         </Text>
         <Center>
           <View marginY={10}>

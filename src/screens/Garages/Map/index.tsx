@@ -106,7 +106,9 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
-          navigation.navigate('AutomotivePartSuggestion');
+          if (!invoiceStore.garageInvoiceDetail) {
+            navigation.navigate('AutomotivePartSuggestion');
+          }
           break;
         }
         case RESCUE_STATUS.WORKING: {
@@ -265,7 +267,6 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
               customerConfirm: true,
             });
             const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
-            console.log(invoiceId);
             await invoiceStore.getGarageInvoiceDetail(invoiceId);
             navigation.push('Payment');
           }}

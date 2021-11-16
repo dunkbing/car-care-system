@@ -130,7 +130,6 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
             _text={{ color: 'white' }}
             onPress={async () => {
               const data = await firebaseStore.get<{ invoiceId: number }>();
-              console.log('hoan thanh sua chua', data);
               await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
               await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
                 customerFeedback: true,
@@ -140,7 +139,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
               if (invoiceStore.state === STORE_STATUS.ERROR) {
                 toast.show(`${invoiceStore.errorMessage}`);
               } else {
-                navigation.push('Feedback');
+                navigation.navigate('Feedback');
               }
             }}
           >

@@ -121,7 +121,6 @@ const StaffOption: React.FC = () => {
                 return;
               }
 
-              console.log(rescueStore.currentStaffProcessingRescue);
               if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
                 rootNavigation.navigate('GarageHomeOptions', {
                   screen: 'Map',

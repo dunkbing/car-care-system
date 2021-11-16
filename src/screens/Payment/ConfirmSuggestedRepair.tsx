@@ -28,7 +28,7 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        {invoiceStore.customerInvoiceDetail?.automotivePartInvoices.map(({ id, automotivePart }) => {
+        {invoiceStore.customerInvoiceDetail?.automotivePartInvoices.map(({ id, automotivePart, quantity }) => {
           return (
             <VStack mt={3} key={id}>
               <Text bold fontSize='sm'>
@@ -36,9 +36,9 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
               </Text>
               <HStack style={{ justifyContent: 'space-between' }}>
                 <Text>
-                  {formatMoney(automotivePart.price)} x {automotivePart.quantity}
+                  {formatMoney(automotivePart.price)} x {quantity}
                 </Text>
-                <Text>{formatMoney(automotivePart.price * (automotivePart?.quantity || 1))}</Text>
+                <Text>{formatMoney(automotivePart.price * quantity)}</Text>
               </HStack>
             </VStack>
           );
@@ -46,7 +46,7 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        {invoiceStore.customerInvoiceDetail?.serviceInvoices.map(({ id, service }) => {
+        {invoiceStore.customerInvoiceDetail?.serviceInvoices.map(({ id, service, quantity }) => {
           return (
             <VStack mt={3} key={id}>
               <Text bold fontSize='sm'>
@@ -54,24 +54,15 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
               </Text>
               <HStack style={{ justifyContent: 'space-between' }}>
                 <Text>
-                  {formatMoney(service.price)} x {service.quantity}
+                  {formatMoney(service.price)} x {quantity}
                 </Text>
-                <Text>{formatMoney(service.price * (service.quantity || 1))}</Text>
+                <Text>{formatMoney(service.price * (quantity || 1))}</Text>
               </HStack>
             </VStack>
           );
         })}
-        <VStack mt={3}>
-          <Text bold fontSize='sm'>
-            Phí vận chuyển
-          </Text>
-          <HStack style={{ justifyContent: 'space-between' }}>
-            <Text>250.000đ x 1</Text>
-            <Text>250.000đ</Text>
-          </HStack>
-        </VStack>
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng 2.784.800đ
+          Tổng {formatMoney(invoiceStore.customerInvoiceDetail?.total || 0)}
         </Text>
         <Button
           mt='10'

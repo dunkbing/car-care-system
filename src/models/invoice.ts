@@ -34,6 +34,7 @@ export type InvoiceDetail = {
   status: INVOICE_STATUS;
   serviceInvoices: Array<{
     id: number;
+    quantity: number;
     price: number;
     service: ServiceModel;
   }>;

@@ -220,7 +220,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.REJECTED:
-          console.log('rejected');
           dialogStore.closeMsgDialog();
           dialogStore.openMsgDialog({
             title: 'Garage đã từ chối yêu cầu của bạn',

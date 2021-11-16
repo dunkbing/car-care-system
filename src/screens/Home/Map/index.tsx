@@ -39,7 +39,6 @@ import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
 
-MapboxGL.setAccessToken(GOONG_API_KEY);
 
 Logger.setLogCallback(() => {
   return true;
@@ -117,6 +116,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [definedCarStatus]);
 
   useEffect(() => {
+    MapboxGL.setAccessToken(GOONG_API_KEY);
+  }, []);
+
+  useEffect(() => {
     return navigation.addListener('focus', () => {
       void rescueStore.getCurrentProcessingCustomer();
     });
@@ -190,6 +193,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         case RESCUE_STATUS.ACCEPTED: {
           const { garage, rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
+          const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
+          void mapService.getDistanceMatrix({
+            api_key: GOONG_API_KEY,
+            origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+            destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+            vehicle: 'car',
+          }).then(({ result }) => setDuration(`${result?.rows[0].elements[0].duration.text}`));
           dialogStore.openMsgDialog({
             message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
             type: DIALOG_TYPE.CONFIRM,
@@ -316,8 +326,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const cameraRef = useRef<MapboxGL.Camera>(null);
 
   //#endregion hooks
-
-  
 
   const showPopupGarage = (garage: GarageModel) => {
     return function () {

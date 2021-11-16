@@ -20,7 +20,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
     await authStore.login(values, ACCOUNT_TYPES.GARAGE_MANAGER);
 
     if (authStore.state === STORE_STATUS.ERROR) {
-      toast.show('Đăng nhập thất bại');
+      toast.show(`${authStore.errorMessage}`);
     } else {
       rootNavigation.navigate('GarageHomeTab');
     }

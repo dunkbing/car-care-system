@@ -190,6 +190,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         case RESCUE_STATUS.ACCEPTED: {
           const { garage, rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
+          const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
+          void mapService.getDistanceMatrix({
+            api_key: GOONG_API_KEY,
+            origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+            destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+            vehicle: 'car',
+          }).then(({ result }) => setDuration(`${result?.rows[0].elements[0].duration.text}`));
           dialogStore.openMsgDialog({
             message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
             type: DIALOG_TYPE.CONFIRM,

@@ -10,7 +10,7 @@ workflows:
         - other
       vars:
         PACKAGE_NAME: 'com.goatteam.carcare'
-      node: latest
+      node: stable
     triggering:
       events:
         - push

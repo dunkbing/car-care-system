@@ -235,7 +235,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           viewDetail={viewDetailRescueRequest}
           name={`${request?.customer?.firstName} ${request?.customer?.lastName}`}
           avatarUrl={`${request?.customer?.avatarUrl}`}
-          phoneNumber={`${request?.staff?.phoneNumber}`}
+          phoneNumber={`${request?.customer?.phoneNumber}`}
         />
       </Center>
       {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING && (

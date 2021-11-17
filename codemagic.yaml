@@ -24,9 +24,12 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install
+          npx jetify
       - name: Set Android SDK location
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/android/local.properties"
+          echo "$ANDROID_FIREBASE_SECRET" > "$FCI_BUILD_DIR/android/app/google-services.json"
+          echo "$ENV_SECRET" > "$FCI_BUILD_DIR/.env"
       - name: Set up keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.keystore

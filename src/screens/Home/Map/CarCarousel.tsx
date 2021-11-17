@@ -29,8 +29,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const Item = React.memo(({ selected, name, license, width }: any) => {
+const CarItem = React.memo(({ selected, name, license, width }: any) => {
   const color = selected ? '#3F87F2' : 'grey';
+  console.log('render car item');
   return (
     <VStack
       style={[
@@ -54,7 +55,7 @@ const Item = React.memo(({ selected, name, license, width }: any) => {
 const ItemToRender = ({ item, index }: ListRenderItemInfo<CarModel>, indexSelected: number, width: number) => {
   const selected = index === indexSelected;
 
-  return <Item selected={selected} name={item.brandName} license={item.licenseNumber} width={width} />;
+  return <CarItem selected={selected} name={item.brandName} license={item.licenseNumber} width={width} />;
 };
 
 type Props = {

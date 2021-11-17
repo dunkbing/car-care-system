@@ -183,9 +183,9 @@ export default class RescueStore extends BaseStore {
   /**
    * get current available staff's processing rescue detail
    */
-  public async getCurrentProcessingStaff() {
+  public async getCurrentProcessingStaff(loading = true) {
     this.startLoading();
-    const { result, error } = await this.apiService.get<any>(rescueApi.currentProcessingGarage, {}, true);
+    const { result, error } = await this.apiService.get<any>(rescueApi.currentProcessingGarage, {}, loading);
 
     if (error) {
       this.handleError(error);
@@ -200,7 +200,7 @@ export default class RescueStore extends BaseStore {
         }
         await this.firebaseStore
           .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
-          .catch(console.error);
+          .catch((error) => this.handleError(error));
       }
     }
   }

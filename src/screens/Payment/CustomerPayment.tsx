@@ -10,6 +10,7 @@ import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
+import { BackHandler } from 'react-native';
 
 type Props = StackScreenProps<RescueStackParams, 'Payment'>;
 
@@ -46,7 +47,7 @@ const ConfirmButton: React.FC = observer(() => {
     }
     default: {
       return (
-        <Button mt='10' mb='5' isDisabled _loading>
+        <Button mt='10' mb='5' isDisabled isLoading>
           Vui lòng chờ garage xác nhận
         </Button>
       );
@@ -54,14 +55,17 @@ const ConfirmButton: React.FC = observer(() => {
   }
 });
 
-const Payment: React.FC<Props> = observer(({ navigation }) => {
+const Payment: React.FC<Props> = observer(({ navigation, route }) => {
+  //#region stores
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const firebaseStore = Container.get(FirebaseStore);
+  //#endregion
 
   const { currentCustomerProcessingRescue } = rescueStore;
   const { customerInvoiceDetail } = invoiceStore;
 
+  //#region hooks
   useEffect(() => {
     const fetchData = async () => {
       const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
@@ -80,11 +84,13 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
       }
     });
   }, [firebaseStore.rescueDoc, invoiceStore, navigation]);
-  // useEffect(() => {
-  //   return navigation.addListener('beforeRemove', (e) => {
-  //     e.preventDefault();
-  //   });
-  // }, [navigation]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => route.name === 'Payment');
+
+    return () => backHandler.remove();
+  }, [route.name]);
+  //#endregion
 
   return (
     <VStack mt='2' px='1'>

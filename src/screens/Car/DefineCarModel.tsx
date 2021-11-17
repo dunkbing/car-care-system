@@ -39,7 +39,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   }
 
   function createCar() {
-    void carStore.createCar(car).then(() => {
+    void carStore.create(car).then(() => {
       if (carStore.state === STORE_STATUS.SUCCESS) {
         navigation.goBack();
       } else {

@@ -36,10 +36,7 @@ export default class AuthStore extends BaseStore {
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
       const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(authApi.customerLogin, loginQuery, true);
       if (error) {
-        runInAction(() => {
-          this.user = null;
-          this.state = STORE_STATUS.ERROR;
-        });
+        this.handleError(error);
       } else {
         runInAction(() => {
           this.user = user;
@@ -52,10 +49,7 @@ export default class AuthStore extends BaseStore {
     } else {
       const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(authApi.garageLogin, loginQuery, true);
       if (error) {
-        runInAction(() => {
-          this.user = null;
-          this.state = STORE_STATUS.ERROR;
-        });
+        this.handleError(error);
       } else {
         runInAction(() => {
           this.user = user;

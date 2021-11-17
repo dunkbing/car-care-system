@@ -82,8 +82,8 @@ export const GarageOptionsStack: React.FC = () => {
           ...navHeaderStyle,
         }}
       />
-      <Stack.Screen name='Payment' component={Payment} options={{ title: 'Thanh toán', ...navHeaderStyle }} />
-      <Stack.Screen name='Feedback' component={Feedback} options={{ title: 'Góp ý cho khách hàng', ...navHeaderStyle }} />
+      <Stack.Screen name='Payment' component={Payment} options={{ title: 'Thanh toán', ...navHeaderStyle, headerBackVisible: false }} />
+      <Stack.Screen name='Feedback' component={Feedback} options={{ title: 'Góp ý cho khách hàng', ...navHeaderStyle, headerLeft: () => null }} />
       <Stack.Screen
         name='AutomotivePartSuggestion'
         component={AutomotivePartSuggestion}
@@ -94,7 +94,7 @@ export const GarageOptionsStack: React.FC = () => {
         component={ServiceSuggestion}
         options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }}
       />
-      <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }} />
+      <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />
     </Stack.Navigator>
   );

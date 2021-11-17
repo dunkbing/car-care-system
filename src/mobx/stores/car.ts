@@ -13,7 +13,7 @@ export default class CarStore extends BaseStore {
     super();
     makeObservable(this, {
       cars: observable,
-      find: action,
+      getMany: action,
     });
   }
 
@@ -23,7 +23,7 @@ export default class CarStore extends BaseStore {
   cars: CarModel[] = [];
   carDetail: CarDetailModel | null = null;
 
-  public async find() {
+  public async getMany() {
     this.startLoading();
     const { result, error } = await this.carService.find();
 
@@ -38,7 +38,7 @@ export default class CarStore extends BaseStore {
     }
   }
 
-  public async findOne(id: number) {
+  public async get(id: number) {
     await this.carService.findOne(id).then(({ result }) => {
       void this.carModelStore.getModels(result?.brand.id as number);
       runInAction(() => {
@@ -47,7 +47,7 @@ export default class CarStore extends BaseStore {
     });
   }
 
-  public async createCar(car: CreateCarRequestModel) {
+  public async create(car: CreateCarRequestModel) {
     this.state = STORE_STATUS.LOADING;
     const success = await withProgress(
       this.carService.create(car, (errors) => {
@@ -69,7 +69,7 @@ export default class CarStore extends BaseStore {
     }
   }
 
-  public async deleteCar(carId: number) {
+  public async delete(carId: number) {
     this.state = STORE_STATUS.LOADING;
     const success = await withProgress(this.carService.delete(carId));
 

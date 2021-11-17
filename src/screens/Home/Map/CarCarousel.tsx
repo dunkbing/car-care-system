@@ -1,5 +1,5 @@
 import { VStack, Text, View, Spinner } from 'native-base';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dimensions, ListRenderItemInfo, StyleSheet } from 'react-native';
 import SmoothPicker, { ListReturn } from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -64,7 +64,10 @@ type Props = {
 
 function CarCarousel({ onSelect }: Props) {
   const carStore = Container.get(CarStore);
-  const cars = carStore.cars;
+
+  useEffect(() => {
+    void carStore.getMany();
+  }, [carStore]);
 
   const onSelected = ({ index, item }: ListReturn) => {
     setSelected(index);
@@ -80,21 +83,19 @@ function CarCarousel({ onSelect }: Props) {
       ) : (
         <SmoothPicker
           initialScrollToIndex={selected}
-          scrollEnabled={cars.length > 3}
+          scrollEnabled={carStore.cars.length > 3}
           onScrollToIndexFailed={() => {}}
           keyExtractor={(_, index) => index.toString()}
           showsVerticalScrollIndicator={false}
-          data={cars}
+          data={carStore.cars}
           scrollAnimation
           onSelected={onSelected}
           renderItem={(option: ListRenderItemInfo<CarModel>) =>
-            ItemToRender(option, selected, (width * 0.9) / (cars.length <= 3 ? cars.length : 3))
+            ItemToRender(option, selected, (width * 0.9) / (carStore.cars.length <= 3 ? carStore.cars.length : 3))
           }
           magnet
           selectOnPress
           horizontal
-          startMargin={0}
-          endMargin={0}
         />
       )}
     </View>

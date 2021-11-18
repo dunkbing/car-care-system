@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, HStack, Avatar, Center, ScrollView, Radio, Text } from 'native-base';
+import React, { useRef, useState } from 'react';
+import { Image } from 'react-native';
+import { NativeBaseProvider, Box, VStack, Button, HStack, Center, ScrollView, Radio, Text } from 'native-base';
+import { observer } from 'mobx-react';
+import BottomSheet from 'reanimated-bottom-sheet';
 import FormInput from '@components/form/FormInput';
 import { AvatarStaff } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -10,7 +13,12 @@ import DialogStore from '@mobx/stores/dialog';
 import StaffStore from '@mobx/stores/staff';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
-import { observer } from 'mobx-react';
+import ImagePicker from '@components/ImagePicker';
+import OpacityView from '@components/OpacityView';
+import { fall, animatedShadowOpacity } from '@screens/Home/Map';
+import { Asset } from 'react-native-image-picker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomDatePicker from '@components/form/DatePicker';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'EditStaff'>;
 
@@ -18,6 +26,7 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
   const staffStore = Container.get(StaffStore);
   const dialogStore = Container.get(DialogStore);
   const [staff, setStaff] = useState(route.params.staff);
+  const sheetRef = useRef<BottomSheet>(null);
 
   async function saveStaff() {
     await staffStore.update(staff);
@@ -25,6 +34,7 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
       toast.show(staffStore.errorMessage);
     } else {
       navigation.goBack();
+      toast.show('Cập nhật thông tin nhân viên thành công');
     }
   }
 
@@ -32,6 +42,11 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
     dialogStore.openMsgDialog({
       message: 'Bạn có chắc chắn muốn xóa nhân viên này khỏi danh sách nhân viên?',
       type: DIALOG_TYPE.BOTH,
+      onAgreed: async () => {
+        await staffStore.delete(staff.id);
+        navigation.goBack();
+        toast.show('Xóa nhân viên thành công');
+      },
     });
   }
 
@@ -40,7 +55,20 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
       <ScrollView h='100%' _contentContainerStyle={{ px: '20px', mb: '4', backgroundColor: 'white' }}>
         <Box safeArea flex={1} p={2} w='90%' h='100%' mx='auto'>
           <Center>
-            <Avatar mt={5} size='xl' bg='lightBlue.400' source={staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff} />
+            <Image
+              source={staff.avatar ? { uri: staff.avatar.uri } : staff.avatarUrl ? { uri: staff.avatarUrl } : AvatarStaff}
+              style={{ width: 100, height: 100, margin: 5, borderRadius: 50 }}
+            />
+            <Button
+              onPress={() => {
+                sheetRef.current?.snapTo(0);
+              }}
+              size='xs'
+              mt='1.5'
+              leftIcon={<Ionicons name='cloud-upload-outline' size={15} />}
+            >
+              Chọn avatar
+            </Button>
           </Center>
           <VStack space={2} mt={10}>
             <FormInput
@@ -103,16 +131,14 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
               placeholder='Nhập email'
               keyboardType='email-address'
             />
-            <FormInput
-              value={staff.dateOfBirth}
-              onChangeText={(dateOfBirth) => setStaff({ ...staff, dateOfBirth })}
+            <CustomDatePicker
               isRequired
               label='Ngày sinh'
-              placeholder='Nhập ngày sinh'
-              keyboardType='ascii-capable'
+              value={new Date(staff.dateOfBirth)}
+              onConfirm={(date) => setStaff({ ...staff, dateOfBirth: date.toDateString() })}
             />
             <FormInput
-              value={staff.address}
+              value={`${staff.address}`}
               onChangeText={(address) => setStaff({ ...staff, address })}
               isRequired
               label='Địa chỉ'
@@ -141,6 +167,31 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
           </VStack>
         </Box>
       </ScrollView>
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={[100, 0]}
+        initialSnap={1}
+        borderRadius={20}
+        callbackNode={fall}
+        enabledGestureInteraction={true}
+        enabledContentTapInteraction={false}
+        onCloseEnd={() => {}}
+        renderContent={() => (
+          <ImagePicker
+            onSelectImage={(image: Asset) => {
+              setStaff({ ...staff, avatar: { name: `${image.fileName}`, type: `${image.type}`, uri: `${image.uri}` } });
+              console.log(staff);
+              sheetRef.current?.snapTo(1);
+            }}
+          />
+        )}
+      />
+      <OpacityView
+        pointerEvents={'none'}
+        style={{
+          opacity: animatedShadowOpacity,
+        }}
+      />
     </NativeBaseProvider>
   );
 };

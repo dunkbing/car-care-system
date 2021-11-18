@@ -72,8 +72,7 @@ export const serviceApi = {
 export const staffApi = {
   create: 'staffs',
   getMany: 'staffs',
-  managerUpdate: 'staffs/manager-update-staffs', // Manager update staff info
-  staffUpdate: 'staffs/staff-update-own-info', // Staff update his / her own info
+  managerUpdate: 'staffs', // Manager update staff info
   delete: (id: number) => `staffs/${id}`,
   get: (id: number) => `staffs/${id}`,
 };

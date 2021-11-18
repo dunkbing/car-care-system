@@ -1,3 +1,5 @@
+import { Avatar } from './common';
+
 export type CarModel = {
   id: number;
   brandName: string;
@@ -6,12 +8,6 @@ export type CarModel = {
   color: string;
   licenseNumber: string;
   imageUrl: string | null;
-};
-
-type Avatar = {
-  uri: string;
-  type: string;
-  name: string;
 };
 
 export type CreateCarRequestModel = {

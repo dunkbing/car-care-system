@@ -330,6 +330,7 @@ export default class RescueStore extends BaseStore {
     this.startLoading();
 
     const { error } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
+    await this.firebaseStore.rescueDoc?.update({ status: RESCUE_STATUS.REJECTED, customerRejected: true });
 
     if (error) {
       this.handleError(error);
@@ -364,7 +365,7 @@ export default class RescueStore extends BaseStore {
     this.startLoading();
 
     const { error, result } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
-    await this.firebaseStore.update(`${result}`, { status: RESCUE_STATUS.REJECTED });
+    await this.firebaseStore.update(`${result}`, { status: RESCUE_STATUS.REJECTED, garageRejected: true });
 
     if (error) {
       this.handleError(error);

@@ -121,6 +121,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       .requestPermission()
       .then((location) => {
         if (location) {
+          setRescueLocation(location);
           setUserLocation(location);
         }
         void withProgress(
@@ -163,11 +164,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
       await rescueStore.getCurrentProcessingCustomer();
 
-      const { status, invoiceId, invoiceStatus, customerConfirm } = snapShot.data() as {
+      const { status, invoiceId, invoiceStatus, customerConfirm, garageRejected } = snapShot.data() as {
         status: number;
         invoiceId: number;
         invoiceStatus: number;
         customerConfirm: boolean;
+        customerRejected: boolean;
+        garageRejected: boolean;
       };
       switch (status) {
         case RESCUE_STATUS.PENDING:
@@ -233,14 +236,16 @@ const Map: React.FC<Props> = ({ navigation }) => {
         }
         case RESCUE_STATUS.REJECTED:
           dialogStore.closeMsgDialog();
-          dialogStore.openMsgDialog({
-            title: 'Garage đã từ chối yêu cầu của bạn',
-            message: 'Rất tiếc chúng tôi không thể gửi xe cứu hộ tới vì xe của bạn ở quá xa',
-            type: DIALOG_TYPE.CONFIRM,
-            onAgreed: () => {
-              void snapShot.ref.update({ status: RESCUE_STATUS.IDLE });
-            },
-          });
+          if (garageRejected) {
+            dialogStore.openMsgDialog({
+              title: 'Garage đã từ chối yêu cầu của bạn',
+              message: 'Rất tiếc chúng tôi không thể gửi xe cứu hộ tới vì xe của bạn ở quá xa',
+              type: DIALOG_TYPE.CONFIRM,
+              onAgreed: () => {
+                void snapShot.ref.update({ status: RESCUE_STATUS.IDLE });
+              },
+            });
+          }
           break;
         case RESCUE_STATUS.ARRIVING: {
           dialogStore.closeMsgDialog();
@@ -481,20 +486,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
             id='rescueLocation'
             coordinate={[rescueLocation.longitude, rescueLocation.latitude]}
           >
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                backgroundColor: '#00cccc',
-                borderRadius: 50,
-                borderColor: '#fff',
-                borderWidth: 3,
-              }}
-            />
-          </MapboxGL.PointAnnotation>
-        )}
-        {userLocation && (
-          <MapboxGL.PointAnnotation key='userLocation' id='userLocation' coordinate={[userLocation.longitude, userLocation.latitude]}>
             <View
               style={{
                 height: 30,

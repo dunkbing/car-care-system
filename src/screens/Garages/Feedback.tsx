@@ -1,9 +1,8 @@
-import AuthStore from '@mobx/stores/auth';
 import FeedbackStore from '@mobx/stores/feedback';
 import RescueStore from '@mobx/stores/rescue';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { ACCOUNT_TYPES } from '@utils/constants';
+import toast from '@utils/toast';
 import { observer } from 'mobx-react';
 import { Button, Center, Text, View, VStack } from 'native-base';
 import React, { useState } from 'react';
@@ -13,31 +12,25 @@ import Container from 'typedi';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Feedback'>;
 
-const Feedback: React.FC<Props> = ({ navigation }) => {
-  const authStore = Container.get(AuthStore);
+const Feedback: React.FC<Props> = ({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
-  const title = authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Đánh giá dịch vụ đã sử dụng' : 'Gửi góp ý cho khách hàng';
-  const rescue = rescueStore.currentStaffProcessingRescue;
-  const user = authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Garage' : 'Tên khách hàng';
 
   const [comment, setComment] = useState('');
-  const [point, setPoint] = useState(0);
+  const [point, setPoint] = useState(5);
 
   return (
     <VStack mt='3'>
       <View paddingX={5} paddingY={2}>
         <Center>
           <Text fontSize={'lg'} mb={4} style={{ fontWeight: 'bold' }}>
-            {title}
+            Gửi góp ý cho khách hàng
           </Text>
         </Center>
-        <Text fontWeight='bold'>
-          {user}: <Text>{`${rescue?.customer?.lastName} ${rescue?.customer?.firstName}`}</Text>
-        </Text>
+        <Text fontWeight='bold'>Khách hàng: {`${route.params?.customerName}`}</Text>
         <Center>
           <View marginY={10}>
-            <AirbnbRating defaultRating={0} showRating={false} onFinishRating={(value) => setPoint(value)} />
+            <AirbnbRating defaultRating={5} showRating={false} onFinishRating={(value) => setPoint(value)} />
           </View>
           <TextInput
             placeholder={'Nhập đánh giá'}
@@ -72,6 +65,7 @@ const Feedback: React.FC<Props> = ({ navigation }) => {
               });
               navigation.popToTop();
               navigation.goBack();
+              toast.show('Đã gửi phản hồi');
             }}
             style={{
               marginVertical: 50,

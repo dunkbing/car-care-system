@@ -52,9 +52,9 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
   useEffect(() => {
     return navigation.addListener('focus', () => {
       if (route.params?.rescueId) {
-        void staffStore.find({ isAvailable: true });
+        void staffStore.getMany({ isAvailable: true });
       } else {
-        void staffStore.find();
+        void staffStore.getMany();
       }
     });
   }, [navigation, route.params?.rescueId, staffStore]);
@@ -76,9 +76,9 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
 
   const onRefresh = useCallback(() => {
     if (route.params?.rescueId) {
-      void staffStore.find({ isAvailable: true });
+      void staffStore.getMany({ isAvailable: true });
     } else {
-      void staffStore.find();
+      void staffStore.getMany();
     }
   }, [route.params?.rescueId, staffStore]);
 
@@ -97,7 +97,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
             placeholder='Tìm tên nhân viên'
             timeout={500}
             onSearch={(keyword) => {
-              void staffStore.find({ keyword });
+              void staffStore.getMany({ keyword });
             }}
           />
         </Box>

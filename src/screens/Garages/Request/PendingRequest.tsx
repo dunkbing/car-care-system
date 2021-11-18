@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, ScrollView, View, VStack, Center, Button } from 'native-base';
+import { Text, ScrollView, View, VStack, Center, Button, Spinner } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams, GarageTabParams } from '@screens/Navigation/params';
@@ -8,6 +8,7 @@ import { observer } from 'mobx-react';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { RefreshControl } from 'react-native';
+import { STORE_STATUS } from '@utils/constants';
 
 type RescueRequestProps = {
   customerName: string;
@@ -112,15 +113,20 @@ const PendingRequest: React.FC<Props> = ({ navigation }) => {
         </Center>
       </View>
       <VStack mb={10}>
-        {rescueStore.pendingRescueRequests.map((request) => (
-          <RescueRequest
-            key={request.id}
-            onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest', params: { request } })}
-            customerName={`${request.customer?.lastName} ${request.customer?.firstName}`}
-            address={request.address}
-            phoneNumber={`${request.customer?.phoneNumber}`}
-          />
-        ))}
+        {rescueStore.state === STORE_STATUS.LOADING ? (
+          <Spinner size='lg' />
+        ) : (
+          rescueStore.pendingRescueRequests.map((request) => (
+            <RescueRequest
+              key={request.id}
+              onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest', params: { request } })}
+              customerName={`${request.customer?.lastName} ${request.customer?.firstName}`}
+              address={request.address}
+              phoneNumber={`${request.customer?.phoneNumber}`}
+            />
+          ))
+        )}
+        {rescueStore.pendingRescueRequests.length === 0 && <Text>Không có yêu cầu nào</Text>}
       </VStack>
     </ScrollView>
   );

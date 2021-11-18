@@ -11,7 +11,7 @@ import RescueStore from '@mobx/stores/rescue';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import FirebaseStore from '@mobx/stores/firebase';
 import { RESCUE_STATUS } from '@utils/constants';
-import { rootNavigation } from '@screens/Navigation/roots';
+import toast from '@utils/toast';
 
 type Props = StackScreenProps<ProfileStackParams, 'EditFeedback'>;
 
@@ -25,7 +25,7 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
   const firebaseStore = Container.get(FirebaseStore);
   const rescue = route.params?.rescue || rescueStore.currentCustomerProcessingRescue || {};
   const [comment, setComment] = React.useState('');
-  const [point, setPoint] = React.useState(0);
+  const [point, setPoint] = React.useState(5);
 
   useEffect(() => {
     return navigation.addListener('beforeRemove', preventGoingBack);
@@ -45,7 +45,7 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
         </Text>
         <Center>
           <View marginY={10}>
-            <AirbnbRating defaultRating={0} showRating={false} onFinishRating={(value) => setPoint(value)} />
+            <AirbnbRating defaultRating={5} showRating={false} onFinishRating={(value) => setPoint(value)} />
           </View>
           <TextInput
             placeholder={'Nhập đánh giá'}
@@ -83,6 +83,7 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
               navigation.removeListener('beforeRemove', preventGoingBack);
               navigation.goBack();
               navigation.goBack();
+              toast.show('Đã gửi phản hồi');
             }}
             style={{
               marginVertical: 50,

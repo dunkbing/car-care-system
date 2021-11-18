@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -16,6 +16,7 @@ import { observer } from 'mobx-react';
 import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
 import { rootNavigation } from '@screens/Navigation/roots';
+import { BackHandler } from 'react-native';
 
 enum CategoryType {
   AUTOMOTIVE_PART,
@@ -25,6 +26,7 @@ enum CategoryType {
 type CategoryDetailProps = {
   category: Partial<AutomotivePartModel>;
   type: CategoryType;
+  disabled?: boolean;
 };
 
 const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
@@ -57,6 +59,7 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
           {formatMoney((price as number) * (quantity || 1))}
         </Text>
         <InputSpinner
+          disabled={props.disabled}
           max={300}
           min={1}
           step={1}
@@ -138,7 +141,7 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
           onPress={async () => {
             onPress?.();
             await rescueStore.changeRescueStatusToWorking();
-            await rescueStore.getCurrentProcessingStaff();
+            await rescueStore.getCurrentProcessingStaff(false);
             if (rescueStore.state === STORE_STATUS.ERROR) {
               toast.show(rescueStore.errorMessage);
             } else {
@@ -192,23 +195,26 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
-const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
+const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
   const firebaseStore = Container.get(FirebaseStore);
   const invoiceStore = Container.get(InvoiceStore);
 
-  // useEffect(() => {
-  //   return navigation.addListener('beforeRemove', (e) => {
-  //     e.preventDefault();
-  //   });
-  // }, [navigation]);
+  const [proposing, setProposing] = useState(false);
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return route.name === 'RepairSuggestion';
+    });
+
+    return () => backHandler.remove();
+  }, [route.name]);
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
       if (snapshot.exists) {
         const { invoiceId } = snapshot.data() as { invoiceId: number };
-        console.log('invoiceId', invoiceId);
         if (invoiceId && invoiceId > 0) {
           await invoiceStore.getGarageInvoiceDetail(invoiceId);
         }
@@ -253,13 +259,14 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
               width: '40%',
               backgroundColor: '#34A853',
             }}
+            disabled={proposing}
           >
             Thêm thiết bị
           </Button>
         </View>
         <View>
           {Array.from(automotivePartStore.chosenParts.values()).map((part) => (
-            <CategoryDetail key={part.id} category={part} type={CategoryType.AUTOMOTIVE_PART} />
+            <CategoryDetail key={part.id} category={part} type={CategoryType.AUTOMOTIVE_PART} disabled={proposing} />
           ))}
         </View>
         <View
@@ -286,19 +293,21 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation }) => {
               width: '40%',
               backgroundColor: '#34A853',
             }}
+            disabled={proposing}
           >
             Thêm dịch vụ
           </Button>
         </View>
         <View>
           {Array.from(serviceStore.chosenServices.values()).map((service) => (
-            <CategoryDetail key={service.id} category={service} type={CategoryType.SERVICE} />
+            <CategoryDetail key={service.id} category={service} type={CategoryType.SERVICE} disabled={proposing} />
           ))}
         </View>
         <TotalPay />
         <Center>
           <ConfirmButton
             onPress={() => {
+              setProposing(true);
               navigation.addListener('beforeRemove', (e) => {
                 e.preventDefault();
               });

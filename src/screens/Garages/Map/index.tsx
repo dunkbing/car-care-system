@@ -73,7 +73,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingStaff();
-      const { status } = snapShot.data() as { status: number };
+      const { status, garageFeedback } = snapShot.data() as { status: number; garageFeedback: boolean };
       switch (status) {
         case RESCUE_STATUS.ACCEPTED: {
           break;
@@ -119,6 +119,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
         }
         default:
           break;
+      }
+
+      if (garageFeedback) {
+        navigation.goBack();
       }
     });
 
@@ -231,7 +235,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           viewDetail={viewDetailRescueRequest}
           name={`${request?.customer?.firstName} ${request?.customer?.lastName}`}
           avatarUrl={`${request?.customer?.avatarUrl}`}
-          phoneNumber={`${request?.staff?.phoneNumber}`}
+          phoneNumber={`${request?.customer?.phoneNumber}`}
         />
       </Center>
       {rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.ARRIVING && (

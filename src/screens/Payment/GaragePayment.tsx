@@ -10,17 +10,21 @@ import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
+import { BackHandler } from 'react-native';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
-const Payment: React.FC<Props> = observer(({ navigation }) => {
+const Payment: React.FC<Props> = observer(({ navigation, route }) => {
+  //#region stores
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const firebaseStore = Container.get(FirebaseStore);
+  //#endregion
 
   const { currentStaffProcessingRescue } = rescueStore;
   const { garageInvoiceDetail } = invoiceStore;
 
+  //#region hooks
   useEffect(() => {
     const fetchData = async () => {
       const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
@@ -39,6 +43,13 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
       }
     });
   }, [firebaseStore.rescueDoc, invoiceStore]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => route.name === 'Payment');
+
+    return () => backHandler.remove();
+  }, [route.name]);
+  //#endregion
 
   return (
     <VStack mt='2' px='1'>
@@ -119,7 +130,7 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
           Tổng {formatMoney(garageInvoiceDetail?.total || 0)}
         </Text>
         {invoiceStore.garageInvoiceDetail?.status === INVOICE_STATUS.PENDING ? (
-          <Button mt='10' mb='5' _loading isDisabled>
+          <Button mt='10' mb='5' isLoading isDisabled>
             Vui lòng chờ khách hàng thanh toán
           </Button>
         ) : (
@@ -139,7 +150,9 @@ const Payment: React.FC<Props> = observer(({ navigation }) => {
               if (invoiceStore.state === STORE_STATUS.ERROR) {
                 toast.show(`${invoiceStore.errorMessage}`);
               } else {
-                navigation.navigate('Feedback');
+                navigation.navigate('Feedback', {
+                  customerName: `${currentStaffProcessingRescue?.customer?.lastName} ${currentStaffProcessingRescue?.customer?.firstName}`,
+                });
               }
             }}
           >

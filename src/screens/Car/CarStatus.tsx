@@ -64,12 +64,12 @@ const CarStatus: React.FC<Props> = ({ navigation }) => {
   }
 
   const onRefresh = React.useCallback(() => {
-    void carStore.find();
+    void carStore.getMany();
   }, [carStore]);
 
   useEffect(() => {
     const unsub = navigation.addListener('focus', () => {
-      void carStore.find();
+      void carStore.getMany();
     });
     return unsub;
   }, [carStore, navigation]);

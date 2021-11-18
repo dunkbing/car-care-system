@@ -26,7 +26,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
 
   useEffect(() => {
     void carBrandStore.getMany();
-    void carStore.findOne(route.params.car.id);
+    void carStore.get(route.params.car.id);
     void carService.findOne(route.params.car.id).then(({ result }) => {
       void carModelStore.getModels(result?.brand.id as number);
     });
@@ -37,7 +37,7 @@ const CarDetail: React.FC<Props> = ({ navigation, route }) => {
       message: 'Bạn có chắc chắn muốn xóa xe này khỏi danh sách xe?',
       type: DIALOG_TYPE.BOTH,
       onAgreed: async () => {
-        await carStore.deleteCar(car.id);
+        await carStore.delete(car.id);
         navigation.pop(2);
       },
     });

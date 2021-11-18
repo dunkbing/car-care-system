@@ -63,6 +63,8 @@ export const RescueStack: React.FC = () => {
         options={{
           title: 'Thanh toán',
           ...navHeaderStyle,
+          headerBackVisible: false,
+          gestureEnabled: false,
         }}
       />
       <RescueStackNav.Screen
@@ -71,6 +73,7 @@ export const RescueStack: React.FC = () => {
         options={{
           title: 'Đánh giá dịch vụ',
           ...navHeaderStyle,
+          headerBackVisible: false,
         }}
       />
     </RescueStackNav.Navigator>

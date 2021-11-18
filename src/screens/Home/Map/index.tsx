@@ -11,7 +11,6 @@ import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import polyline from '@mapbox/polyline';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
-import styled from 'styled-components/native';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
@@ -38,7 +37,7 @@ import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
-
+import OpacityView from '@components/OpacityView';
 
 Logger.setLogCallback(() => {
   return true;
@@ -48,22 +47,14 @@ Logger.setLogLevel('info');
 
 const { height } = Dimensions.get('screen');
 
-const OpacityView = styled(Animated.View)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: rgba(147, 148, 153, 0.5);
-  z-index: 1;
-`;
-const fall = new Animated.Value(1);
+export const fall = new Animated.Value(1);
 
-const animatedShadowOpacity = Animated.interpolateNode(fall, {
+export const animatedShadowOpacity = Animated.interpolateNode(fall, {
   inputRange: [0, 1],
   outputRange: [0.5, 0],
 });
 
+type Route = [number, number][];
 type Props = StackScreenProps<RescueStackParams, 'Map'>;
 
 const Map: React.FC<Props> = ({ navigation }) => {
@@ -82,7 +73,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     longitude: 105.8544441,
   });
   const [rescueLocation, setRescueLocation] = useState<Pick<Location, 'longitude' | 'latitude'>>();
-  const [rescueRoute, setRescueRoute] = useState<[number, number][] | null>(null);
+  const [rescueRoutes, setRescueRoutes] = useState<Route[] | null>(null);
   const [duration, setDuration] = useState('');
   const [garage, setGarage] = useState<GarageModel | null>(null);
   const [rescueRequestDetail, setRescueRequestDetail] = useState<RescueDetailRequest>({
@@ -136,7 +127,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           parallel<ServiceResult<GeocodingResponse>, void, void>(
             mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location!.latitude},${location!.longitude}` }),
             rescueStore.getCurrentProcessingCustomer(),
-            carStore.find(),
+            carStore.getMany(),
           ),
         ).then(([{ result: geocoding }]) => {
           let car: CarModel | undefined;
@@ -172,7 +163,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
       await rescueStore.getCurrentProcessingCustomer();
 
-      const { status, invoiceId, invoiceStatus, customerConfirm } = snapShot.data() as { status: number, invoiceId: number, invoiceStatus: number, customerConfirm: boolean };
+      const { status, invoiceId, invoiceStatus, customerConfirm } = snapShot.data() as {
+        status: number;
+        invoiceId: number;
+        invoiceStatus: number;
+        customerConfirm: boolean;
+      };
       switch (status) {
         case RESCUE_STATUS.PENDING:
           dialogStore.openMsgDialog({
@@ -194,12 +190,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
         case RESCUE_STATUS.ACCEPTED: {
           const { garage, rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
           const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
-          void mapService.getDistanceMatrix({
-            api_key: GOONG_API_KEY,
-            origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
-            destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
-            vehicle: 'car',
-          }).then(({ result }) => setDuration(`${result?.rows[0].elements[0].duration.text}`));
+          void mapService
+            .getDistanceMatrix({
+              api_key: GOONG_API_KEY,
+              origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
+              destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+              vehicle: 'car',
+            })
+            .then(({ result }) => setDuration(`${result?.rows[0].elements[0].duration.text}`));
           dialogStore.openMsgDialog({
             message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
             type: DIALOG_TYPE.CONFIRM,
@@ -221,7 +219,11 @@ const Map: React.FC<Props> = ({ navigation }) => {
                   })
                   .then(({ result }) => {
                     if (result?.routes && result.routes.length > 0) {
-                      setRescueRoute(polyline.decode(result.routes[0].overview_polyline.points));
+                      const routes: Route[] = [];
+                      for (const route of result.routes) {
+                        routes.push(polyline.decode(route.overview_polyline.points));
+                      }
+                      setRescueRoutes(routes);
                     }
                   });
               }
@@ -242,7 +244,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         case RESCUE_STATUS.ARRIVING: {
           dialogStore.closeMsgDialog();
-          let rescueRoute: [number, number][] | null;
+          const rescueRoute: Route[] = [];
           const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
           const { rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
           void withProgress(
@@ -261,9 +263,11 @@ const Map: React.FC<Props> = ({ navigation }) => {
             ),
           ).then(([{ result: direction }, { result: distanceMatrix }]) => {
             if (direction?.routes && direction.routes.length > 0) {
-              rescueRoute = polyline.decode(direction.routes[0].overview_polyline.points);
+              for (const route of direction.routes) {
+                rescueRoute.push(polyline.decode(route.overview_polyline.points));
+              }
             }
-            setRescueRoute(rescueRoute);
+            setRescueRoutes(rescueRoute);
             setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
           });
           break;
@@ -278,7 +282,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
-          setRescueRoute(null);
+          setRescueRoutes(null);
           dialogStore.closeMsgDialog();
           break;
         }
@@ -396,6 +400,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
     };
   };
 
+  const selectCar = useCallback((car: CarModel) => {
+    setRescueRequestDetail({ ...rescueRequestDetail, carId: car?.id });
+  }, [rescueRequestDetail]);
+
   function viewDetailRescueRequest() {
     navigation.navigate('DetailRescueRequest', {
       onCancel: () => {
@@ -443,26 +451,30 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
           visible={false}
         />
-        {rescueRoute && (
-          <MapboxGL.ShapeSource
-            id='line1'
-            shape={{
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: { color: 'green' },
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: [...rescueRoute.map(([latitude, longitude]) => [longitude, latitude])],
+        {rescueRoutes?.map((route, index) => {
+          const lineColor = index === 0 ? '#7dabd4' : '#2884d4';
+          return (
+            <MapboxGL.ShapeSource
+              key={index}
+              id={`line-${index}`}
+              shape={{
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    properties: { color: 'green' },
+                    geometry: {
+                      type: 'LineString',
+                      coordinates: [...route.map(([latitude, longitude]) => [longitude, latitude])],
+                    },
                   },
-                },
-              ],
-            }}
-          >
-            <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 5, lineJoin: 'bevel', lineColor: '#2884d4' }} />
-          </MapboxGL.ShapeSource>
-        )}
+                ],
+              }}
+            >
+              <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 4, lineJoin: 'bevel', lineColor }} />
+            </MapboxGL.ShapeSource>
+          );
+        })}
         {rescueLocation && (
           <MapboxGL.PointAnnotation
             key='rescueLocation'
@@ -511,8 +523,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           );
         })}
       </MapboxGL.MapView>
-      {
-        !rescueStore.currentCustomerProcessingRescue &&
+      {!rescueStore.currentCustomerProcessingRescue && (
         <Box pt={10}>
           <SearchBar
             placeholder='Nhập vị trí cần cứu hộ'
@@ -545,7 +556,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             }}
           />
         </Box>
-      }
+      )}
       <RescueStatusBar status={rescueStore.currentCustomerProcessingRescue?.status} duration={duration} />
       {rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ACCEPTED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
@@ -553,23 +564,25 @@ const Map: React.FC<Props> = ({ navigation }) => {
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
         <Box width='100%' pt={height * 0.8} position='absolute' alignSelf='center'>
           <Center>
-            {(rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED) ? (
+            {rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED ? (
               <AssignedEmployee
                 viewDetail={viewDetailRescueRequest}
                 name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
                 avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
                 phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
               />
-            ) : <Center w='100%' backgroundColor='white' h='50'><Text bold>Đang đợi nhân viên khởi hành</Text></Center>}
+            ) : (
+              <Center w='100%' backgroundColor='white' h='50'>
+                <Text bold>Đang đợi nhân viên khởi hành</Text>
+              </Center>
+            )}
           </Center>
         </Box>
       ) : (
         <Box pt={height * 0.65} position='absolute' alignSelf='center'>
           <Center>
             <CarCarousel
-              onSelect={(car) => {
-                setRescueRequestDetail({ ...rescueRequestDetail, carId: car?.id });
-              }}
+              onSelect={selectCar}
             />
           </Center>
           <Center pt={'3'}>

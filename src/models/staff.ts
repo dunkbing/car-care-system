@@ -1,4 +1,5 @@
 import { ACCOUNT_TYPES, Gender } from '@utils/constants';
+import { Avatar } from './common';
 
 export type StaffRequestParams = {
   keyword?: string;
@@ -18,4 +19,16 @@ export type StaffModel = {
   isAvailable: boolean;
   avatarUrl: string;
   garageId: number;
+  avatar?: Avatar;
+};
+
+export type CreateStaffModel = {
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  phoneNumber: string;
+  email: string;
+  dateOfBirth: string;
+  address: string;
+  avatar: Avatar | null;
 };

@@ -11,7 +11,6 @@ import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import polyline from '@mapbox/polyline';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
-import styled from 'styled-components/native';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
@@ -38,6 +37,7 @@ import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
+import OpacityView from '@components/OpacityView';
 
 Logger.setLogCallback(() => {
   return true;
@@ -47,18 +47,9 @@ Logger.setLogLevel('info');
 
 const { height } = Dimensions.get('screen');
 
-const OpacityView = styled(Animated.View)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: rgba(147, 148, 153, 0.5);
-  z-index: 1;
-`;
-const fall = new Animated.Value(1);
+export const fall = new Animated.Value(1);
 
-const animatedShadowOpacity = Animated.interpolateNode(fall, {
+export const animatedShadowOpacity = Animated.interpolateNode(fall, {
   inputRange: [0, 1],
   outputRange: [0.5, 0],
 });

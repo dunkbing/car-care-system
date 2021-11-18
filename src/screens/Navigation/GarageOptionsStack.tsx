@@ -83,7 +83,7 @@ export const GarageOptionsStack: React.FC = () => {
         }}
       />
       <Stack.Screen name='Payment' component={Payment} options={{ title: 'Thanh toán', ...navHeaderStyle, headerBackVisible: false }} />
-      <Stack.Screen name='Feedback' component={Feedback} options={{ title: 'Góp ý cho khách hàng', ...navHeaderStyle, headerLeft: () => null }} />
+      <Stack.Screen name='Feedback' component={Feedback} options={{ title: 'Góp ý cho khách hàng', ...navHeaderStyle, headerLeft: () => null, headerBackVisible: false }} />
       <Stack.Screen
         name='AutomotivePartSuggestion'
         component={AutomotivePartSuggestion}

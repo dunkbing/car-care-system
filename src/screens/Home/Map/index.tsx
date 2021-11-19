@@ -11,14 +11,14 @@ import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import polyline from '@mapbox/polyline';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
+import RNLocation from 'react-native-location';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
 import AssignedEmployee from './AssignedEmployee';
 import { GarageModel } from '@models/garage';
-import { GeocodingResponse, Place } from '@models/map';
+import { Place } from '@models/map';
 import GarageStore from '@mobx/stores/garage';
-import locationService from '@mobx/services/location';
 import DialogStore from '@mobx/stores/dialog';
 import { mapService } from '@mobx/services/map';
 import { RescueStackParams } from '@screens/Navigation/params';
@@ -32,7 +32,7 @@ import { RescueDetailRequest } from '@models/rescue';
 import CarStore from '@mobx/stores/car';
 import toast from '@utils/toast';
 import { parallel } from '@utils/parallel';
-import { ServiceResult, withProgress } from '@mobx/services/config';
+import { withProgress } from '@mobx/services/config';
 import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
@@ -117,41 +117,43 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [navigation, rescueStore]);
 
   useEffect(() => {
-    void locationService
-      .requestPermission()
-      .then((location) => {
-        if (location) {
-          setRescueLocation(location);
-          setUserLocation(location);
-        }
-        void withProgress(
-          parallel<ServiceResult<GeocodingResponse>, void, void>(
-            mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location!.latitude},${location!.longitude}` }),
-            rescueStore.getCurrentProcessingCustomer(),
-            carStore.getMany(),
-          ),
-        ).then(([{ result: geocoding }]) => {
-          let car: CarModel | undefined;
-          if (carStore.cars.length >= 2) {
-            car = carStore.cars[1];
-          } else if (carStore.cars.length === 1) {
-            car = carStore.cars[0];
-          }
-          setRescueRequestDetail({
-            ...rescueRequestDetail,
-            customerCurrentLocation: { longitude: location!.longitude, latitude: location!.latitude },
-            rescueLocation: {
-              longitude: location!.longitude,
-              latitude: location!.latitude,
-            },
-            address: geocoding?.results[0].formatted_address as string,
-            carId: car?.id || -1,
-          });
-        });
-      })
-      .catch(console.log);
+    void withProgress(
+      parallel<void, void>(
+        rescueStore.getCurrentProcessingCustomer(),
+        carStore.getMany(),
+      ),
+    );
+
     if (Platform.OS === 'android') {
-      void MapboxGL.requestAndroidLocationPermissions();
+      void MapboxGL.requestAndroidLocationPermissions().then(permision => {
+        if (permision) {
+          void RNLocation.getLatestLocation({ timeout: 1000 }).then(location => {
+            if (location) {
+              if (!rescueLocation) {
+                void withProgress(mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location.latitude},${location.longitude}` })).then(({ result: geocoding }) => {
+                  let car: CarModel | undefined;
+                  if (carStore.cars.length >= 2) {
+                    car = carStore.cars[1];
+                  } else if (carStore.cars.length === 1) {
+                    car = carStore.cars[0];
+                  }
+                  setRescueRequestDetail({
+                    ...rescueRequestDetail,
+                    customerCurrentLocation: { longitude: location.longitude, latitude: location.latitude },
+                    rescueLocation: {
+                      longitude: location.longitude,
+                      latitude: location.latitude,
+                    },
+                    address: geocoding?.results[0].formatted_address as string,
+                    carId: car?.id || -1,
+                  });
+                });
+                setRescueLocation(location);
+              }
+            }
+          });
+        }
+      });
     }
     void garageStore.getMany('');
     // eslint-disable-next-line react-hooks/exhaustive-deps

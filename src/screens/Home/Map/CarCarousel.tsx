@@ -1,5 +1,5 @@
 import { VStack, Text, View, Spinner } from 'native-base';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Dimensions, ListRenderItemInfo, StyleSheet } from 'react-native';
 import SmoothPicker, { ListReturn } from '@components/SmoothPicker';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
 
 const CarItem = React.memo(({ selected, name, license, width }: any) => {
   const color = selected ? '#3F87F2' : 'grey';
-  console.log('render car item');
   return (
     <VStack
       style={[
@@ -64,10 +63,6 @@ type Props = {
 
 function CarCarousel({ onSelect }: Props) {
   const carStore = Container.get(CarStore);
-
-  useEffect(() => {
-    void carStore.getMany();
-  }, [carStore]);
 
   const onSelected = ({ index, item }: ListReturn) => {
     setSelected(index);

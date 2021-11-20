@@ -13,7 +13,7 @@ export default class GarageStore extends BaseStore {
     super();
     makeObservable(this, {
       customerDefaultGarage: observable,
-      garage: observable,
+      garageDefaultGarage: observable,
       garages: observable,
       getMany: action,
       get: action,
@@ -26,7 +26,7 @@ export default class GarageStore extends BaseStore {
   customerDefaultGarage: GarageModel | null = null;
 
   // garage side
-  garage: GarageModel | null = null;
+  garageDefaultGarage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
 
   public setCustomerDefaultGarage(garage: GarageModel) {
@@ -37,7 +37,7 @@ export default class GarageStore extends BaseStore {
 
   public setGarage(garage: GarageModel) {
     runInAction(() => {
-      this.garage = garage;
+      this.garageDefaultGarage = garage;
     });
   }
 

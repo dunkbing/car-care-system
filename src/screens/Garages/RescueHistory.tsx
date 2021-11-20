@@ -6,23 +6,26 @@ import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
-import { GarageRescueHistoryModel } from '@models/rescue';
+import { GarageRescueHistory } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import { to12HoursTime, toHourAndMinute } from '@utils/time';
 import AuthStore from '@mobx/stores/auth';
 
-const HistoryView: React.FC<
-  { onPress: OnPress } & Pick<GarageRescueHistoryModel, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>
-> = ({ onPress, staff, customer, createAt }) => {
+const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>> = ({
+  onPress,
+  staff,
+  customer,
+  createAt,
+}) => {
   const rescueDate = new Date(createAt);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
         <View width='100%'>
           <Text mb={4} bold={true} fontSize={20}>
-            {staff?.lastName} {staff?.firstName}
+            {`${staff?.lastName} ${staff?.firstName}`}
           </Text>
         </View>
         <View>

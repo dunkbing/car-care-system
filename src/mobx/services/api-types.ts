@@ -49,6 +49,8 @@ export const carModelApi = {
 export const rescueApi = {
   customerHistories: 'rescues/histories/customer',
   garageHistories: 'rescues/histories/garage',
+  customerHistoryDetail: (rescueId: number) => `rescues/histories/${rescueId}/customer`,
+  garageHistoryDetail: (rescueId: number) => `rescues/histories/${rescueId}/garage`,
   cases: 'rescues/cases',
   createRescueDetail: 'rescues/details',
   currentProcessingCustomer: 'rescues/available-details/customer',
@@ -75,4 +77,10 @@ export const staffApi = {
   managerUpdate: 'staffs', // Manager update staff info
   delete: (id: number) => `staffs/${id}`,
   get: (id: number) => `staffs/${id}`,
+};
+
+export const firestoreCollection = {
+  rescues: 'rescues',
+  garageDeviceTokens: 'garage-device-tokens',
+  customerDeviceTokens: 'customer-device-tokens',
 };

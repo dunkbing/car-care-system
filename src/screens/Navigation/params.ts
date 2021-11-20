@@ -1,6 +1,6 @@
 import { CarDetailModel } from '@models/car';
 import { GarageModel } from '@models/garage';
-import { AvailableCustomerRescueDetail, CustomerRescueHistoryModel, GarageRescueHistoryModel } from '@models/rescue';
+import { AvailableCustomerRescueDetail, CustomerRescueHistory, GarageRescueHistory } from '@models/rescue';
 import { StaffModel } from '@models/staff';
 import { CustomerModel } from '@models/user';
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -38,8 +38,8 @@ export type ProfileStackParams = {
   DefaultGarage: undefined;
   SearchGarage: undefined;
   RescueHistory: undefined;
-  HistoryDetail: { rescue: Pick<CustomerRescueHistoryModel, 'car' | 'garage' | 'rescueCase' | 'createAt' | 'staff' | 'customerFeedback'> };
-  EditFeedback: { rescue: Pick<CustomerRescueHistoryModel, 'garage' | 'staff' | 'customerFeedback'> };
+  HistoryDetail: { rescue: CustomerRescueHistory };
+  EditFeedback: { rescue: Pick<CustomerRescueHistory, 'garage' | 'staff' | 'customerFeedback'> };
   ChangePassword: undefined;
 };
 
@@ -62,7 +62,7 @@ export type GarageHomeOptionStackParams = {
   ManageCustomers: undefined;
   CustomerCarStatus: undefined;
   RescueHistory: undefined;
-  HistoryDetail: { rescue: Pick<GarageRescueHistoryModel, 'car' | 'staff' | 'createAt' | 'customer' | 'customerFeedback'> };
+  HistoryDetail: { rescue: GarageRescueHistory };
   PendingRescueRequest: undefined;
   DetailRequest: { request: AvailableCustomerRescueDetail };
   DetailAssignedRequest: { request: AvailableCustomerRescueDetail | null; checking?: boolean };

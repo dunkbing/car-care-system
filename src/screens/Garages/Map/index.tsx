@@ -163,14 +163,17 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
         <MapboxGL.Camera
           ref={cameraRef}
           zoomLevel={10}
-          centerCoordinate={[garageStore.garage?.location.longitude as number, garageStore.garage?.location.latitude as number]}
+          centerCoordinate={[
+            garageStore.garageDefaultGarage?.location.longitude as number,
+            garageStore.garageDefaultGarage?.location.latitude as number,
+          ]}
         />
         {garageStore.garages.map((garage) => {
           return <Marker key={garage.id} id={garage.id.toString()} coordinate={[garage.location.longitude, garage.location.latitude]} />;
         })}
         <Marker
-          id={garageStore.garage!.id.toString()}
-          coordinate={[garageStore.garage!.location.longitude, garageStore.garage!.location.latitude]}
+          id={garageStore.garageDefaultGarage!.id.toString()}
+          coordinate={[garageStore.garageDefaultGarage!.location.longitude, garageStore.garageDefaultGarage!.location.latitude]}
         />
         {rescueRoute && (
           <MapboxGL.ShapeSource

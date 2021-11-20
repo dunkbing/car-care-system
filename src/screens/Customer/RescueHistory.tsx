@@ -6,13 +6,13 @@ import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
-import { CustomerRescueHistoryModel } from '@models/rescue';
+import { CustomerRescueHistory } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import { to12HoursTime, toHourAndMinute } from '@utils/time';
 
-const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistoryModel, 'car' | 'garage' | 'rescueCase' | 'createAt'>> = ({
+const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistory, 'car' | 'garage' | 'rescueCase' | 'createAt'>> = ({
   onPress,
   car,
   garage,

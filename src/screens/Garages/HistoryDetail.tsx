@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Center, ScrollView, Text, View, VStack } from 'native-base';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { AirbnbRating } from 'react-native-ratings';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { StackScreenProps } from '@react-navigation/stack';
 import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import Container from 'typedi';
+import formatMoney from '@utils/format-money';
+import { ApiService } from '@mobx/services/api-service';
+import { GarageRescueHistoryDetail } from '@models/rescue';
+import { rescueApi } from '@mobx/services/api-types';
 
 type CategoryDetailProps = {
   name: string;
-  price: string;
+  price: number;
   quantity: number;
 };
 
@@ -29,7 +34,7 @@ const CategoryDetail: React.FC<CategoryDetailProps> = ({ name, price, quantity }
           justifyContent: 'space-between',
         }}
       >
-        <Text>{price}đ</Text>
+        <Text>{formatMoney(price)}</Text>
         <Text>x{quantity}</Text>
       </View>
     </View>
@@ -41,6 +46,20 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'HistoryDetail'>;
 const HistoryDetail: React.FC<Props> = ({ route }) => {
   const { rescue } = route.params;
   const rescueDate = new Date(rescue.createAt);
+  const apiService = Container.get(ApiService);
+
+  const [rescueDetail, setRescueDetail] = React.useState<GarageRescueHistoryDetail>();
+
+  useEffect(() => {
+    if (rescue.id) {
+      void apiService.get<GarageRescueHistoryDetail>(rescueApi.garageHistoryDetail(rescue.id), {}, true).then(({ result }) => {
+        if (result) {
+          setRescueDetail(result);
+        }
+      });
+    }
+  }, [apiService, rescue.id]);
+
   return (
     <ScrollView>
       <VStack
@@ -109,11 +128,18 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             Thiết bị
           </Text>
           <View>
-            <CategoryDetail name={'Láng đĩa phanh trước'} price={'250.000'} quantity={2} />
-            <CategoryDetail name={'Lọc dầu'} price={'150.000'} quantity={1} />
-            <CategoryDetail name={'Lọc xăng'} price={'250.000'} quantity={1} />
-            <CategoryDetail name={'Bugi'} price={'350.000'} quantity={1} />
-            <CategoryDetail name={'Gioăng nắp dàn cò'} price={'550.000'} quantity={1} />
+            {rescueDetail?.invoice?.automotivePartInvoices.length ? (
+              rescueDetail?.invoice?.automotivePartInvoices?.map((automotivePartInvoice) => (
+                <CategoryDetail
+                  key={automotivePartInvoice.id}
+                  name={`${automotivePartInvoice.automotivePart.name}`}
+                  price={automotivePartInvoice.price}
+                  quantity={automotivePartInvoice.quantity}
+                />
+              ))
+            ) : (
+              <Text>Không có thiết bị</Text>
+            )}
           </View>
           <Text
             style={{
@@ -124,8 +150,18 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             Dịch vụ
           </Text>
           <View>
-            <CategoryDetail name={'Công thợ'} price={'250.000'} quantity={1} />
-            <CategoryDetail name={'Phí di chuyển'} price={'50.000'} quantity={1} />
+            {rescueDetail?.invoice?.serviceInvoices?.length ? (
+              rescueDetail?.invoice?.serviceInvoices?.map((serviceInvoice) => (
+                <CategoryDetail
+                  key={serviceInvoice.id}
+                  name={`${serviceInvoice.service.name}`}
+                  price={serviceInvoice.price}
+                  quantity={serviceInvoice.quantity}
+                />
+              ))
+            ) : (
+              <Text>Không có dịch vụ</Text>
+            )}
           </View>
         </View>
         <View my={5}>
@@ -136,7 +172,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
               textAlign: 'right',
             }}
           >
-            Tổng: 2.784.800đ
+            Tổng: {formatMoney(rescueDetail?.invoice?.total)}
           </Text>
         </View>
         {rescue.customerFeedback ? (

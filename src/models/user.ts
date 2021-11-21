@@ -118,6 +118,8 @@ export type RegisterResponseModel = {
   accessToken: string | null;
 };
 
+export type GarageUser = GarageLoginResponseModel;
+
 export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {

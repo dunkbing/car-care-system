@@ -1,24 +1,32 @@
+import { firestoreCollection } from '@mobx/services/api-types';
+import { GarageUser } from '@models/user';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { makeObservable } from 'mobx';
-import { Service } from 'typedi';
+import messaging from '@react-native-firebase/messaging';
+import { ACCOUNT_TYPES } from '@utils/constants';
+import { makeObservable, observable } from 'mobx';
+import Container, { Service } from 'typedi';
+import AuthStore from './auth';
 import BaseStore from './base-store';
 
 @Service()
 export default class FirebaseStore extends BaseStore {
+  private readonly authStore = Container.get(AuthStore);
+
   constructor() {
     super();
-    makeObservable(this, {});
-    this.rescuesRef = firestore().collection('rescues');
+    makeObservable(this, {
+      garageDeviceTokens: observable,
+    });
+    this.rescuesRef = firestore().collection(firestoreCollection.rescues);
   }
 
   rescuesRef: FirebaseFirestoreTypes.CollectionReference<FirebaseFirestoreTypes.DocumentData>;
   rescueDoc: FirebaseFirestoreTypes.DocumentReference<FirebaseFirestoreTypes.DocumentData> | null = null;
+  garageDeviceTokens: Array<string> = [];
 
   public async get<T = any>() {
     try {
-      console.log(this.rescueDoc);
       const doc = await this.rescueDoc?.get();
-      console.log(doc);
       return doc?.data() as T;
     } catch (error) {
       this.handleError(error);
@@ -33,5 +41,23 @@ export default class FirebaseStore extends BaseStore {
 
   public async update(key: string, value: any) {
     await this.rescuesRef.doc(key).update(value).catch(console.error);
+  }
+
+  public async addDeviceToken() {
+    this.startLoading();
+    try {
+      const token = await messaging().getToken();
+      if (this.authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER) {
+        const user = this.authStore.user as GarageUser;
+        const doc = await firestore().collection(firestoreCollection.garageDeviceTokens).doc(`${user?.garage?.id}`).get();
+        const tokens = doc.data()?.tokens || [];
+        if (!tokens.includes(token)) {
+          tokens.push(token);
+          await firestore().collection(firestoreCollection.garageDeviceTokens).doc(`${this.authStore.user?.id}`).set({ tokens });
+        }
+      }
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 }

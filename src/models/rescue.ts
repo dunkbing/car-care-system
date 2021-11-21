@@ -2,6 +2,7 @@ import { RESCUE_STATUS } from '@utils/constants';
 import { CarModel } from './car';
 import { Location } from './common';
 import { GarageModel } from './garage';
+import { InvoiceDetail } from './invoice';
 import { StaffModel } from './staff';
 import { CustomerModel, RescuedCustomerModel } from './user';
 
@@ -28,7 +29,7 @@ export type Staff = {
   avatarUrl: string;
 };
 
-export type CustomerRescueHistoryModel = {
+export type CustomerRescueHistory = {
   id: number;
   description: string;
   car: CarModel;
@@ -41,7 +42,7 @@ export type CustomerRescueHistoryModel = {
   status: 0;
 };
 
-export type GarageRescueHistoryModel = {
+export type GarageRescueHistory = {
   id: number;
   description: string;
   car: CarModel;
@@ -52,10 +53,30 @@ export type GarageRescueHistoryModel = {
     id: number;
     firstName: string;
     lastName: string;
+    phoneNumber: string;
     avatarUrl: string;
   };
-  invoiceId: number;
   customerFeedback: CustomerFeedback | null;
+  invoiceId: number;
+};
+
+export type GarageRescueHistoryDetail = {
+  id: number;
+  description: string;
+  car: CarModel;
+  garage: GarageModel;
+  rescueCase: RescueCase;
+  createAt?: string;
+  staff: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    avatarUrl: string;
+  };
+  customerFeedback: CustomerFeedback | null;
+  status: RESCUE_STATUS;
+  invoice: InvoiceDetail;
 };
 
 export type RescueDetailRequest = {

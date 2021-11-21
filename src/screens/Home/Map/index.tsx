@@ -23,7 +23,6 @@ import DialogStore from '@mobx/stores/dialog';
 import { mapService } from '@mobx/services/map';
 import { RescueStackParams } from '@screens/Navigation/params';
 import SearchBar from '@components/SearchBar';
-import Marker from '../../../components/map/Marker';
 import { Container } from 'typedi';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 import { INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
@@ -38,6 +37,8 @@ import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
 import OpacityView from '@components/OpacityView';
+import { GarageMarkers, RescueLocationMarker, RescueRoutes, StaffLocationMarker } from './map-component';
+import { Route } from '@models/common';
 
 Logger.setLogCallback(() => {
   return true;
@@ -54,7 +55,6 @@ export const animatedShadowOpacity = Animated.interpolateNode(fall, {
   outputRange: [0.5, 0],
 });
 
-type Route = [number, number][];
 type Props = StackScreenProps<RescueStackParams, 'Map'>;
 
 const Map: React.FC<Props> = ({ navigation }) => {
@@ -73,7 +73,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
     longitude: 105.8544441,
   });
   const [rescueLocation, setRescueLocation] = useState<Pick<Location, 'longitude' | 'latitude'>>();
-  const [rescueRoutes, setRescueRoutes] = useState<Route[] | null>(null);
+  const [staffLocation, setStaffLocation] = useState<Pick<Location, 'longitude' | 'latitude'>>();
   const [duration, setDuration] = useState('');
   const [garage, setGarage] = useState<GarageModel | null>(null);
   const [rescueRequestDetail, setRescueRequestDetail] = useState<RescueDetailRequest>({
@@ -117,20 +117,17 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [navigation, rescueStore]);
 
   useEffect(() => {
-    void withProgress(
-      parallel<void, void>(
-        rescueStore.getCurrentProcessingCustomer(),
-        carStore.getMany(),
-      ),
-    );
+    void withProgress(parallel<void, void>(rescueStore.getCurrentProcessingCustomer(), carStore.getMany()));
 
     if (Platform.OS === 'android') {
-      void MapboxGL.requestAndroidLocationPermissions().then(permision => {
+      void MapboxGL.requestAndroidLocationPermissions().then((permision) => {
         if (permision) {
-          void RNLocation.getLatestLocation({ timeout: 1000 }).then(location => {
+          void RNLocation.getLatestLocation({ timeout: 1000 }).then((location) => {
             if (location) {
               if (!rescueLocation) {
-                void withProgress(mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location.latitude},${location.longitude}` })).then(({ result: geocoding }) => {
+                void withProgress(
+                  mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location.latitude},${location.longitude}` }),
+                ).then(({ result: geocoding }) => {
                   let car: CarModel | undefined;
                   if (carStore.cars.length >= 2) {
                     car = carStore.cars[1];
@@ -153,7 +150,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             }
           });
         }
-      });
+      }).catch(error => toast.show(error.message));
     }
     void garageStore.getMany('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,13 +163,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
       await rescueStore.getCurrentProcessingCustomer();
 
-      const { status, invoiceId, invoiceStatus, customerConfirm, garageRejected } = snapShot.data() as {
+      const { status, invoiceId, invoiceStatus, customerConfirm, garageRejected, staffLocation: sl } = snapShot.data() as {
         status: number;
         invoiceId: number;
         invoiceStatus: number;
         customerConfirm: boolean;
         customerRejected: boolean;
         garageRejected: boolean;
+        staffLocation: string;
       };
       switch (status) {
         case RESCUE_STATUS.PENDING:
@@ -228,7 +226,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
                       for (const route of result.routes) {
                         routes.push(polyline.decode(route.overview_polyline.points));
                       }
-                      setRescueRoutes(routes);
                     }
                   });
               }
@@ -251,32 +248,20 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         case RESCUE_STATUS.ARRIVING: {
           dialogStore.closeMsgDialog();
-          const rescueRoute: Route[] = [];
-          const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
-          const { rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
-          void withProgress(
-            parallel(
-              mapService.getDirections({
-                api_key: GOONG_API_KEY,
-                origin: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
-                destination: `${garageLocation.latitude},${garageLocation.longitude}`,
-              }),
-              mapService.getDistanceMatrix({
+          if (sl) {
+            console.log('sl', sl);
+            setStaffLocation(JSON.parse(sl));
+            void mapService
+              .getDistanceMatrix({
                 api_key: GOONG_API_KEY,
                 origins: `${rescueLocation?.latitude},${rescueLocation?.longitude}`,
-                destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
+                destinations: `${staffLocation?.latitude},${staffLocation?.longitude}`,
                 vehicle: 'car',
-              }),
-            ),
-          ).then(([{ result: direction }, { result: distanceMatrix }]) => {
-            if (direction?.routes && direction.routes.length > 0) {
-              for (const route of direction.routes) {
-                rescueRoute.push(polyline.decode(route.overview_polyline.points));
-              }
-            }
-            setRescueRoutes(rescueRoute);
-            setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
-          });
+              })
+              .then(({ result: distanceMatrix }) => {
+                setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
+              }).catch(console.error);
+          }
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
@@ -289,7 +274,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
-          setRescueRoutes(null);
           dialogStore.closeMsgDialog();
           break;
         }
@@ -312,7 +296,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       }
     });
     return unsub;
-  }, [dialogStore, firebaseStore.rescueDoc, invoiceStore, navigation, rescueStore]);
+  }, [dialogStore, firebaseStore.rescueDoc, invoiceStore, navigation, rescueLocation?.latitude, rescueLocation?.longitude, rescueStore, staffLocation?.latitude, staffLocation?.longitude]);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -407,9 +391,12 @@ const Map: React.FC<Props> = ({ navigation }) => {
     };
   };
 
-  const selectCar = useCallback((car: CarModel) => {
-    setRescueRequestDetail({ ...rescueRequestDetail, carId: car?.id });
-  }, [rescueRequestDetail]);
+  const selectCar = useCallback(
+    (car: CarModel) => {
+      setRescueRequestDetail({ ...rescueRequestDetail, carId: car?.id });
+    },
+    [rescueRequestDetail],
+  );
 
   function viewDetailRescueRequest() {
     navigation.navigate('DetailRescueRequest', {
@@ -458,63 +445,15 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }}
           visible={false}
         />
-        {rescueRoutes?.map((route, index) => {
-          const lineColor = index === 0 ? '#7dabd4' : '#2884d4';
-          return (
-            <MapboxGL.ShapeSource
-              key={index}
-              id={`line-${index}`}
-              shape={{
-                type: 'FeatureCollection',
-                features: [
-                  {
-                    type: 'Feature',
-                    properties: { color: 'green' },
-                    geometry: {
-                      type: 'LineString',
-                      coordinates: [...route.map(([latitude, longitude]) => [longitude, latitude])],
-                    },
-                  },
-                ],
-              }}
-            >
-              <MapboxGL.LineLayer id='lineLayer' style={{ lineWidth: 4, lineJoin: 'bevel', lineColor }} />
-            </MapboxGL.ShapeSource>
-          );
-        })}
-        {rescueLocation && (
-          <MapboxGL.PointAnnotation
-            key='rescueLocation'
-            id='rescueLocation'
-            coordinate={[rescueLocation.longitude, rescueLocation.latitude]}
-          >
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                backgroundColor: '#00cccc',
-                borderRadius: 50,
-                borderColor: '#fff',
-                borderWidth: 3,
-              }}
-            />
-          </MapboxGL.PointAnnotation>
-        )}
         <MapboxGL.Camera
           ref={cameraRef}
           zoomLevel={10}
           centerCoordinate={[rescueLocation?.longitude || userLocation?.longitude, rescueLocation?.latitude || userLocation.latitude]}
         />
-        {garageStore.garages.map((garage) => {
-          return (
-            <Marker
-              key={garage.id}
-              id={garage.id.toString()}
-              coordinate={[garage.location.longitude, garage.location.latitude]}
-              onPress={showPopupGarage(garage)}
-            />
-          );
-        })}
+        <RescueLocationMarker coordinate={rescueLocation} />
+        <StaffLocationMarker coordinate={staffLocation} />
+        <RescueRoutes origin={rescueStore.currentCustomerProcessingRescue?.rescueLocation} destination={staffLocation} />
+        <GarageMarkers garages={garageStore.garages} onGaragePress={showPopupGarage} />
       </MapboxGL.MapView>
       {!rescueStore.currentCustomerProcessingRescue && (
         <Box pt={10}>
@@ -555,28 +494,32 @@ const Map: React.FC<Props> = ({ navigation }) => {
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVING ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.ARRIVED ||
       rescueStore.currentCustomerProcessingRescue?.status === RESCUE_STATUS.WORKING ? (
-        <Box width='100%' pt={height * 0.8} position='absolute' alignSelf='center'>
-          <Center>
-            {rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED ? (
+        <Box width='100%' bottom={0} position='absolute' alignSelf='center'>
+          {rescueStore.currentCustomerProcessingRescue?.status !== RESCUE_STATUS.ACCEPTED ? (
+            <Center
+              style={{
+                width: '100%',
+                position: 'absolute',
+                bottom: 80,
+              }}
+            >
               <AssignedEmployee
                 viewDetail={viewDetailRescueRequest}
                 name={`${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`}
                 avatarUrl={`${rescueStore.currentCustomerProcessingRescue?.staff?.avatarUrl}`}
                 phoneNumber={`${rescueStore.currentCustomerProcessingRescue?.staff?.phoneNumber}`}
               />
-            ) : (
-              <Center w='100%' backgroundColor='white' h='50'>
-                <Text bold>Đang đợi nhân viên khởi hành</Text>
-              </Center>
-            )}
-          </Center>
+            </Center>
+          ) : (
+            <Center w='100%' backgroundColor='white' h='50'>
+              <Text bold>Đang đợi nhân viên khởi hành</Text>
+            </Center>
+          )}
         </Box>
       ) : (
         <Box pt={height * 0.65} position='absolute' alignSelf='center'>
           <Center>
-            <CarCarousel
-              onSelect={selectCar}
-            />
+            <CarCarousel onSelect={selectCar} />
           </Center>
           <Center pt={'3'}>
             <Button width='33%' colorScheme='danger' onPress={handleSos(garageStore.customerDefaultGarage)}>

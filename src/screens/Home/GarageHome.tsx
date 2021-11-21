@@ -42,7 +42,7 @@ const ManagerOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garage } });
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garageDefaultGarage } });
             }}
           />
           <OptionItem
@@ -98,6 +98,7 @@ const ManagerOption: React.FC = () => {
 
 const StaffOption: React.FC = () => {
   const rescueStore = Container.get(RescueStore);
+  const garageStore = Container.get(GarageStore);
 
   return (
     <VStack pt='3'>
@@ -107,7 +108,7 @@ const StaffOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: Container.get(GarageStore).garage } });
+              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garageDefaultGarage } });
             }}
           />
           <OptionItem
@@ -165,11 +166,11 @@ const GarageHome: React.FC = () => {
     <VStack>
       <Center pb='8' pt='8'>
         <Text bold fontSize='2xl' pb='3'>
-          {garageStore.garage?.name}
+          {garageStore.garageDefaultGarage?.name}
         </Text>
         <HStack width='80%' justifyContent='center' alignItems='center' space={2}>
           <FaIcon name='map-marker' size={24} color={headerColor} />
-          <Text fontSize='lg'>{garageStore.garage?.address}</Text>
+          <Text fontSize='lg'>{garageStore.garageDefaultGarage?.address}</Text>
         </HStack>
       </Center>
       {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}

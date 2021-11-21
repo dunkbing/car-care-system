@@ -5,8 +5,8 @@ import Container, { Service } from 'typedi';
 import {
   AvailableCustomerRescueDetail,
   RescueState,
-  CustomerRescueHistoryModel,
-  GarageRescueHistoryModel,
+  CustomerRescueHistory,
+  GarageRescueHistory,
   RescueCase,
   RescueDetailRequest,
   RejectCase,
@@ -51,12 +51,12 @@ export default class RescueStore extends BaseStore {
   private readonly apiService = Container.get(ApiService);
   private readonly firebaseStore = Container.get(FirebaseStore);
 
-  customerRescueHistories: Array<CustomerRescueHistoryModel> = [];
+  customerRescueHistories: Array<CustomerRescueHistory> = [];
   currentCustomerProcessingRescue: AvailableCustomerRescueDetail | null = null;
   currentStaffProcessingRescue: AvailableCustomerRescueDetail | null = null;
   currentStaffRescueState: RescueState | null = null;
 
-  garageRescueHistories: Array<GarageRescueHistoryModel> = [];
+  garageRescueHistories: Array<GarageRescueHistory> = [];
   rescueCases: Array<RescueCase> = [];
   pendingRescueRequests: Array<AvailableCustomerRescueDetail> = [];
 
@@ -84,14 +84,12 @@ export default class RescueStore extends BaseStore {
     this.state = STORE_STATUS.LOADING;
 
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistoryModel>(rescueApi.customerHistories, {
+      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistory>(rescueApi.customerHistories, {
         keyword,
       });
 
       if (error) {
-        runInAction(() => {
-          this.state = STORE_STATUS.ERROR;
-        });
+        this.handleError(error);
       } else {
         const rescues = result || [];
         runInAction(() => {
@@ -100,7 +98,7 @@ export default class RescueStore extends BaseStore {
         });
       }
     } else {
-      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistoryModel>(rescueApi.garageHistories, {
+      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistory>(rescueApi.garageHistories, {
         keyword,
       });
 

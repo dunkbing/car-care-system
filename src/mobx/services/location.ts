@@ -1,6 +1,8 @@
 import RNLocation from 'react-native-location';
+import { Service } from 'typedi';
 
-class LocationService {
+@Service()
+export default class LocationService {
   public async requestPermission() {
     let permission = await RNLocation.checkPermission({
       ios: 'whenInUse', // or 'always'
@@ -13,12 +15,12 @@ class LocationService {
       permission = await RNLocation.requestPermission({
         ios: 'whenInUse',
         android: {
-          detail: 'fine',
+          detail: 'coarse',
           rationale: {
-            title: 'We need to access your location',
-            message: 'We use your location to show where you are on the map',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
+            title: 'Truy cập vị trí',
+            message: 'Cho phép truy cập vị trí hiện tại của bạn',
+            buttonPositive: 'Đồng ý',
+            buttonNegative: 'Hủy',
           },
         },
       });
@@ -30,5 +32,3 @@ class LocationService {
     return Promise.reject(new Error('Cannot get permission'));
   }
 }
-
-export default new LocationService();

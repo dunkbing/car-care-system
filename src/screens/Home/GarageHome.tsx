@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Center, HStack, Image, Text, VStack } from 'native-base';
-import { Customer, Employees, ListImg, RequestImg, ScrewDriverWrench } from '@assets/images';
+import { Customer, Employees, ListImg, RepairSuggestionImg, RequestImg, ScrewDriverWrench } from '@assets/images';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
 import { headerColor } from '@screens/shared/colors';
 import { observer } from 'mobx-react';
@@ -9,9 +9,10 @@ import AuthStore from '@mobx/stores/auth';
 import { ACCOUNT_TYPES, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import { TouchableOpacity } from 'react-native';
 import GarageStore from '@mobx/stores/garage';
-import { rootNavigation } from '@screens/Navigation/roots';
 import RescueStore from '@mobx/stores/rescue';
 import toast from '@utils/toast';
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 
 const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPress?: () => void }) => {
   return (
@@ -28,7 +29,7 @@ const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPr
   );
 };
 
-const ManagerOption: React.FC = () => {
+const ManagerOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOptionStackParams, 'Home'> }> = ({ navigation }) => {
   //#region stores
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
@@ -42,25 +43,19 @@ const ManagerOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garageDefaultGarage } });
+              navigation.navigate('MyGarage', { garage: garageStore.garageDefaultGarage });
             }}
           />
           <OptionItem
-            name='Yêu cầu cứu hộ'
-            imgSrc={RequestImg}
+            name='Đề xuất sửa chữa'
+            imgSrc={RepairSuggestionImg}
             onPress={async () => {
               await rescueStore.getCurrentProcessingStaff();
 
               if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
-                rootNavigation.navigate('GarageHomeOptions', {
-                  screen: 'Map',
-                  params: { request: rescueStore.currentStaffProcessingRescue },
-                });
+                navigation.navigate('Map', { request: rescueStore.currentStaffProcessingRescue });
               } else {
-                rootNavigation.navigate('GarageHomeOptions', {
-                  screen: 'DetailAssignedRequest',
-                  params: { request: rescueStore.currentStaffProcessingRescue, checking: true },
-                });
+                navigation.navigate('DetailAssignedRequest', { request: rescueStore.currentStaffProcessingRescue, checking: true });
               }
             }}
           />
@@ -70,14 +65,14 @@ const ManagerOption: React.FC = () => {
             name='Quản lý khách hàng'
             imgSrc={Customer}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'ManageCustomers' });
+              navigation.navigate('ManageCustomers');
             }}
           />
           <OptionItem
             name='Quản lý nhân viên'
             imgSrc={Employees}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'ManageStaffs' });
+              navigation.navigate('ManageStaffs');
             }}
           />
         </HStack>
@@ -86,7 +81,7 @@ const ManagerOption: React.FC = () => {
             name='Lịch sử cứu hộ'
             imgSrc={ListImg}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'RescueHistory' });
+              navigation.navigate('RescueHistory');
             }}
           />
           <Box w='40%' pt='1' pb='1' />
@@ -96,7 +91,7 @@ const ManagerOption: React.FC = () => {
   );
 };
 
-const StaffOption: React.FC = () => {
+const StaffOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOptionStackParams, 'Home'> }> = ({ navigation }) => {
   const rescueStore = Container.get(RescueStore);
   const garageStore = Container.get(GarageStore);
 
@@ -108,7 +103,7 @@ const StaffOption: React.FC = () => {
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'MyGarage', params: { garage: garageStore.garageDefaultGarage } });
+              navigation.navigate('MyGarage', { garage: garageStore.garageDefaultGarage });
             }}
           />
           <OptionItem
@@ -123,15 +118,9 @@ const StaffOption: React.FC = () => {
               }
 
               if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
-                rootNavigation.navigate('GarageHomeOptions', {
-                  screen: 'Map',
-                  params: { request: rescueStore.currentStaffProcessingRescue },
-                });
+                navigation.navigate('Map', { request: rescueStore.currentStaffProcessingRescue });
               } else {
-                rootNavigation.navigate('GarageHomeOptions', {
-                  screen: 'DetailAssignedRequest',
-                  params: { request: rescueStore.currentStaffProcessingRescue, checking: true },
-                });
+                navigation.navigate('DetailAssignedRequest', { request: rescueStore.currentStaffProcessingRescue, checking: true });
               }
             }}
           />
@@ -141,7 +130,7 @@ const StaffOption: React.FC = () => {
             name='Lịch sử cứu hộ'
             imgSrc={ListImg}
             onPress={() => {
-              rootNavigation.navigate('GarageHomeOptions', { screen: 'RescueHistory' });
+              navigation.navigate('RescueHistory');
             }}
           />
           <Box w='40%' pt='1' pb='1' />
@@ -151,7 +140,9 @@ const StaffOption: React.FC = () => {
   );
 };
 
-const GarageHome: React.FC = () => {
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'Home'>;
+
+const GarageHome: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
@@ -173,7 +164,11 @@ const GarageHome: React.FC = () => {
           <Text fontSize='lg'>{garageStore.garageDefaultGarage?.address}</Text>
         </HStack>
       </Center>
-      {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER ? <ManagerOption /> : <StaffOption />}
+      {authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER ? (
+        <ManagerOption navigation={navigation} />
+      ) : (
+        <StaffOption navigation={navigation} />
+      )}
     </VStack>
   );
 };

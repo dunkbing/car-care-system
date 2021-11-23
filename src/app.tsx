@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import axios from 'axios';
 
-import { AuthStack, CustomerHomeTab, GarageHomeTab, ProfileStack, rootNavigation, RootStack } from '@screens/Navigation';
+import { AuthStack, CustomerHomeTab, ProfileStack, rootNavigation, RootStack } from '@screens/Navigation';
 import Dialog from '@components/dialog';
 import { API_URL } from '@env';
 import Container from 'typedi';
@@ -26,7 +26,7 @@ const App: React.FC = observer(() => {
         ) : authStore.userType === ACCOUNT_TYPES.CUSTOMER ? (
           <RootStack.Screen name='CustomerHomeTab' component={CustomerHomeTab} options={{ headerShown: false }} />
         ) : (
-          <RootStack.Screen name='GarageHomeTab' component={GarageHomeTab} options={{ headerShown: false }} />
+          <RootStack.Screen name='GarageHomeStack' component={GarageOptionsStack} options={{ headerShown: false }} />
         )}
         <RootStack.Screen name='GarageHomeOptions' component={GarageOptionsStack} options={{ headerShown: false }} />
         <RootStack.Screen name='Profile' component={ProfileStack} options={{ headerShown: false }} />

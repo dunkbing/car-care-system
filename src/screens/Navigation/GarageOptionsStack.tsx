@@ -23,12 +23,14 @@ import Feedback from '@screens/Garages/Feedback';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
+import { GarageHomeTab } from './HomeTab';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
 export const GarageOptionsStack: React.FC = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen name='Home' component={GarageHomeTab} options={{ headerShown: false }} />
       <Stack.Screen
         name='MyGarage'
         component={DefaultGarage}

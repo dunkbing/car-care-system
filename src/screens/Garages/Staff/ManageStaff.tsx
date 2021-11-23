@@ -69,7 +69,7 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           toast.show(rescueStore.errorMessage);
           return;
         }
-        rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
+        rootNavigation.navigate('GarageHomeStack', { screen: 'PendingRescueRequest' });
       }
     };
   };

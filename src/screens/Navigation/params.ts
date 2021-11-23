@@ -8,7 +8,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type StackParams = {
   Auth: NavigatorScreenParams<AuthStackParams>;
   CustomerHomeTab: NavigatorScreenParams<CustomerTabParams> | undefined;
-  GarageHomeTab: NavigatorScreenParams<GarageTabParams> | undefined;
+  GarageHomeStack: NavigatorScreenParams<GarageHomeOptionStackParams> | undefined;
   GarageHomeOptions: NavigatorScreenParams<GarageHomeOptionStackParams> | undefined;
   Profile: NavigatorScreenParams<ProfileStackParams>;
   Rescue: NavigatorScreenParams<RescueStackParams>;
@@ -55,6 +55,7 @@ export type GarageTabParams = {
 };
 
 export type GarageHomeOptionStackParams = {
+  Home: undefined;
   MyGarage: { garage: GarageModel | null };
   ManageStaffs: undefined | { rescueId: number };
   AddStaff: undefined;

@@ -47,8 +47,8 @@ export const carModelApi = {
 };
 
 export const rescueApi = {
-  customerHistories: 'rescues/histories/customer',
   garageHistories: 'rescues/histories/garage',
+  customerHistories: 'rescues/histories/customer',
   customerHistoryDetail: (rescueId: number) => `rescues/histories/${rescueId}/customer`,
   garageHistoryDetail: (rescueId: number) => `rescues/histories/${rescueId}/garage`,
   cases: 'rescues/cases',
@@ -59,7 +59,6 @@ export const rescueApi = {
   arrivingRescue: 'rescues/details/arriving-rescue',
   arrivedRescue: 'rescues/details/arrived-rescue',
   workingRescue: 'rescues/details/working-rescue',
-  doneRescue: 'rescues/details/done-rescue',
   pendingDetails: 'rescues/pending-details',
   customerRejectedCases: 'rescues/reject-cases/customers',
   customerRejectCurrentCase: 'rescues/reject-cases/customers',

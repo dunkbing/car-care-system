@@ -35,7 +35,6 @@ export default class RescueStore extends BaseStore {
       changeRescueStatusToArriving: action,
       changeRescueStatusToArrived: action,
       changeRescueStatusToWorking: action,
-      changeRescueStatusToDone: action,
       customerRejectCurrentRescueCase: action,
       garageRejectCurrentRescueCase: action,
       getCurrentProcessingCustomer: action,
@@ -264,22 +263,6 @@ export default class RescueStore extends BaseStore {
       this.handleSuccess();
       this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
       await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING }).catch(console.error);
-    }
-  }
-
-  /**
-   * change current rescue detail's status to done
-   */
-  public async changeRescueStatusToDone() {
-    this.startLoading();
-    const { error } = await this.apiService.patch<any>(rescueApi.doneRescue, {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
-      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.DONE } as any;
-      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.DONE });
     }
   }
 

@@ -24,6 +24,7 @@ import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 import { GarageHomeTab } from './HomeTab';
+import ProposalList from '@screens/Garages/RepairSuggestion/ProposalList';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -36,6 +37,14 @@ export const GarageOptionsStack: React.FC = () => {
         component={DefaultGarage}
         options={{
           title: 'Garage của tôi',
+          ...navHeaderStyle,
+        }}
+      />
+      <Stack.Screen
+        name='ProposalList'
+        component={ProposalList}
+        options={{
+          title: 'Đề xuất sửa chữa',
           ...navHeaderStyle,
         }}
       />

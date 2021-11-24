@@ -32,7 +32,6 @@ const OptionItem = ({ name, imgSrc, onPress }: { name: string; imgSrc: any; onPr
 const ManagerOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOptionStackParams, 'Home'> }> = ({ navigation }) => {
   //#region stores
   const garageStore = Container.get(GarageStore);
-  const rescueStore = Container.get(RescueStore);
   //#endregion
 
   return (
@@ -49,14 +48,8 @@ const ManagerOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOption
           <OptionItem
             name='Đề xuất sửa chữa'
             imgSrc={RepairSuggestionImg}
-            onPress={async () => {
-              await rescueStore.getCurrentProcessingStaff();
-
-              if ((rescueStore.currentStaffProcessingRescue?.status as number) >= RESCUE_STATUS.ARRIVING) {
-                navigation.navigate('Map', { request: rescueStore.currentStaffProcessingRescue });
-              } else {
-                navigation.navigate('DetailAssignedRequest', { request: rescueStore.currentStaffProcessingRescue, checking: true });
-              }
+            onPress={() => {
+              navigation.navigate('ProposalList');
             }}
           />
         </HStack>

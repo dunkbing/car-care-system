@@ -57,6 +57,7 @@ export type GarageTabParams = {
 export type GarageHomeOptionStackParams = {
   Home: undefined;
   MyGarage: { garage: GarageModel | null };
+  ProposalList: undefined;
   ManageStaffs: undefined | { rescueId: number };
   AddStaff: undefined;
   EditStaff: { staff: StaffModel };

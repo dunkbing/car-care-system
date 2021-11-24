@@ -10,6 +10,7 @@ import DefaultGarage from '@screens/Garages/DefaultGarage';
 import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
 import Payment from '@screens/Payment/CustomerPayment';
 import Feedback from '@screens/Customer/Feedback';
+import NearByGarage from '@screens/Customer/NearByGarages';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -17,6 +18,14 @@ export const RescueStack: React.FC = () => {
   return (
     <RescueStackNav.Navigator initialRouteName='Map' screenOptions={{ contentStyle: { backgroundColor: 'white' } }}>
       <RescueStackNav.Screen name='Map' component={Map} options={{ headerShown: false }} />
+      <RescueStackNav.Screen
+        name='NearByGarages'
+        component={NearByGarage}
+        options={{
+          title: 'Danh sách garage',
+          ...navHeaderStyle,
+        }}
+      />
       <RescueStackNav.Screen
         name='DefineCarStatus'
         component={DefineCarStatus}

@@ -93,6 +93,7 @@ export type GarageHomeOptionStackParams = {
 
 export type RescueStackParams = {
   Map: undefined;
+  NearByGarages: undefined;
   DefineCarStatus: {
     garage: GarageModel;
     onConfirm: (rescueCaseId: number, description: string) => void;

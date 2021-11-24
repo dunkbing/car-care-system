@@ -7,7 +7,7 @@ import DefaultGarage from '@screens/Garages/DefaultGarage';
 import RescueHistory from '@screens/Customer/RescueHistory';
 import { ChangePassword } from '@screens/Auth';
 import { navHeaderStyle } from './roots';
-import SearchGarage from '@screens/Garages/SearchGarage';
+import SearchGarage from '@screens/Customer/SearchGarage';
 import DefineCarModel from '@screens/Car/DefineCarModel';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';

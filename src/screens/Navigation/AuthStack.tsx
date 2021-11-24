@@ -4,7 +4,7 @@ import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, Cha
 import { AuthStackParams } from './params';
 import { navHeaderStyle } from './roots';
 import DefineCarModel from '@screens/Car/DefineCarModel';
-import SearchGarage from '@screens/Garages/SearchGarage';
+import SearchGarage from '@screens/Customer/SearchGarage';
 
 const AuthStackNav = createNativeStackNavigator<AuthStackParams>();
 

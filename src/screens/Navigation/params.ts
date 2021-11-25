@@ -115,6 +115,7 @@ export type RescueStackParams = {
         onCancel: (() => void) | undefined;
       };
   GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
+  StaffRepairSuggestion: undefined;
   ConfirmSuggestedRepair: undefined;
   Payment: undefined;
   Feedback: undefined;

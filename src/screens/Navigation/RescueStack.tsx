@@ -12,6 +12,7 @@ import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRe
 import Payment from '@screens/Payment/CustomerPayment';
 import Feedback from '@screens/Customer/Feedback';
 import NearByGarage from '@screens/Customer/NearByGarages';
+import StaffRepairSuggestion from '@screens/Customer/StaffRepairSuggestion';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -68,10 +69,19 @@ export const RescueStack: React.FC = () => {
         }}
       />
       <RescueStackNav.Screen
+        name='StaffRepairSuggestion'
+        component={StaffRepairSuggestion}
+        options={{
+          title: 'Đề xuất sửa chữa',
+          ...navHeaderStyle,
+          headerBackVisible: false,
+        }}
+      />
+      <RescueStackNav.Screen
         name='ConfirmSuggestedRepair'
         component={CustomerConfirmRepairSuggestion}
         options={{
-          title: 'Đề xuất sửa chữa',
+          title: 'Báo giá ban đầu',
           ...navHeaderStyle,
           headerBackVisible: false,
         }}

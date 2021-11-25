@@ -6,6 +6,8 @@ export const authApi = {
 
 export const automotivePartApi = {
   getMany: 'automotive-parts',
+  // Get warranty information by automotive part IDs
+  getWarrantyInfo: 'automotive-parts​/warranty-information',
 };
 
 export const carBrandApi = {
@@ -33,13 +35,30 @@ export const garageApi = {
 };
 
 export const invoiceApi = {
-  create: 'invoices',
+  // create a proposal
+  createProposal: 'invoices',
+  // Manager update a proposal (draft invoice) to quotation and changes status to SentQuotationToCustomer
   update: 'invoices',
+  // Staff sends proposal to customer and changes status to SentProposalToCustomer
+  sendProposalToCustomer: (invoiceId: number) => `invoices​/staffs​/send-proposal-to-customer​/${invoiceId}`,
+  // Customer accept proposal (Draft invoice)
   accepProposal: (invoiceId: number) => `invoices/accept-proposal/${invoiceId}`,
+  // Staff send proposal to manager after customer confirm and change status to SentProposalToManager
+  sendProposalToManager: (invoiceId: number) => `invoices​/staffs​/send-proposal-to-manager​/${invoiceId}`,
+  // Customer confirms payment
   customerConfirmPayment: (invoiceId: number) => `invoices/customers/payment-confirmations/${invoiceId}`,
-  staffConfirmPayment: (invoiceId: number) => `invoices/staffs/payment-confirmations/${invoiceId}`,
+  // Manager confirms payment
+  managerConfirmPayment: (invoiceId: number) => `invoices/managers/payment-confirmations/${invoiceId}`,
+  // Customer reject the proposal
+  customerRejectProposal: 'invoices/customers/reject-proposal',
+  // Customer reject the quotation
+  customerRejectQuotation: 'invoices/customers/reject-quotation',
+
   getCustomerInvoiceDetail: (invoiceId: number) => `invoices/customer-invoice-details/${invoiceId}`,
   getGarageInvoiceDetail: (invoiceId: number) => `invoices/garage-invoice-details/${invoiceId}`,
+
+  // get list proposal
+  getPendingProposals: 'invoices/proposals',
 };
 
 export const carModelApi = {
@@ -60,6 +79,8 @@ export const rescueApi = {
   arrivedRescue: 'rescues/details/arrived-rescue',
   workingRescue: 'rescues/details/working-rescue',
   pendingDetails: 'rescues/pending-details',
+  // Examine car on current rescue detail
+  examinations: 'rescues​/details​/examinations',
   customerRejectedCases: 'rescues/reject-cases/customers',
   customerRejectCurrentCase: 'rescues/reject-cases/customers',
   garageRejectedCases: 'rescues/reject-cases/garages',

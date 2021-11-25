@@ -6,6 +6,7 @@ import DefineCarStatus from '@screens/Customer/DefineCarStatus';
 import { Map } from '@screens/Home';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
+import CancelStaffSuggestion from '@screens/Customer/CancelStaffSuggestion';
 import DefaultGarage from '@screens/Garages/DefaultGarage';
 import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
 import Payment from '@screens/Payment/CustomerPayment';
@@ -43,6 +44,14 @@ export const RescueStack: React.FC = () => {
         }}
       />
       <RescueStackNav.Screen
+        name='CancelStaffSuggestion'
+        component={CancelStaffSuggestion}
+        options={{
+          title: 'Từ chối đề xuất',
+          ...navHeaderStyle,
+        }}
+      />
+      <RescueStackNav.Screen
         name='DefineRequestCancelReason'
         component={CancelRescueRequest}
         options={{
@@ -62,8 +71,9 @@ export const RescueStack: React.FC = () => {
         name='ConfirmSuggestedRepair'
         component={CustomerConfirmRepairSuggestion}
         options={{
-          title: 'Báo giá ban đầu',
+          title: 'Đề xuất sửa chữa',
           ...navHeaderStyle,
+          headerBackVisible: false,
         }}
       />
       <RescueStackNav.Screen

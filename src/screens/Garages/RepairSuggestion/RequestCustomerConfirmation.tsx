@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Center, Input, ScrollView, Text, View, VStack } from 'native-base';
+import { Button, Center, Checkbox, Image, Input, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
@@ -74,6 +74,130 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
             placeholder='100000'
           />
           <Text fontSize={16}> / chiếc</Text>
+        </View>
+        <Text fontSize={16}>500.000đ</Text>
+      </View>
+    </View>
+  );
+});
+
+const AutomotivePartItem: React.FC = observer(() => {
+  return (
+    <View my={3}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Text
+          style={{
+            fontWeight: 'bold',
+            fontSize: 16,
+          }}
+        >
+          Thiết bị 1
+        </Text>
+        <Text>x 2</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          marginTop: 15,
+          justifyContent: 'space-between',
+        }}
+      >
+        <Text>Áp dụng bảo hành</Text>
+        <Checkbox value={''} />
+      </View>
+      <View
+        style={{
+          marginVertical: 15,
+        }}
+      >
+        <Input
+          style={{
+            fontSize: 14,
+          }}
+          variant='underlined'
+          placeholder='Nhập ghi chú'
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text fontSize={16}>250.000đ / chiếc</Text>
+        </View>
+        <Text fontSize={16}>500.000đ</Text>
+      </View>
+    </View>
+  );
+});
+
+const serviceItem: React.FC = observer(() => {
+  return (
+    <View my={3}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Text
+          style={{
+            fontWeight: 'bold',
+            fontSize: 16,
+          }}
+        >
+          Dịch vụ 1
+        </Text>
+        <Text>x 1</Text>
+      </View>
+      <View
+        style={{
+          marginVertical: 15,
+        }}
+      >
+        <Input
+          style={{
+            fontSize: 14,
+          }}
+          variant='underlined'
+          placeholder='Nhập ghi chú'
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Input
+            style={{
+              backgroundColor: 'white',
+              borderColor: 'grey',
+              height: 30,
+              width: 100,
+              fontSize: 12,
+            }}
+            placeholder='100000'
+          />
+          <Text fontSize={16}> / lần</Text>
         </View>
         <Text fontSize={16}>500.000đ</Text>
       </View>
@@ -286,6 +410,29 @@ const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, rou
           >
             Xe bị hỏng ắc quy, bugi bị ẩm, cần thay bugi
           </Text>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
+            }}
+          >
+            <Image
+              source={{
+                uri: 'https://wallpaperaccess.com/full/317501.jpg',
+              }}
+              alt='Ảnh tình trạng xe'
+              size='md'
+              resizeMode='contain'
+              style={{
+                width: 90,
+                height: 90,
+                marginVertical: 10,
+                marginEnd: 10,
+              }}
+            />
+          </View>
         </View>
         <Center>
           <ConfirmButton

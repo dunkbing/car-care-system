@@ -3,7 +3,7 @@ import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navig
 import { ProfileStackParams } from './params';
 import Profile from '@screens/Auth/Profile';
 import CarStatus from '@screens/Car/CarStatus';
-import DefaultGarage from '@screens/Garages/DefaultGarage';
+import DefaultGarage from '@screens/Garages/GarageInfoDetail';
 import RescueHistory from '@screens/Customer/RescueHistory';
 import { ChangePassword } from '@screens/Auth';
 import { navHeaderStyle } from './roots';

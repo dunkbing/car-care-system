@@ -3,7 +3,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import { GarageHomeOptionStackParams } from './params';
-import DefaultGarage from '@screens/Garages/DefaultGarage';
+import DefaultGarage from '@screens/Garages/GarageInfoDetail';
 import ManageCustomer from '@screens/Garages/ManageCustomer';
 import RescueHistory from '@screens/Garages/RescueHistory';
 import { navHeaderStyle } from './roots';
@@ -25,6 +25,7 @@ import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 import { GarageHomeTab } from './HomeTab';
 import ProposalList from '@screens/Garages/RepairSuggestion/ProposalList';
+import RequestCustomerConfirmation from '@screens/Garages/RepairSuggestion/RequestCustomerConfirmation';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -46,6 +47,15 @@ export const GarageOptionsStack: React.FC = () => {
         options={{
           title: 'Đề xuất sửa chữa',
           ...navHeaderStyle,
+        }}
+      />
+      <Stack.Screen
+        name='RequestCustomerConfirmation'
+        component={RequestCustomerConfirmation}
+        options={{
+          title: 'Đề xuất sửa chữa',
+          ...navHeaderStyle,
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen
@@ -103,7 +113,7 @@ export const GarageOptionsStack: React.FC = () => {
       <Stack.Screen
         name='ServiceSuggestion'
         component={ServiceSuggestion}
-        options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle }}
+        options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false }}
       />
       <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />

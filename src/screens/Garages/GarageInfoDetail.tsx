@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Center, HStack, Image, ScrollView, Text, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -13,6 +13,8 @@ import { headerColor } from '@screens/shared/colors';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
 import { ACCOUNT_TYPES } from '@utils/constants';
+import { ApiService } from '@mobx/services/api-service';
+import { garageApi } from '@mobx/services/api-types';
 
 const { height } = Dimensions.get('screen');
 
@@ -69,9 +71,19 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
 type Props = StackScreenProps<ProfileStackParams & RescueStackParams, 'GarageDetail'>;
 
 const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
-  const { customerDefaultGarage: defaultGarage } = Container.get(GarageStore);
-  const garage = route.params?.garage || defaultGarage;
   const authStore = Container.get(AuthStore);
+  const { customerDefaultGarage: defaultGarage } = Container.get(GarageStore);
+  const apiService = Container.get(ApiService);
+  const [garage, setGarage] = React.useState<GarageModel | null>(defaultGarage);
+
+  useEffect(() => {
+    if (route.params?.garageId) {
+      void apiService.get<GarageModel>(garageApi.get(route.params?.garageId), {}, true).then(({ result }) => {
+        setGarage(result);
+      });
+    }
+  }, [apiService, route.params?.garageId]);
+
   function changeDefaultGarage() {
     navigation.navigate('SearchGarage');
   }
@@ -92,17 +104,17 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
           <GarageInfo name={garage?.name} address={garage?.address} phoneNumber={garage?.phoneNumber} />
         </Center>
         <Center w='100%' px='2' rounded='md' mt='3'>
+          {!garage?.garageFeedbacks?.length && <Text>Chưa có đánh giá</Text>}
           <VStack space={2} px='4'>
-            <GarageFeedback
-              username='Nam Anh'
-              rating={5}
-              content='Chất lượng dịch vụ tốt, nhân viên nhiệt tình nhiệt tình'
-              time='15-10-2021 14:29'
-            />
-            <GarageFeedback username='Văn Nam' rating={5} content='Nhân viên tận tình giúp đỡ' time='15-10-2021 12:21' />
-            <GarageFeedback username='Ngọc Đức' rating={4} content='Cứu hộ nhanh chóng, nhân viên nhiệt tình' time='15-10-2021 12:11' />
-            <GarageFeedback username='Hồng Duy' rating={4} content='Hài lòng với dịch vụ' time='14-10-2021 15:29' />
-            <GarageFeedback username='Mạnh Quân' rating={5} content='Hài lòng với chất lượng dịch vụ' time='14-10-2021 14:29' />
+            {garage?.garageFeedbacks?.map((feedback) => (
+              <GarageFeedback
+                key={feedback.id}
+                username='Nam Anh'
+                rating={feedback.point}
+                content={`${feedback.comment}`}
+                time='15-10-2021 14:29'
+              />
+            ))}
           </VStack>
         </Center>
       </ScrollView>

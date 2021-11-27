@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import { Location } from './common';
+import { CustomerFeedback } from './rescue';
 
 export type GarageModel = {
   id: number;
@@ -11,6 +12,7 @@ export type GarageModel = {
   imageUrl: string;
   location: Location;
   isAnyStaffAvailable?: boolean;
+  garageFeedbacks?: Array<CustomerFeedback>;
 };
 
 export const loginValidationSchema = yup.object({

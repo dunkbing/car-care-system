@@ -7,7 +7,7 @@ import { Map } from '@screens/Home';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import CancelStaffSuggestion from '@screens/Customer/CancelStaffSuggestion';
-import DefaultGarage from '@screens/Garages/DefaultGarage';
+import DefaultGarage from '@screens/Garages/GarageInfoDetail';
 import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
 import Payment from '@screens/Payment/CustomerPayment';
 import Feedback from '@screens/Customer/Feedback';

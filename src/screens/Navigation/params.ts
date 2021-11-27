@@ -35,7 +35,7 @@ export type ProfileStackParams = {
   CarHistory: { car: CarDetailModel };
   EditCarDetail: { car: CarDetailModel };
   DefineCarModel: { loggedIn: boolean };
-  DefaultGarage: undefined;
+  DefaultGarage: { garageId: number };
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
@@ -114,9 +114,9 @@ export type RescueStackParams = {
     | {
         onCancel: (() => void) | undefined;
       };
-  GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
-  StaffRepairSuggestion: undefined;
-  ConfirmSuggestedRepair: undefined;
+  GarageDetail: undefined | { garageId: number; isRescueStack: boolean };
+  StaffRepairSuggestion: { invoiceId: number };
+  ConfirmSuggestedRepair: { invoiceId: number };
   Payment: undefined;
   Feedback: undefined;
 };

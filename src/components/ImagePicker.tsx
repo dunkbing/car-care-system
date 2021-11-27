@@ -5,7 +5,8 @@ import { PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
 import { Asset, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 type Props = {
-  onSelectImage: (images: Asset) => void;
+  onSelectImage: (images: Asset[]) => void;
+  selectionLimit?: number;
 };
 
 const requestCameraPermission = async () => {
@@ -47,14 +48,14 @@ const requestExternalWritePermission = async () => {
 /**
  * a component that allows the user to choose an image from their device or take a new one
  */
-function ImagePicker({ onSelectImage }: Props) {
+function ImagePicker({ onSelectImage, selectionLimit }: Props) {
   const choosePhoto = () => {
-    void launchImageLibrary({ mediaType: 'photo', selectionLimit: 1 }, (response) => {
+    void launchImageLibrary({ mediaType: 'photo', selectionLimit: selectionLimit || 1 }, (response) => {
       if (response.didCancel) {
         return;
       }
       if (response.assets?.length) {
-        onSelectImage(response.assets[0]);
+        onSelectImage(response.assets);
       }
     });
   };
@@ -70,7 +71,7 @@ function ImagePicker({ onSelectImage }: Props) {
         return;
       }
       if (response.assets?.length) {
-        onSelectImage(response.assets[0]);
+        onSelectImage(response.assets);
       }
     });
   };
@@ -111,10 +112,11 @@ export default class ImagePickerWrapper extends React.Component<Props, { isOpen:
         <Modal.Content maxWidth='80%'>
           <Modal.Body>
             <ImagePicker
-              onSelectImage={(image: Asset) => {
+              onSelectImage={(image: Asset[]) => {
                 this.props.onSelectImage(image);
                 this.setState({ isOpen: false });
               }}
+              selectionLimit={this.props.selectionLimit}
             />
           </Modal.Body>
         </Modal.Content>

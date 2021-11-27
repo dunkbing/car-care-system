@@ -151,8 +151,8 @@ const AddStaff: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
       <ImagePicker
         ref={imagePickerRef}
-        onSelectImage={(image: Asset) => {
-          setStaff({ ...staff, avatar: { name: `${image.fileName}`, type: `${image.type}`, uri: `${image.uri}` } });
+        onSelectImage={(images: Asset[]) => {
+          setStaff({ ...staff, avatar: { name: `${images[0].fileName}`, type: `${images[0].type}`, uri: `${images[0].uri}` } });
         }}
       />
     </NativeBaseProvider>

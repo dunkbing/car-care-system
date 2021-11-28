@@ -9,14 +9,14 @@ import toast from '@utils/toast';
 import FormSelect from '@components/form/FormSelect';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { Gender } from '@utils/constants';
+import { CUSTOMER_TYPES, Gender } from '@utils/constants';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
 const Register: React.FC<Props> = ({ navigation }) => {
-  const [typeCustomer, setTypeCustomer] = React.useState('');
   const authStore = Container.get(AuthStore);
   async function onRegisterSubmit(values: RegisterQueryModel) {
+    console.log(values);
     await authStore.register(values);
 
     if (authStore.errorMessage) {
@@ -47,8 +47,8 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 password: '',
                 confirmPassword: '',
                 address: 'a',
-                typeCustomer: '',
                 gender: Gender.MALE,
+                customerType: CUSTOMER_TYPES.PERSONAL,
               }}
               // eslint-disable-next-line @typescript-eslint/require-await
               onSubmit={onRegisterSubmit}
@@ -123,19 +123,36 @@ const Register: React.FC<Props> = ({ navigation }) => {
                   />
                   <FormSelect
                     isRequired
-                    label='Loại khách hàng'
-                    value={typeCustomer}
+                    label='Giới tính'
+                    value={`${values.gender}`}
                     items={[
-                      { label: 'Cá nhân', value: 'Cá nhân' },
-                      { label: 'Doanh nghiệp', value: 'Doanh nghiệp' },
+                      { label: 'Nam', value: '0' },
+                      { label: 'Nữ', value: '1' },
+                      { label: 'Khác', value: '2' },
                     ]}
                     isInvalid={!isValid}
-                    onValueChange={(value) => setTypeCustomer(value)}
+                    onValueChange={handleChange('gender')}
+                    selectProps={{
+                      accessibilityLabel: 'Giới tính',
+                      placeholder: 'Giới tính',
+                    }}
+                    errorMessage={errors.gender}
+                  />
+                  <FormSelect
+                    isRequired
+                    label='Loại khách hàng'
+                    value={`${values.customerType}`}
+                    items={[
+                      { label: 'Cá nhân', value: '0' },
+                      { label: 'Doanh nghiệp', value: '1' },
+                    ]}
+                    isInvalid={!isValid}
+                    onValueChange={handleChange('customerType')}
                     selectProps={{
                       accessibilityLabel: 'Loại khách hàng',
                       placeholder: 'Loại khách hàng',
                     }}
-                    errorMessage={errors.typeCustomer}
+                    errorMessage={errors.customerType}
                   />
                   <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
                   <VStack space={2}>
@@ -144,7 +161,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                       colorScheme='green'
                       _text={{ color: 'white' }}
                       onPress={handleSubmit}
-                      // disabled={!isValid || isRegister}
+                      disabled={!isValid}
                     >
                       Đăng ký
                     </Button>

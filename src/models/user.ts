@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { orRegex, regexes } from '@utils/regex';
 import { GarageModel } from './garage';
-import { ACCOUNT_TYPES, Gender } from '@utils/constants';
+import { ACCOUNT_TYPES, CUSTOMER_TYPES, Gender } from '@utils/constants';
 
 export type CustomerModel = {
   id: number;
@@ -59,7 +59,6 @@ export const registerValidationSchema = yup.object({
     .required('Vui lòng xác nhận mật khẩu')
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
   address: yup.string().required('Không được bỏ trống'),
-  typeCustomer: yup.string().required('Không được bỏ trống'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -124,4 +123,5 @@ export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
   gender: Gender;
+  customerType: CUSTOMER_TYPES;
 };

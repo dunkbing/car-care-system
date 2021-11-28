@@ -104,7 +104,9 @@ export class ApiService {
       for (const [key, value] of Object.entries(params)) {
         formData.append(key, value);
       }
-      promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), formData, { headers });
+      promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), formData, {
+        headers: { ...headers, 'Content-Type': 'multipart/form-data' },
+      });
     } else {
       promise = axios.post<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
     }

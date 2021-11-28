@@ -64,11 +64,12 @@ export default class AuthStore extends BaseStore {
   }
 
   public async register(registerData: RegisterQueryModel) {
-    const { error } = await this.apiService.post<RegisterResponseModel>(authApi.register, registerData, true);
+    console.log(registerData);
+    const { error } = await this.apiService.post<RegisterResponseModel>(authApi.register, registerData, true, true);
     if (error) {
       runInAction(() => {
         this.user = null;
-        this.state = STORE_STATUS.ERROR;
+        this.userType = null;
       });
       this.handleError(error);
     } else {

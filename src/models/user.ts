@@ -61,6 +61,17 @@ export const registerValidationSchema = yup.object({
   address: yup.string().required('Không được bỏ trống'),
 });
 
+export const resetPasswordValidationSchema = yup.object({
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  confirmPassword: yup
+    .string()
+    .required('Vui lòng xác nhận mật khẩu')
+    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
+});
+
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
 
 export type RescuedCustomerModel = {
@@ -122,6 +133,9 @@ export type GarageUser = GarageLoginResponseModel;
 export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
+  dateOfBirth: string;
   gender: Gender;
   customerType: CUSTOMER_TYPES;
 };
+
+export type ResetPasswordQueryModel = yup.InferType<typeof resetPasswordValidationSchema>;

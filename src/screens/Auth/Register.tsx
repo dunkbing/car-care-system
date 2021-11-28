@@ -10,6 +10,7 @@ import FormSelect from '@components/form/FormSelect';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
 import { CUSTOMER_TYPES, Gender } from '@utils/constants';
+import CustomDatePicker from '@components/form/DatePicker';
 
 type Props = StackScreenProps<AuthStackParams, 'Register'>;
 
@@ -47,10 +48,10 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 password: '',
                 confirmPassword: '',
                 address: 'a',
+                dateOfBirth: new Date().toDateString(),
                 gender: Gender.MALE,
                 customerType: CUSTOMER_TYPES.PERSONAL,
               }}
-              // eslint-disable-next-line @typescript-eslint/require-await
               onSubmit={onRegisterSubmit}
             >
               {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
@@ -120,6 +121,14 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     onChangeText={handleChange('confirmPassword')}
                     onBlur={handleBlur('confirmPassword')}
                     errorMessage={errors.password}
+                  />
+                  <CustomDatePicker
+                    isRequired
+                    label='Ngày sinh'
+                    value={new Date(values.dateOfBirth)}
+                    onConfirm={(date) => {
+                      handleChange('dateOfBirth')(date.toDateString());
+                    }}
                   />
                   <FormSelect
                     isRequired

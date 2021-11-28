@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NativeBaseProvider, Box, VStack, Button, ScrollView, HStack, Text } from 'native-base';
+import { NativeBaseProvider, Box, VStack, Button, ScrollView, HStack, Text, Center } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
 import CarModelStore from '@mobx/stores/car-model';
@@ -9,12 +9,13 @@ import FormInput from '@components/form/FormInput';
 import { CreateCarRequestModel } from '@models/car';
 import FormSelect from '@components/form/FormSelect';
 import { Container } from 'typedi';
-import { launchImageLibrary } from 'react-native-image-picker';
 import FaIcon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { observer } from 'mobx-react';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
+import ImagePicker from '@components/ImagePicker';
+import { Image } from 'react-native';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;
 
@@ -23,9 +24,11 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   const carModelStore = Container.get(CarModelStore);
   const carStore = Container.get(CarStore);
 
+  //#region hooks
   useEffect(() => {
     void carBrandStore.getMany();
-  }, [carBrandStore]);
+    carModelStore.clear();
+  }, [carBrandStore, carModelStore]);
 
   const [brand, setBrand] = useState(-1);
   const [car, setCar] = useState<CreateCarRequestModel>({
@@ -34,6 +37,10 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
     licenseNumber: '',
     year: 0,
   });
+
+  const imagePickerRef = React.createRef<ImagePicker>();
+  //#endregion
+
   function chooseGarage() {
     navigation.navigate('SearchGarage', { skip: true });
   }
@@ -111,21 +118,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
               />
               <Button
                 onPress={() => {
-                  launchImageLibrary({ mediaType: 'photo' }, (response) => {
-                    if (response.didCancel) {
-                      return;
-                    }
-                    if (response.assets?.length) {
-                      setCar({
-                        ...car,
-                        avatar: {
-                          uri: response.assets[0].uri as string,
-                          type: response.assets[0].type as string,
-                          name: response.assets[0].fileName as string,
-                        },
-                      });
-                    }
-                  });
+                  imagePickerRef.current?.open();
                 }}
                 style={{ backgroundColor: '#FFFFFF', marginBottom: 10, borderColor: '#8C8C8C', borderWidth: 1 }}
               >
@@ -134,6 +127,7 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
                   <Text style={{ alignSelf: 'center', color: '#000000' }}>Tải ảnh</Text>
                 </HStack>
               </Button>
+              <Center>{car?.avatar && <Image source={{ uri: car.avatar.uri }} style={{ width: 100, height: 100 }} />}</Center>
               <Button
                 mt='1'
                 onPress={route.params?.loggedIn ? createCar : chooseGarage}
@@ -147,6 +141,19 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
           </VStack>
         </Box>
       </ScrollView>
+      <ImagePicker
+        ref={imagePickerRef}
+        onSelectImage={(images) => {
+          setCar({
+            ...car,
+            avatar: {
+              uri: `${images[0].uri}`,
+              type: `${images[0].type}`,
+              name: `${images[0].fileName}`,
+            },
+          });
+        }}
+      />
     </NativeBaseProvider>
   );
 };

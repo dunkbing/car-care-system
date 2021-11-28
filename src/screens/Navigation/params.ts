@@ -24,8 +24,9 @@ export type AuthStackParams = {
   DefineCarModel: undefined;
   SearchGarage: undefined | { skip?: boolean };
   ChangePassword: undefined;
-  ResetPassword: undefined;
   ForgotPassword: undefined;
+  VerifyCode: { email: string };
+  ResetPassword: { verifyCode: string };
 };
 
 export type ProfileStackParams = {
@@ -94,7 +95,7 @@ export type GarageHomeOptionStackParams = {
 
 export type RescueStackParams = {
   Map: undefined;
-  NearByGarages: undefined;
+  NearByGarages: { onSelectGarage: (garage: GarageModel) => void };
   DefineCarStatus: {
     garage: GarageModel;
     onConfirm: (rescueCaseId: number, description: string) => void;
@@ -114,7 +115,7 @@ export type RescueStackParams = {
     | {
         onCancel: (() => void) | undefined;
       };
-  GarageDetail: undefined | { garageId: number; isRescueStack: boolean };
+  GarageDetail: undefined | { garageId: number; isRescueStack?: boolean };
   StaffRepairSuggestion: { invoiceId: number };
   ConfirmSuggestedRepair: { invoiceId: number };
   Payment: undefined;

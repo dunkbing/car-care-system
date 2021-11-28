@@ -26,6 +26,7 @@ export const carApi = {
 
 export const customerApi = {
   setDefaultGarage: 'customers/default-garage',
+  updateInfo: 'customers',
 };
 
 export const feedbackApi = {

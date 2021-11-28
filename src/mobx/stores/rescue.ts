@@ -15,6 +15,7 @@ import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { rescueApi } from '@mobx/services/api-types';
 import FirebaseStore from './firebase';
+import { NOTI_SERVER } from '@env';
 
 @Service()
 export default class RescueStore extends BaseStore {
@@ -146,8 +147,16 @@ export default class RescueStore extends BaseStore {
     if (error) {
       this.handleError(error);
     } else {
-      this.handleSuccess();
       await this.firebaseStore.set(`${result?.id}`, { status: RESCUE_STATUS.PENDING });
+      await this.apiService.post(
+        `${NOTI_SERVER}/rescues`,
+        {
+          garageId: rescueDetail.garageId,
+          description: rescueDetail.description,
+        },
+        true,
+      );
+      this.handleSuccess();
     }
   }
 

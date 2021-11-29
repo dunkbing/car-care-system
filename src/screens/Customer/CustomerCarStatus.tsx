@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NativeBaseProvider, Box, HStack, Button, Text, VStack, ScrollView, Image, View } from 'native-base';
 import { DefaultCar } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-const CarView: React.FC = () => {
+import { GarageCustomerDetail } from '@models/user';
+import { ApiService } from '@mobx/services/api-service';
+import { Container } from 'typedi';
+import { garageApi } from '@mobx/services/api-types';
+
+type CarItemProps = {
+  name: string;
+  licenseNumber: string;
+  imageUrl: string;
+};
+
+const CarItem: React.FC<CarItemProps> = ({ name, licenseNumber, imageUrl }) => {
   return (
     <View
       marginTop={2}
@@ -24,10 +35,10 @@ const CarView: React.FC = () => {
       }}
     >
       <HStack space={2} mt={1} style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-        <Image source={DefaultCar} alt='img' size={'sm'} mt={-1} mr={-10} />
+        <Image source={imageUrl ? { uri: imageUrl } : DefaultCar} alt='car-image' size={'sm'} mt={-1} mr={-10} />
         <VStack space={2}>
-          <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>Mercedes C300 - 2019</Text>
-          <Text style={{ marginLeft: 10 }}>30A 13045</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 1, marginLeft: 10 }}>{name}</Text>
+          <Text style={{ marginLeft: 10 }}>{licenseNumber}</Text>
         </VStack>
       </HStack>
     </View>
@@ -36,7 +47,16 @@ const CarView: React.FC = () => {
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'CustomerCarStatus'>;
 
-const CustomerCarStatus: React.FC<Props> = ({ navigation }) => {
+const CustomerCarStatus: React.FC<Props> = ({ navigation, route }) => {
+  const apiService = Container.get(ApiService);
+  const [customer, setCustomer] = React.useState<GarageCustomerDetail | null>(null);
+
+  useEffect(() => {
+    void apiService.get<GarageCustomerDetail>(garageApi.getCustomer(route.params.customerId), {}, true).then(({ result }) => {
+      setCustomer(result);
+    });
+  }, [apiService, route.params.customerId]);
+
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' mx='auto'>
@@ -50,22 +70,31 @@ const CustomerCarStatus: React.FC<Props> = ({ navigation }) => {
             <Text bold fontSize='lg'>
               Khách hàng:
             </Text>
-            <Text fontSize='lg'>Nguyễn Văn Thiện</Text>
+            <Text fontSize='lg'>{`${customer?.lastName} ${customer?.firstName}`}</Text>
           </HStack>
           <HStack space={2} mb={3}>
             <Text bold fontSize='lg'>
               Số điện thoại:
             </Text>
-            <Text fontSize='lg'>0912345678</Text>
+            <Text fontSize='lg'>{`${customer?.phoneNumber}`}</Text>
           </HStack>
           <Text bold fontSize='lg' mb={3}>
             Thông tin danh sách xe
           </Text>
-          <CarView />
-          <CarView />
+          {customer?.cars.map((car) => (
+            <CarItem
+              key={car.id}
+              name={`${car.brandName} ${car.modelName}`}
+              licenseNumber={`${car.licenseNumber}`}
+              imageUrl={`${car.imageUrl}`}
+            />
+          ))}
           <Button
             onPress={() => {
-              navigation.navigate('RescueHistory');
+              navigation.navigate('RescueHistory', {
+                customerId: route.params.customerId,
+                customerName: `${customer?.lastName} ${customer?.firstName}`,
+              });
             }}
             style={{ alignSelf: 'center', width: '100%', height: 40, marginTop: 15 }}
             backgroundColor='#1F87FE'

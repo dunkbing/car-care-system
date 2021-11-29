@@ -64,8 +64,8 @@ export type GarageHomeOptionStackParams = {
   AddStaff: undefined;
   EditStaff: { staff: StaffModel };
   ManageCustomers: undefined;
-  CustomerCarStatus: undefined;
-  RescueHistory: undefined;
+  CustomerCarStatus: { customerId: number };
+  RescueHistory: undefined | { customerId: number; customerName: string };
   HistoryDetail: { rescue: GarageRescueHistory };
   PendingRescueRequest: undefined;
   DetailRequest: { request: AvailableCustomerRescueDetail };

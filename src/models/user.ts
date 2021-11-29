@@ -3,6 +3,7 @@ import { orRegex, regexes } from '@utils/regex';
 import { GarageModel } from './garage';
 import { ACCOUNT_TYPES, CUSTOMER_TYPES, Gender } from '@utils/constants';
 import { Avatar } from './common';
+import { CarModel } from './car';
 
 export type CustomerModel = {
   id: number;
@@ -14,6 +15,19 @@ export type CustomerModel = {
   taxCode: string;
   avatarUrl: string;
   password: string;
+};
+
+export type GarageCustomerDetail = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  type: CUSTOMER_TYPES;
+  gender: Gender;
+  address: string;
+  taxCode: string;
+  avatarUrl: string;
+  phoneNumber: string;
+  cars: CarModel[];
 };
 
 export type CreateCustomer = {

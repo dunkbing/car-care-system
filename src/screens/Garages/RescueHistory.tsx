@@ -59,26 +59,38 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'st
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RescueHistory'>;
 
-const RescueHistory: React.FC<Props> = ({ navigation }) => {
+const RescueHistory: React.FC<Props> = ({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
   const authStore = Container.get(AuthStore);
+  const customerId = route.params?.customerId;
 
   const onRefresh = React.useCallback(() => {
-    void rescueStore.getHistories({ keyword: '' }, authStore.userType as any);
-  }, [authStore.userType, rescueStore]);
+    if (customerId) {
+      void rescueStore.getHistories({ keyword: '', customerId }, authStore.userType as any);
+    } else {
+      void rescueStore.getHistories({ keyword: '' }, authStore.userType as any);
+    }
+  }, [authStore.userType, customerId, rescueStore]);
 
   useEffect(() => {
-    void rescueStore.getHistories({ keyword: '' }, authStore.userType as any);
-  }, [authStore.userType, rescueStore]);
+    if (customerId) {
+      void rescueStore.getHistories({ keyword: '', customerId }, authStore.userType as any);
+    } else {
+      void rescueStore.getHistories({ keyword: '' }, authStore.userType as any);
+    }
+  }, [authStore.userType, customerId, rescueStore]);
 
   return (
     <VStack width='100%'>
       <SearchBar
-        placeholder='Tìm kiếm khách hàng'
+        placeholder='Tìm kiếm lịch sử'
         width='90%'
         mt='5'
         timeout={500}
         onSearch={(query) => {
+          if (customerId) {
+            void rescueStore.getHistories({ keyword: query, customerId }, authStore.userType as any);
+          }
           void rescueStore.getHistories({ keyword: query }, authStore.userType as any);
         }}
       />

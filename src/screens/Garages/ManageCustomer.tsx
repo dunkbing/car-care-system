@@ -1,83 +1,22 @@
-import React from 'react';
-import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading } from 'native-base';
+import React, { useCallback, useEffect } from 'react';
+import { NativeBaseProvider, Box, HStack, Text, ScrollView, Image, Heading, Spinner } from 'native-base';
 import AvatarStaff from '@assets/images/avatar-staff.png';
 import SearchBar from '@components/SearchBar';
-import { TouchableOpacity } from 'react-native';
+import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { observer } from 'mobx-react';
+import Container from 'typedi';
+import GarageStore from '@mobx/stores/garage';
+import { STORE_STATUS } from '@utils/constants';
 
-const Customer1: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+const CustomerItem: React.FC<{ name: string; onPress: () => void }> = ({ name, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
         <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
         <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Nguyễn Văn Thiện
-        </Text>
-      </HStack>
-    </TouchableOpacity>
-  );
-};
-
-const Customer2: React.FC<{ onPress: () => void }> = ({ onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
-        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Lê Thiện Đức
-        </Text>
-      </HStack>
-    </TouchableOpacity>
-  );
-};
-
-const Customer3: React.FC<{ onPress: () => void }> = ({ onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
-        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Nguyễn Thanh Duy
-        </Text>
-      </HStack>
-    </TouchableOpacity>
-  );
-};
-
-const Customer4: React.FC<{ onPress: () => void }> = ({ onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
-        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Nguyễn Đức Nam
-        </Text>
-      </HStack>
-    </TouchableOpacity>
-  );
-};
-
-const Customer5: React.FC<{ onPress: () => void }> = ({ onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
-        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Lê Minh Trọng
-        </Text>
-      </HStack>
-    </TouchableOpacity>
-  );
-};
-
-const Customer6: React.FC<{ onPress: () => void }> = ({ onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <HStack space={2} mt={6} style={{ flexDirection: 'row' }}>
-        <Image source={AvatarStaff} alt='customer' size={'sm'} mr={1} />
-        <Text ml={3} style={{ textAlignVertical: 'center', fontSize: 20 }}>
-          Đỗ Văn Đức
+          {name}
         </Text>
       </HStack>
     </TouchableOpacity>
@@ -87,6 +26,18 @@ const Customer6: React.FC<{ onPress: () => void }> = ({ onPress }) => {
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'ManageCustomers'>;
 
 const ManageCustomer: React.FC<Props> = ({ navigation }) => {
+  const garageStore = Container.get(GarageStore);
+
+  useEffect(() => {
+    return navigation.addListener('focus', () => {
+      void garageStore.getGarageCustomers();
+    });
+  }, [navigation, garageStore]);
+
+  const onRefresh = useCallback(() => {
+    void garageStore.getGarageCustomers();
+  }, [garageStore]);
+
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -95,24 +46,36 @@ const ManageCustomer: React.FC<Props> = ({ navigation }) => {
           mb: '4',
         }}
         backgroundColor='#fff'
+        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
         <Box pt={5}>
-          <SearchBar placeholder='Tìm kiếm khách hàng' />
+          <SearchBar
+            placeholder='Tìm kiếm khách hàng'
+            timeout={500}
+            onSearch={(keyword) => {
+              void garageStore.getGarageCustomers(keyword);
+            }}
+          />
         </Box>
         <Heading size='lg' textAlign='left' mt={5} ml={5}>
           Danh sách khách hàng
         </Heading>
         <Box safeArea flex={1} p={2} w='100%' mx='auto' ml={3}>
-          <Customer1 onPress={() => navigation.navigate('CustomerCarStatus')} />
-          <Customer2 onPress={() => navigation.navigate('CustomerCarStatus')} />
-          <Customer3 onPress={() => navigation.navigate('CustomerCarStatus')} />
-          <Customer4 onPress={() => navigation.navigate('CustomerCarStatus')} />
-          <Customer5 onPress={() => navigation.navigate('CustomerCarStatus')} />
-          <Customer6 onPress={() => navigation.navigate('CustomerCarStatus')} />
+          {garageStore.state === STORE_STATUS.LOADING ? (
+            <Spinner size='lg' />
+          ) : (
+            garageStore.customersGarages.map((customer) => (
+              <CustomerItem
+                key={customer.id}
+                name={`${customer.lastName} ${customer.firstName}`}
+                onPress={() => navigation.navigate('CustomerCarStatus', { customerId: customer.id })}
+              />
+            ))
+          )}
         </Box>
       </ScrollView>
     </NativeBaseProvider>
   );
 };
 
-export default ManageCustomer;
+export default observer(ManageCustomer);

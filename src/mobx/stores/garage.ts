@@ -6,6 +6,7 @@ import Container, { Service } from 'typedi';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { garageApi } from '@mobx/services/api-types';
+import { GarageCustomerDetail } from '@models/user';
 
 @Service()
 export default class GarageStore extends BaseStore {
@@ -15,8 +16,10 @@ export default class GarageStore extends BaseStore {
       customerDefaultGarage: observable,
       garageDefaultGarage: observable,
       garages: observable,
+      customersGarages: observable,
       getMany: action,
       get: action,
+      getGarageCustomers: action,
     });
   }
 
@@ -28,6 +31,7 @@ export default class GarageStore extends BaseStore {
   // garage side
   garageDefaultGarage: GarageModel | null = null;
   garages: Array<GarageModel> = [];
+  customersGarages: Array<GarageCustomerDetail> = [];
 
   public setCustomerDefaultGarage(garage: GarageModel) {
     runInAction(() => {
@@ -70,6 +74,22 @@ export default class GarageStore extends BaseStore {
         this.state = STORE_STATUS.SUCCESS;
         this.setCustomerDefaultGarage(garage as GarageModel);
       });
+    }
+  }
+
+  public async getGarageCustomers(keyword = '') {
+    this.startLoading();
+
+    const { result, error } = await this.apiService.getPluralWithPagination<GarageCustomerDetail>(garageApi.getCustomers, { keyword });
+
+    if (error) {
+      this.handleError(error);
+    } else {
+      const customersGarages = result || [];
+      runInAction(() => {
+        this.customersGarages = [...customersGarages];
+      });
+      this.handleSuccess();
     }
   }
 }

@@ -43,7 +43,7 @@ export default class GarageStore extends BaseStore {
 
   public async getMany(keyword: string) {
     this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getGarages, { keyword });
+    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getMany, { keyword });
 
     if (error) {
       runInAction(() => {
@@ -60,7 +60,7 @@ export default class GarageStore extends BaseStore {
 
   public async get(id: number) {
     this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.getGarages}/${id}`);
+    const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.getMany}/${id}`);
 
     if (error) {
       this.handleError(error);

@@ -15,7 +15,6 @@ import ServiceStore from '@mobx/stores/service';
 import { observer } from 'mobx-react';
 import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
-import { rootNavigation } from '@screens/Navigation/roots';
 import { BackHandler } from 'react-native';
 
 enum CategoryType {
@@ -97,30 +96,26 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
 
   switch (invoiceStore.garageInvoiceDetail?.status) {
-    case INVOICE_STATUS.DRAFT: {
+    case INVOICE_STATUS.DRAFT:
+    case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER: {
       return (
         <Button style={{ width: '100%' }} isDisabled isLoading>
-          Vui lòng chờ khách hàng xác nhận
+          Chờ khách hàng xác nhận
         </Button>
       );
     }
-    case INVOICE_STATUS.PENDING: {
+    case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL: {
       return (
         <Button
           onPress={async () => {
             onPress?.();
-            await rescueStore.changeRescueStatusToWorking();
-            await rescueStore.getCurrentProcessingStaff(false);
+            const data = (await firebaseStore.get()) as { invoiceId: number };
+            await invoiceStore.sendProposalToManager(data.invoiceId);
             if (rescueStore.state === STORE_STATUS.ERROR) {
               toast.show(rescueStore.errorMessage);
-            } else {
-              // navigation.popToTop();
-              rootNavigation.navigate('GarageHomeOptions', {
-                screen: 'Map',
-                params: { request: rescueStore.currentStaffProcessingRescue },
-              });
             }
           }}
           style={{
@@ -128,7 +123,21 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
             width: '100%',
           }}
         >
-          Đề xuất cho khách hàng
+          Đề xuất cho quản lý
+        </Button>
+      );
+    }
+    case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER: {
+      return (
+        <Button style={{ width: '100%' }} isDisabled isLoading>
+          Chờ quản lý xác nhận
+        </Button>
+      );
+    }
+    case INVOICE_STATUS.STAFF_CONFIRM_PAID: {
+      return (
+        <Button style={{ width: '100%' }} onPress={() => {}}>
+          Tiến hành sửa chữa
         </Button>
       );
     }
@@ -146,7 +155,7 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
               serviceId: service.id,
               quantity: service.quantity || 1,
             }));
-            await invoiceStore.create({
+            await invoiceStore.createProposal({
               rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
               automotivePartInvoices,
               serviceInvoices,

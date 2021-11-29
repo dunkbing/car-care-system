@@ -1,10 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, ChangePassword, ResetPassword } from '@screens/Auth';
+import { ChooseMethod, CustomerLogin, GarageLogin, Register, ForgotPassword, ChangePassword, ResetPassword, OTP } from '@screens/Auth';
 import { AuthStackParams } from './params';
 import { navHeaderStyle } from './roots';
 import DefineCarModel from '@screens/Car/DefineCarModel';
-import SearchGarage from '@screens/Garages/SearchGarage';
+import SearchGarage from '@screens/Customer/SearchGarage';
 
 const AuthStackNav = createNativeStackNavigator<AuthStackParams>();
 
@@ -46,8 +46,30 @@ export const AuthStack: React.FC = () => {
           ...navHeaderStyle,
         }}
       />
-      <AuthStackNav.Screen name='ChangePassword' component={ChangePassword} />
-      <AuthStackNav.Screen name='ResetPassword' component={ResetPassword} />
+      <AuthStackNav.Screen
+        name='VerifyCode'
+        component={OTP}
+        options={{
+          title: 'Quên mật khẩu',
+          ...navHeaderStyle,
+        }}
+      />
+      <AuthStackNav.Screen
+        name='ChangePassword'
+        component={ChangePassword}
+        options={{
+          title: 'Đổi mật khẩu',
+          ...navHeaderStyle,
+        }}
+      />
+      <AuthStackNav.Screen
+        name='ResetPassword'
+        component={ResetPassword}
+        options={{
+          title: 'Đổi mật khẩu',
+          ...navHeaderStyle,
+        }}
+      />
     </AuthStackNav.Navigator>
   );
 };

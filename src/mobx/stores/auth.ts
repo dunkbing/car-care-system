@@ -64,12 +64,54 @@ export default class AuthStore extends BaseStore {
   }
 
   public async register(registerData: RegisterQueryModel) {
-    const { error } = await this.apiService.post<RegisterResponseModel>(authApi.register, registerData, true);
+    const date = new Date(registerData.dateOfBirth);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const { error } = await this.apiService.post<RegisterResponseModel>(
+      authApi.register,
+      { ...registerData, dateOfBirth: `${year}/${month}/${day}` },
+      true,
+      true,
+    );
     if (error) {
       runInAction(() => {
         this.user = null;
-        this.state = STORE_STATUS.ERROR;
+        this.userType = null;
       });
+      this.handleError(error);
+    } else {
+      this.handleSuccess();
+    }
+  }
+
+  // send verification code
+  public async sendVerificationCode(email: string) {
+    this.startLoading();
+    const { error } = await this.apiService.post(authApi.sendCode, { email }, true);
+    if (error) {
+      this.handleError(error);
+    } else {
+      this.handleSuccess();
+    }
+  }
+
+  // verify code
+  public async verifyCode(emailOrPhone: string, verificationCode: string) {
+    this.startLoading();
+    const { error } = await this.apiService.post(authApi.verifyCode, { emailOrPhone, verificationCode }, true);
+    if (error) {
+      this.handleError(error);
+    } else {
+      this.handleSuccess();
+    }
+  }
+
+  // create new password
+  public async createNewPassword(verifyCode: string, password: string, confirmPassword: string) {
+    this.startLoading();
+    const { error } = await this.apiService.post(authApi.createNewPassword, { verifyCode, password, confirmPassword }, true);
+    if (error) {
       this.handleError(error);
     } else {
       this.handleSuccess();

@@ -8,7 +8,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type StackParams = {
   Auth: NavigatorScreenParams<AuthStackParams>;
   CustomerHomeTab: NavigatorScreenParams<CustomerTabParams> | undefined;
-  GarageHomeTab: NavigatorScreenParams<GarageTabParams> | undefined;
+  GarageHomeStack: NavigatorScreenParams<GarageHomeOptionStackParams> | undefined;
   GarageHomeOptions: NavigatorScreenParams<GarageHomeOptionStackParams> | undefined;
   Profile: NavigatorScreenParams<ProfileStackParams>;
   Rescue: NavigatorScreenParams<RescueStackParams>;
@@ -24,8 +24,9 @@ export type AuthStackParams = {
   DefineCarModel: undefined;
   SearchGarage: undefined | { skip?: boolean };
   ChangePassword: undefined;
-  ResetPassword: undefined;
   ForgotPassword: undefined;
+  VerifyCode: { email: string };
+  ResetPassword: { verifyCode: string };
 };
 
 export type ProfileStackParams = {
@@ -35,7 +36,7 @@ export type ProfileStackParams = {
   CarHistory: { car: CarDetailModel };
   EditCarDetail: { car: CarDetailModel };
   DefineCarModel: { loggedIn: boolean };
-  DefaultGarage: undefined;
+  DefaultGarage: { garageId: number };
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
@@ -55,7 +56,10 @@ export type GarageTabParams = {
 };
 
 export type GarageHomeOptionStackParams = {
+  Home: undefined;
   MyGarage: { garage: GarageModel | null };
+  ProposalList: undefined;
+  RequestCustomerConfirmation: { invoiceId: number };
   ManageStaffs: undefined | { rescueId: number };
   AddStaff: undefined;
   EditStaff: { staff: StaffModel };
@@ -91,6 +95,7 @@ export type GarageHomeOptionStackParams = {
 
 export type RescueStackParams = {
   Map: undefined;
+  NearByGarages: { onSelectGarage: (garage: GarageModel) => void };
   DefineCarStatus: {
     garage: GarageModel;
     onConfirm: (rescueCaseId: number, description: string) => void;
@@ -104,13 +109,15 @@ export type RescueStackParams = {
         rescueId: number;
         isStaff?: boolean;
       };
+  CancelStaffSuggestion: { invoiceId: number };
   DefineRequestCancelReason:
     | undefined
     | {
         onCancel: (() => void) | undefined;
       };
-  GarageDetail: undefined | { garage: GarageModel; isRescueStack: boolean };
-  ConfirmSuggestedRepair: undefined;
+  GarageDetail: undefined | { garageId: number; isRescueStack?: boolean };
+  RepairSuggestion: { invoiceId: number };
+  QuotationSuggestion: { invoiceId: number };
   Payment: undefined;
   Feedback: undefined;
 };

@@ -30,7 +30,7 @@ const DefineCarStatus: React.FC<Props> = observer(({ navigation, route }) => {
       const newDesc = rescueStore.rescueCases.find((item) => item.id === Number(carStatus))?.name;
       route.params?.onConfirm(Number(carStatus), newDesc as string);
     }
-    navigation.goBack();
+    navigation.popToTop();
   }
 
   return (

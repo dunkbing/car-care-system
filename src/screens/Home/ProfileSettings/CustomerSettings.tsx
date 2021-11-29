@@ -12,6 +12,7 @@ import { Container } from 'typedi';
 import OptionProfile from './OptionProfile';
 import OptionItem from './OptionItem';
 import AuthStore from '@mobx/stores/auth';
+import { CustomerLoginResponseModel } from '@models/user';
 
 type Props = NativeStackScreenProps<CustomerTabParams, 'ProfileHome'>;
 
@@ -48,6 +49,7 @@ const CustomerSettings: React.FC<Props> = () => {
               }
               rootNavigation.navigate('Profile', {
                 screen: 'DefaultGarage',
+                params: { garageId: (authStore.user as CustomerLoginResponseModel).defaultGarageId as number },
               });
             }}
             icon={<MatCommuIcon name='garage' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}

@@ -9,3 +9,4 @@ export { default as Customer } from './customer.png';
 export { default as Employees } from './employees.png';
 export { default as ListImg } from './list.png';
 export { default as RequestImg } from './request.png';
+export { default as RepairSuggestionImg } from './repair_suggestion.png';

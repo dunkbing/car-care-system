@@ -1,11 +1,12 @@
 import React from 'react';
-import { Center, HStack, Text, VStack } from 'native-base';
+import { HStack, Modal, Text, VStack } from 'native-base';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import { PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
 import { Asset, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 type Props = {
-  onSelectImage: (images: Asset) => void;
+  onSelectImage: (images: Asset[]) => void;
+  selectionLimit?: number;
 };
 
 const requestCameraPermission = async () => {
@@ -47,14 +48,14 @@ const requestExternalWritePermission = async () => {
 /**
  * a component that allows the user to choose an image from their device or take a new one
  */
-export default function ImagePicker({ onSelectImage }: Props) {
+function ImagePicker({ onSelectImage, selectionLimit }: Props) {
   const choosePhoto = () => {
-    launchImageLibrary({ mediaType: 'photo', selectionLimit: 1 }, (response) => {
+    void launchImageLibrary({ mediaType: 'photo', selectionLimit: selectionLimit || 1 }, (response) => {
       if (response.didCancel) {
         return;
       }
       if (response.assets?.length) {
-        onSelectImage(response.assets[0]);
+        onSelectImage(response.assets);
       }
     });
   };
@@ -65,32 +66,61 @@ export default function ImagePicker({ onSelectImage }: Props) {
     if (!isCameraPermitted || !isStoragePermitted) {
       return;
     }
-    launchCamera({ mediaType: 'photo' }, (response) => {
+    void launchCamera({ mediaType: 'photo' }, (response) => {
       if (response.didCancel) {
         return;
       }
       if (response.assets?.length) {
-        onSelectImage(response.assets[0]);
+        onSelectImage(response.assets);
       }
     });
   };
 
   return (
-    <Center h={100} backgroundColor='white'>
-      <VStack space={2} pt={4} pb={2}>
-        <HStack space={2}>
-          <MatIcon name='image' size={30} />
-          <TouchableOpacity onPress={choosePhoto}>
-            <Text fontSize='lg'>Chọn ảnh từ thư viện</Text>
-          </TouchableOpacity>
-        </HStack>
-        <HStack space={2}>
-          <MatIcon name='photo-camera' size={30} />
-          <TouchableOpacity onPress={takePhoto}>
-            <Text fontSize='lg'>Chụp ảnh mới</Text>
-          </TouchableOpacity>
-        </HStack>
-      </VStack>
-    </Center>
+    <VStack space={2} pt={4} pb={2}>
+      <HStack space={2}>
+        <MatIcon name='image' size={30} />
+        <TouchableOpacity onPress={choosePhoto}>
+          <Text fontSize='lg'>Chọn ảnh từ thư viện</Text>
+        </TouchableOpacity>
+      </HStack>
+      <HStack space={2}>
+        <MatIcon name='photo-camera' size={30} />
+        <TouchableOpacity onPress={takePhoto}>
+          <Text fontSize='lg'>Chụp ảnh mới</Text>
+        </TouchableOpacity>
+      </HStack>
+    </VStack>
   );
+}
+
+export default class ImagePickerWrapper extends React.Component<Props, { isOpen: boolean }> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isOpen: false,
+    };
+  }
+
+  public open() {
+    this.setState({ isOpen: true });
+  }
+
+  render() {
+    return (
+      <Modal isOpen={this.state.isOpen} onClose={() => this.setState({ isOpen: false })} size='lg'>
+        <Modal.Content maxWidth='80%'>
+          <Modal.Body>
+            <ImagePicker
+              onSelectImage={(image: Asset[]) => {
+                this.props.onSelectImage(image);
+                this.setState({ isOpen: false });
+              }}
+              selectionLimit={this.props.selectionLimit}
+            />
+          </Modal.Body>
+        </Modal.Content>
+      </Modal>
+    );
+  }
 }

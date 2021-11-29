@@ -12,6 +12,7 @@ import polyline from '@mapbox/polyline';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import RNLocation from 'react-native-location';
+import firestore from '@react-native-firebase/firestore';
 
 import CarCarousel from './CarCarousel';
 import PopupGarage from './PopupGarage';
@@ -39,6 +40,7 @@ import InvoiceStore from '@mobx/stores/invoice';
 import OpacityView from '@components/OpacityView';
 import { GarageMarkers, RescueLocationMarker, RescueRoutes, StaffLocationMarker } from './map-component';
 import { Route } from '@models/common';
+import { firestoreCollection } from '@mobx/services/api-types';
 
 Logger.setLogCallback(() => {
   return true;
@@ -124,27 +126,27 @@ const Map: React.FC<Props> = ({ navigation }) => {
         if (permision) {
           void RNLocation.getLatestLocation({ timeout: 1000 }).then((location) => {
             if (location) {
-              if (!rescueLocation) {
-                void withProgress(
-                  mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location.latitude},${location.longitude}` }),
-                ).then(({ result: geocoding }) => {
-                  let car: CarModel | undefined;
-                  if (carStore.cars.length >= 2) {
-                    car = carStore.cars[1];
-                  } else if (carStore.cars.length === 1) {
-                    car = carStore.cars[0];
-                  }
-                  setRescueRequestDetail({
-                    ...rescueRequestDetail,
-                    customerCurrentLocation: { longitude: location.longitude, latitude: location.latitude },
-                    rescueLocation: {
-                      longitude: location.longitude,
-                      latitude: location.latitude,
-                    },
-                    address: geocoding?.results[0].formatted_address as string,
-                    carId: car?.id || -1,
-                  });
+              void withProgress(
+                mapService.getGeocoding({ api_key: GOONG_API_KEY, latlng: `${location.latitude},${location.longitude}` }),
+              ).then(({ result: geocoding }) => {
+                let car: CarModel | undefined;
+                if (carStore.cars.length >= 2) {
+                  car = carStore.cars[1];
+                } else if (carStore.cars.length === 1) {
+                  car = carStore.cars[0];
+                }
+                setRescueRequestDetail({
+                  ...rescueRequestDetail,
+                  customerCurrentLocation: { longitude: location.longitude, latitude: location.latitude },
+                  rescueLocation: {
+                    longitude: location.longitude,
+                    latitude: location.latitude,
+                  },
+                  address: geocoding?.results[0].formatted_address as string,
+                  carId: car?.id || -1,
                 });
+              }).catch(console.error);
+              if (!rescueLocation) {
                 setRescueLocation(location);
               }
             }
@@ -156,17 +158,49 @@ const Map: React.FC<Props> = ({ navigation }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * when (sos/send request) button is clicked.
+   */
+   const handleSos = useCallback((garage: GarageModel | null) => {
+    return async () => {
+      if (!garage) {
+        dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', type: DIALOG_TYPE.CONFIRM, onAgreed: () => {} });
+        return;
+      }
+      await rescueStore.getRescueCases();
+      navigation.navigate('DefineCarStatus', {
+        garage,
+        onConfirm: (rescueCaseId: number, description: string) => {
+          setRescueRequestDetail({
+            ...rescueRequestDetail,
+            rescueCaseId,
+            description,
+            garageId: garage.id,
+          });
+          setGarage(garage);
+          setDefinedCarStatus(true);
+          dialogStore.openMsgDialog({
+            title: 'Chờ garage phản hồi',
+            message: 'Quý khách vui lòng chờ garage phản hồi',
+            type: DIALOG_TYPE.CANCEL,
+            onRefused: () => {},
+          });
+        },
+      });
+    };
+  }, [dialogStore, navigation, rescueRequestDetail, rescueStore]);
+
   const observeRescueStatus = useCallback(() => {
+    let timeOutId: NodeJS.Timeout;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const unsub = firebaseStore.rescueDoc?.onSnapshot(async (snapShot) => {
+    const unsub = firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingCustomer();
 
-      const { status, invoiceId, invoiceStatus, customerConfirm, garageRejected, staffLocation: sl } = snapShot.data() as {
+      const { status, invoiceId, customerConfirm, garageRejected, staffLocation: sl } = snapShot.data() as {
         status: number;
         invoiceId: number;
-        invoiceStatus: number;
         customerConfirm: boolean;
         customerRejected: boolean;
         garageRejected: boolean;
@@ -174,6 +208,35 @@ const Map: React.FC<Props> = ({ navigation }) => {
       };
       switch (status) {
         case RESCUE_STATUS.PENDING:
+          timeOutId = setTimeout(() => {
+            dialogStore.openMsgDialog({
+              title: 'Garage bạn chọn đã quá thời gian phản hồi',
+              message: 'Quý khách vui lòng chọn garage khác để tiếp tục dịch vụ',
+              type: DIALOG_TYPE.BOTH,
+              onAgreed: async () => {
+                // ! TODO: currenly reject case is hard coded.
+                await rescueStore.customerRejectCurrentRescueCase({
+                  rejectRescueCaseId: 2,
+                  rejectReason: 'Tôi đã chờ quá lâu',
+                });
+                navigation.navigate('NearByGarages', {
+                  onSelectGarage: (garage: GarageModel) => {
+                    void handleSos(garage)();
+                  },
+                });
+              },
+              onRefused: async () => {
+                await rescueStore.getCustomerRejectedRescueCases();
+  
+                if (rescueStore.state === STORE_STATUS.ERROR) {
+                  toast.show('Không thể tải dữ liệu');
+                  return;
+                } else {
+                  navigation.navigate('DefineRequestCancelReason');
+                }
+              },
+            });
+          }, 1000 * 30);
           dialogStore.openMsgDialog({
             title: 'Chờ garage phản hồi',
             message: 'Quý khách vui lòng chờ garage phản hồi',
@@ -191,6 +254,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           });
           break;
         case RESCUE_STATUS.ACCEPTED: {
+          clearTimeout(timeOutId);
           const { garage, rescueLocation } = rescueStore.currentCustomerProcessingRescue!;
           const garageLocation = rescueStore.currentCustomerProcessingRescue!.garage.location;
           void mapService
@@ -200,7 +264,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
               destinations: `${garageLocation.latitude},${garageLocation.longitude}`,
               vehicle: 'car',
             })
-            .then(({ result }) => setDuration(`${result?.rows[0].elements[0].duration.text}`));
+            .then(({ result }) => setDuration(`${result?.rows[0]?.elements[0]?.duration?.text}`));
           dialogStore.openMsgDialog({
             message: `${garage?.name} đã chấp nhận yêu cầu cứu hộ của bạn`,
             type: DIALOG_TYPE.CONFIRM,
@@ -259,14 +323,19 @@ const Map: React.FC<Props> = ({ navigation }) => {
                 vehicle: 'car',
               })
               .then(({ result: distanceMatrix }) => {
-                setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
+                setDuration(`${distanceMatrix?.rows[0]?.elements[0]?.duration?.text}`);
               }).catch(console.error);
           }
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
-          dialogStore.closeMsgDialog();
-          await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+          dialogStore.openMsgDialog({
+            message: 'Nhân viên cứu hộ của bạn đã đến',
+            type: DIALOG_TYPE.CONFIRM,
+            onAgreed: async () => {
+              await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+            },
+          });
           break;
         }
         case RESCUE_STATUS.WORKING: {
@@ -280,23 +349,49 @@ const Map: React.FC<Props> = ({ navigation }) => {
         default:
           break;
       }
-      switch (invoiceStatus) {
-        case INVOICE_STATUS.DRAFT: {
-          await invoiceStore.getCustomerInvoiceDetail(invoiceId);
-          navigation.navigate('ConfirmSuggestedRepair');
-          break;
-        }
-        default:
+      
+      console.log('invoice id', invoiceId);
+      if (invoiceId !== null && invoiceId !== undefined) {
+        dialogStore.closeMsgDialog();
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        firestore().collection(firestoreCollection.invoices).doc(`${invoiceId}`).onSnapshot(async (invoiceSnapshot) => {
+          if (!invoiceSnapshot.exists) return;
+
+          const { status: invoiceStatus } = invoiceSnapshot.data() as { status: number };
           console.log('invoiceStatus', invoiceStatus);
-          break;
+          switch (invoiceStatus) {
+            case INVOICE_STATUS.DRAFT:
+            case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER:
+            case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL:
+            case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER: {
+              dialogStore.closeMsgDialog();
+              await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+              navigation.navigate('RepairSuggestion', { invoiceId });
+              break;
+            }
+            case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER: {
+              await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+              navigation.navigate('QuotationSuggestion', { invoiceId });
+              break;
+            }
+            default:
+              break;
+          }
+        });
       }
 
       if (rescueStore.currentCustomerProcessingRescue && customerConfirm && status === RESCUE_STATUS.WORKING) {
         navigation.navigate('Payment');
       }
     });
-    return unsub;
-  }, [dialogStore, firebaseStore.rescueDoc, invoiceStore, navigation, rescueLocation?.latitude, rescueLocation?.longitude, rescueStore, staffLocation?.latitude, staffLocation?.longitude]);
+
+    return () =>{
+      unsub?.();
+      if (timeOutId) {
+        clearTimeout(timeOutId);
+      }
+    };
+  }, [dialogStore, handleSos, invoiceStore, navigation, rescueLocation?.latitude, rescueLocation?.longitude, rescueStore, staffLocation?.latitude, staffLocation?.longitude]);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -306,6 +401,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   }, [navigation, observeRescueStatus, rescueStore]);
 
   useEffect(() => {
+    void rescueStore.getCurrentProcessingCustomer();
     return observeRescueStatus();
   }, [
     dialogStore,
@@ -342,6 +438,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
    * process sos request(accept or reject)
    */
   const processSosRequest = async () => {
+    console.log('processSosRequest', rescueRequestDetail);
     await rescueStore.createRescueDetail(rescueRequestDetail);
 
     if (rescueStore.state === STORE_STATUS.ERROR) {
@@ -357,38 +454,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
         status: rescueStore.currentCustomerProcessingRescue.status,
       });
     }
-  };
-
-  /**
-   * when (sos/send request) button is clicked.
-   */
-  const handleSos = (garage: GarageModel | null) => {
-    return async () => {
-      if (!garage) {
-        dialogStore.openMsgDialog({ message: 'Bạn chưa đăng kí garage mặc định', type: DIALOG_TYPE.CONFIRM, onAgreed: () => {} });
-        return;
-      }
-      await rescueStore.getRescueCases();
-      navigation.navigate('DefineCarStatus', {
-        garage,
-        onConfirm: (rescueCaseId: number, description: string) => {
-          setRescueRequestDetail({
-            ...rescueRequestDetail,
-            rescueCaseId,
-            description,
-            garageId: garage.id,
-          });
-          setGarage(garage);
-          setDefinedCarStatus(true);
-          dialogStore.openMsgDialog({
-            title: 'Chờ garage phản hồi',
-            message: 'Quý khách vui lòng chờ garage phản hồi',
-            type: DIALOG_TYPE.CANCEL,
-            onRefused: () => {},
-          });
-        },
-      });
-    };
   };
 
   const selectCar = useCallback(
@@ -425,7 +490,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           <PopupGarage
             garage={garage as any}
             handleSos={handleSos(garage as any)}
-            viewGarageDetail={() => navigation.navigate('GarageDetail', { garage: garage as GarageModel, isRescueStack: true })}
+            viewGarageDetail={() => navigation.navigate('GarageDetail', { garageId: garage?.id as number, isRescueStack: true })}
           />
         )}
       />

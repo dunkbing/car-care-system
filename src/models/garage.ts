@@ -1,5 +1,7 @@
+import { regexes } from '@utils/regex';
 import * as yup from 'yup';
 import { Location } from './common';
+import { CustomerFeedback } from './rescue';
 
 export type GarageModel = {
   id: number;
@@ -11,10 +13,11 @@ export type GarageModel = {
   imageUrl: string;
   location: Location;
   isAnyStaffAvailable?: boolean;
+  garageFeedbacks?: Array<CustomerFeedback>;
 };
 
 export const loginValidationSchema = yup.object({
-  emailOrPhone: yup.string().required('Không được bỏ trống'),
+  emailOrPhone: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   password: yup.string().required('Không được bỏ trống'),
 });
 

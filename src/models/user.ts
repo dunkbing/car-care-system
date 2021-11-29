@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 import { orRegex, regexes } from '@utils/regex';
 import { GarageModel } from './garage';
-import { ACCOUNT_TYPES, Gender } from '@utils/constants';
+import { ACCOUNT_TYPES, CUSTOMER_TYPES, Gender } from '@utils/constants';
+import { Avatar } from './common';
 
 export type CustomerModel = {
   id: number;
@@ -59,7 +60,33 @@ export const registerValidationSchema = yup.object({
     .required('Vui lòng xác nhận mật khẩu')
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
   address: yup.string().required('Không được bỏ trống'),
-  typeCustomer: yup.string().required('Không được bỏ trống'),
+});
+
+export const updateCustomerValidationSchema = yup.object({
+  fullName: yup.string().required('Không được bỏ trống').matches(regexes.fullName, 'Tên không hợp lệ'),
+  phoneNumber: yup
+    .string()
+    .required('Không được bỏ trống')
+    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
+    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
+    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+  email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
+  address: yup.string().required('Không được bỏ trống'),
+  customerType: yup.number(),
+  taxCode: yup.string().when(['customerType'], (customerType, schema) => {
+    return customerType === CUSTOMER_TYPES.BUSINESS ? schema.required('Không được bỏ trống') : schema;
+  }),
+});
+
+export const resetPasswordValidationSchema = yup.object({
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  confirmPassword: yup
+    .string()
+    .required('Vui lòng xác nhận mật khẩu')
+    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -123,5 +150,15 @@ export type GarageUser = GarageLoginResponseModel;
 export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
+  dateOfBirth: string;
   gender: Gender;
+  customerType: CUSTOMER_TYPES;
 };
+
+export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {
+  dateOfBirth: string;
+  gender: Gender;
+  avatar?: Avatar;
+};
+
+export type ResetPasswordQueryModel = yup.InferType<typeof resetPasswordValidationSchema>;

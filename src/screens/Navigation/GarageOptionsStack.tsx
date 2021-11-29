@@ -3,7 +3,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import { GarageHomeOptionStackParams } from './params';
-import DefaultGarage from '@screens/Garages/GarageInfoDetail';
+import GarageDetail from '@screens/Garages/GarageInfoDetail';
 import ManageCustomer from '@screens/Garages/ManageCustomer';
 import RescueHistory from '@screens/Garages/RescueHistory';
 import { navHeaderStyle } from './roots';
@@ -17,15 +17,15 @@ import DetailAssignRequest from '@screens/Garages/Request/DetailAssignRequest';
 import { ManageStaff, AddStaff, EditStaff } from '@screens/Garages/Staff';
 import Map from '@screens/Garages/Map';
 import AutomotivePartSuggestion from '@screens/Garages/RepairSuggestion/AutomotivePartSuggestion';
-import GarageRepairSuggestion from '@screens/Garages/RepairSuggestion/RepairSuggestion';
+import RepairSuggestion from '@screens/Garages/RepairSuggestion/RepairSuggestion';
 import Payment from '@screens/Payment/GaragePayment';
 import Feedback from '@screens/Garages/Feedback';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 import { GarageHomeTab } from './HomeTab';
-import ProposalList from '@screens/Garages/RepairSuggestion/ProposalList';
-import RequestCustomerConfirmation from '@screens/Garages/RepairSuggestion/RequestCustomerConfirmation';
+import ProposalList from '@screens/Garages/ProposalList';
+import ManagerSendQuotationToCustomer from '@screens/Garages/RepairSuggestion/RequestCustomerConfirmation';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -35,7 +35,7 @@ export const GarageOptionsStack: React.FC = () => {
       <Stack.Screen name='Home' component={GarageHomeTab} options={{ headerShown: false }} />
       <Stack.Screen
         name='MyGarage'
-        component={DefaultGarage}
+        component={GarageDetail}
         options={{
           title: 'Garage của tôi',
           ...navHeaderStyle,
@@ -51,7 +51,7 @@ export const GarageOptionsStack: React.FC = () => {
       />
       <Stack.Screen
         name='RequestCustomerConfirmation'
-        component={RequestCustomerConfirmation}
+        component={ManagerSendQuotationToCustomer}
         options={{
           title: 'Đề xuất sửa chữa',
           ...navHeaderStyle,
@@ -115,7 +115,7 @@ export const GarageOptionsStack: React.FC = () => {
         component={ServiceSuggestion}
         options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false }}
       />
-      <Stack.Screen name='RepairSuggestion' component={GarageRepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }} />
+      <Stack.Screen name='RepairSuggestion' component={RepairSuggestion} options={{ title: 'Đề xuất sửa chữa', ...navHeaderStyle, headerBackVisible: false, gestureEnabled: false }} />
       <Stack.Screen name='RejectRequest' component={RejectRequest} options={{ title: 'Từ chối yêu cầu', ...navHeaderStyle }} />
     </Stack.Navigator>
   );

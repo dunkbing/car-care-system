@@ -4,16 +4,26 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
 import toast from '@utils/toast';
+import Container from 'typedi';
+import InvoiceStore from '@mobx/stores/invoice';
 
-type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
+type Props = StackScreenProps<RescueStackParams, 'CancelStaffSuggestion'>;
 
-const CancelStaffSuggestion: React.FC<Props> = observer(() => {
+const CancelStaffSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
+  const invoiceStore = Container.get(InvoiceStore);
   const [reason, setReason] = useState('');
 
-  function confirmCancel() {
+  async function confirmCancel() {
     if (!reason) {
       toast.show('Vui lòng chọn lý do hủy yêu cầu');
       return;
+    }
+
+    await invoiceStore.customerRejectProposal(route.params.invoiceId, reason);
+    if (invoiceStore.errorMessage) {
+      toast.show(invoiceStore.errorMessage);
+    } else {
+      navigation.goBack();
     }
   }
 

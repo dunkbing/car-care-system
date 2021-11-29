@@ -109,15 +109,15 @@ export type RescueStackParams = {
         rescueId: number;
         isStaff?: boolean;
       };
-  CancelStaffSuggestion: undefined;
+  CancelStaffSuggestion: { invoiceId: number };
   DefineRequestCancelReason:
     | undefined
     | {
         onCancel: (() => void) | undefined;
       };
   GarageDetail: undefined | { garageId: number; isRescueStack?: boolean };
-  StaffRepairSuggestion: { invoiceId: number };
-  ConfirmSuggestedRepair: { invoiceId: number };
+  RepairSuggestion: { invoiceId: number };
+  QuotationSuggestion: { invoiceId: number };
   Payment: undefined;
   Feedback: undefined;
 };

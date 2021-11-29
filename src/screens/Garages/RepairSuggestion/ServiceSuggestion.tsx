@@ -116,7 +116,7 @@ const ServiceSuggestion: React.FC<Props> = observer(({ navigation }) => {
         )}
         <AddButton
           onPress={() => {
-            navigation.replace('RepairSuggestion');
+            navigation.navigate('RepairSuggestion');
           }}
         />
       </VStack>

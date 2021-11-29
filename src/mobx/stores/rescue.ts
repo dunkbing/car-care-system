@@ -45,7 +45,7 @@ export default class RescueStore extends BaseStore {
       getPendingRescueRequests: action,
       getRescueCases: action,
     });
-    void this.getHistories('');
+    void this.getHistories({ keyword: '' });
   }
 
   private readonly apiService = Container.get(ApiService);
@@ -80,13 +80,14 @@ export default class RescueStore extends BaseStore {
    * @param keyword
    * @param userType
    */
-  public async getHistories(keyword: string, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
+  public async getHistories(
+    params?: { keyword: string; carId?: number; customerId?: number },
+    userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER,
+  ) {
     this.state = STORE_STATUS.LOADING;
 
     if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistory>(rescueApi.customerHistories, {
-        keyword,
-      });
+      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistory>(rescueApi.customerHistories, params);
 
       if (error) {
         this.handleError(error);
@@ -98,9 +99,7 @@ export default class RescueStore extends BaseStore {
         });
       }
     } else {
-      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistory>(rescueApi.garageHistories, {
-        keyword,
-      });
+      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistory>(rescueApi.garageHistories, params);
 
       if (error) {
         runInAction(() => {

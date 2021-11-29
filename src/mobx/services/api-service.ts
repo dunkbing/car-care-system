@@ -63,6 +63,8 @@ export class ApiService {
       return { result: data.data.result, error: null };
     } catch (error) {
       return { result: null, error: this.processError(error) };
+    } finally {
+      this.dialogStore.closeProgressDialog();
     }
   }
 

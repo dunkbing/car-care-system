@@ -1,16 +1,18 @@
+import React, { useEffect, useState } from 'react';
 import InvoiceStore from '@mobx/stores/invoice';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
-import React, { useEffect } from 'react';
 import Container from 'typedi';
+import firestore from '@react-native-firebase/firestore';
 import { colors, INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 import { BackHandler } from 'react-native';
+import { firestoreCollection } from '@mobx/services/api-types';
 
 type Props = StackScreenProps<RescueStackParams, 'Payment'>;
 
@@ -18,9 +20,30 @@ const ConfirmButton: React.FC = observer(() => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const firebaseStore = Container.get(FirebaseStore);
+  const [status, setStatus] = useState(-1);
 
-  switch (invoiceStore.customerInvoiceDetail?.status) {
-    case INVOICE_STATUS.PENDING: {
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = (
+        await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentCustomerProcessingRescue?.id}`).get()
+      ).data() as { invoiceId: number };
+      firestore()
+        .collection(firestoreCollection.invoices)
+        .doc(`${result.invoiceId}`)
+        .onSnapshot((snapShot) => {
+          if (snapShot.exists) {
+            const invoice = snapShot.data() as { status: number };
+            setStatus(invoice.status);
+          }
+          void invoiceStore.getProposalDetail(result.invoiceId);
+        });
+    };
+    void fetchData();
+  }, [invoiceStore, rescueStore.currentCustomerProcessingRescue?.id]);
+  switch (status) {
+    case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
+    case INVOICE_STATUS.MANAGER_CONFIRM_REPAIR:
+    case INVOICE_STATUS.CUSTOMER_CONFIRM_REPAIR: {
       return (
         <Button
           mt='10'
@@ -30,8 +53,15 @@ const ConfirmButton: React.FC = observer(() => {
           onPress={async () => {
             const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
             const data = await firebaseStore.get<{ invoiceId: number }>();
+            const result = (await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).get()).data() as {
+              invoiceId: number;
+            };
             await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
-            await firebaseStore.update(`${rescueId}`, {
+            await firestore()
+              .collection(firestoreCollection.invoices)
+              .doc(`${result.invoiceId}`)
+              .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRM_PAID });
+            await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).update({
               garageConfirm: true,
             });
             await invoiceStore.getCustomerInvoiceDetail(data?.invoiceId as any);
@@ -41,7 +71,7 @@ const ConfirmButton: React.FC = observer(() => {
             }
           }}
         >
-          Xác nhận đã thanh toán
+          Xác nhận thanh toán
         </Button>
       );
     }

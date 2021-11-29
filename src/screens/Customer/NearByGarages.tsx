@@ -1,42 +1,42 @@
 import React, { useEffect } from 'react';
 import { RefreshControl } from 'react-native';
-import { HStack, ScrollView, Spinner, Text, View, VStack } from 'native-base';
+import { Button, Link, ScrollView, Spinner, Text, View, VStack } from 'native-base';
 import Container from 'typedi';
-import FAIcon from 'react-native-vector-icons/FontAwesome';
-import { AirbnbRating } from 'react-native-ratings';
 import { observer } from 'mobx-react';
 
 import GarageStore from '@mobx/stores/garage';
 import { STORE_STATUS } from '@utils/constants';
 import SearchBar from '@components/SearchBar';
 import { GarageModel } from '@models/garage';
+import { StackScreenProps } from '@react-navigation/stack';
+import { RescueStackParams } from '@screens/Navigation/params';
 
-const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
-  const garageStore = Container.get(GarageStore);
-  const bgColor = garageStore.customerDefaultGarage?.id === id ? '#E9F7FF' : 'white';
+type GarageProps = {
+  garage: Partial<GarageModel>;
+  sendRequest: () => void;
+  viewGarage: () => void;
+};
+const Garage = observer(({ garage, sendRequest, viewGarage }: GarageProps) => {
   return (
-    <View mb='5' style={{ backgroundColor: bgColor }} px='3' py='1' rounded='md'>
+    <View mb='5' style={{ backgroundColor: '#E9F7FF' }} py='1' rounded='md'>
       <VStack width='100%' mx='3' space={2}>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-          <Text bold fontSize='lg' style={{ flex: 2 }}>
-            {name}
-          </Text>
-        </View>
-        <HStack alignItems='center' space={2} width='80%'>
-          <FAIcon name='map-marker' size={24} />
-          <Text fontSize='sm'>{address}</Text>
-        </HStack>
-        <HStack alignItems='center' space={2}>
-          <Text fontSize='md'>3</Text>
-          <AirbnbRating count={5} size={15} defaultRating={3} isDisabled showRating={false} />
-          <Text fontSize='md'>(59)</Text>
-        </HStack>
+        <Text bold fontSize='lg' style={{ flex: 2 }}>
+          {garage.name}
+        </Text>
+        <Link onPress={viewGarage} _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}>
+          Xem thông tin garage
+        </Link>
       </VStack>
+      <Button onPress={sendRequest} mt='3'>
+        Gửi yêu cầu
+      </Button>
     </View>
   );
 });
 
-const NearByGarage: React.FC = () => {
+type Props = StackScreenProps<RescueStackParams, 'NearByGarages'>;
+
+const NearByGarage: React.FC<Props> = ({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
 
   const onRefresh = React.useCallback(() => {
@@ -62,14 +62,23 @@ const NearByGarage: React.FC = () => {
         px='5'
         mt='5'
         contentContainerStyle={{ marginBottom: 50 }}
-        height='60%'
+        height='80%'
         refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
       >
         {garageStore.state === STORE_STATUS.LOADING ? (
           <Spinner size='lg' />
         ) : (
           garageStore.garages.map((garage) => (
-            <Garage key={garage.id} id={garage.id} name={garage.name} address={garage.address} imageUrl={garage.imageUrl} />
+            <Garage
+              key={garage.id}
+              garage={garage}
+              viewGarage={() => {
+                navigation.navigate('GarageDetail', { garageId: garage.id, isRescueStack: true });
+              }}
+              sendRequest={() => {
+                route.params.onSelectGarage(garage);
+              }}
+            />
           ))
         )}
       </ScrollView>

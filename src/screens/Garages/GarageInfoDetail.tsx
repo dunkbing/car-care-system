@@ -44,7 +44,7 @@ const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber
           </TouchableOpacity>
           <HStack alignItems='center' space={2}>
             <Text fontSize='lg'>3</Text>
-            <AirbnbRating count={5} size={20} defaultRating={3} showRating={false} />
+            <AirbnbRating count={5} size={20} defaultRating={3} showRating={false} isDisabled />
             <Text fontSize='lg'>(59)</Text>
           </HStack>
         </HStack>
@@ -70,7 +70,7 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
 
 type Props = StackScreenProps<ProfileStackParams & RescueStackParams, 'GarageDetail'>;
 
-const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
+const GarageDetail: React.FC<Props> = ({ navigation, route }) => {
   const authStore = Container.get(AuthStore);
   const { customerDefaultGarage: defaultGarage } = Container.get(GarageStore);
   const apiService = Container.get(ApiService);
@@ -129,4 +129,4 @@ const DefaultGarage: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-export default observer(DefaultGarage);
+export default observer(GarageDetail);

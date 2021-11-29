@@ -10,6 +10,7 @@ export type CustomerFeedback = {
   id: number;
   comment: string;
   point: number;
+  imageUrls?: Array<string>;
 };
 
 export type RescueCase = {

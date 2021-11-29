@@ -3,9 +3,9 @@ import { Text, ScrollView, View, VStack, Center, Button, Spinner } from 'native-
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams, GarageTabParams } from '@screens/Navigation/params';
-import { rootNavigation } from '@screens/Navigation/roots';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
+import messaging from '@react-native-firebase/messaging';
 import RescueStore from '@mobx/stores/rescue';
 import { RefreshControl } from 'react-native';
 import { STORE_STATUS } from '@utils/constants';
@@ -86,9 +86,17 @@ const PendingRequest: React.FC<Props> = ({ navigation }) => {
   };
 
   useEffect(() => {
-    return navigation.addListener('focus', () => {
+    const unsubMessaging = messaging().onMessage(async () => {
+      await rescueStore.getPendingRescueRequests();
+    });
+    const unsubFocus = navigation.addListener('focus', () => {
       void rescueStore.getPendingRescueRequests();
     });
+
+    return () => {
+      unsubMessaging();
+      unsubFocus();
+    };
   }, [navigation, rescueStore]);
 
   return (
@@ -119,7 +127,7 @@ const PendingRequest: React.FC<Props> = ({ navigation }) => {
           rescueStore.pendingRescueRequests.map((request) => (
             <RescueRequest
               key={request.id}
-              onPress={() => rootNavigation.navigate('GarageHomeOptions', { screen: 'DetailRequest', params: { request } })}
+              onPress={() => navigation.navigate('DetailRequest', { request })}
               customerName={`${request.customer?.lastName} ${request.customer?.firstName}`}
               address={request.address}
               phoneNumber={`${request.customer?.phoneNumber}`}

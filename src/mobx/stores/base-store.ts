@@ -13,7 +13,9 @@ export default class BaseStore {
   }
 
   protected handleError(error: Error | any) {
-    this.state = STORE_STATUS.ERROR;
+    runInAction(() => {
+      this.state = STORE_STATUS.ERROR;
+    });
     if (Array.isArray(error)) {
       if (error.length > 0) {
         if (error[0].message) {

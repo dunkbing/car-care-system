@@ -49,7 +49,7 @@ export const invoiceApi = {
   // * get proposal detail
   getProposalDetail: (invoiceId: number) => `invoices/proposals/${invoiceId}`,
   // * Staff sends proposal to customer and changes status to SentProposalToCustomer
-  sendProposalToCustomer: (invoiceId: number) => `invoices​/staffs​/send-proposal-to-customer​/${invoiceId}`,
+  sendProposalToCustomer: (invoiceId: number) => `invoices/staffs/send-proposal-to-customer/${invoiceId}`,
   // * Customer accept proposal (Draft invoice)
   accepProposal: (invoiceId: number) => `invoices/accept-proposal/${invoiceId}`,
   // * Staff send proposal to manager after customer confirm and change status to SentProposalToManager
@@ -61,9 +61,9 @@ export const invoiceApi = {
   // Manager confirms payment
   managerConfirmPayment: (invoiceId: number) => `invoices/managers/payment-confirmations/${invoiceId}`,
   // Customer reject the proposal
-  customerRejectProposal: 'invoices/customers/reject-proposal',
+  customerRejectProposal: 'invoices/customer/reject-proposal',
   // Customer reject the quotation
-  customerRejectQuotation: 'invoices/customers/reject-quotation',
+  customerRejectQuotation: 'invoices/customer/reject-quotation',
   // get invoice detail for customer side
   getCustomerInvoiceDetail: (invoiceId: number) => `invoices/customer-invoice-details/${invoiceId}`,
   // get invoice detail for garage side

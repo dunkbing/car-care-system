@@ -30,4 +30,10 @@ export default class CarModelStore {
       });
     }
   }
+
+  public clear() {
+    runInAction(() => {
+      this.models = [];
+    });
+  }
 }

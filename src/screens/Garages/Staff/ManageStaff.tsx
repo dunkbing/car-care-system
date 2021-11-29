@@ -10,7 +10,6 @@ import StaffStore from '@mobx/stores/staff';
 import Container from 'typedi';
 import { StaffModel } from '@models/staff';
 import { STORE_STATUS } from '@utils/constants';
-import { rootNavigation } from '@screens/Navigation';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
 import toast from '@utils/toast';
@@ -69,7 +68,8 @@ const ManageStaff: React.FC<Props> = ({ navigation, route }) => {
           toast.show(rescueStore.errorMessage);
           return;
         }
-        rootNavigation.navigate('GarageHomeTab', { screen: 'PendingRequestHome' });
+        // rootNavigation.navigate('GarageHomeStack', { screen: 'PendingRescueRequest' });
+        navigation.popToTop();
       }
     };
   };

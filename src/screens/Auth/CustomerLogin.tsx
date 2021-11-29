@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Center, Text, Image, ScrollView } from 'native-base';
+import { NativeBaseProvider, Box, Heading, VStack, Link, Button, HStack, Center, ScrollView } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Container } from 'typedi';
 import FormInput from '@components/form/FormInput';
@@ -12,7 +12,6 @@ import toast from '@utils/toast';
 import AuthStore from '@mobx/stores/auth';
 import { STORE_STATUS } from '@utils/constants';
 import GarageStore from '@mobx/stores/garage';
-import { GoogleLogo } from '@assets/images';
 
 type Props = StackScreenProps<AuthStackParams, 'CustomerLogin'>;
 
@@ -42,17 +41,17 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
           </Heading>
           <VStack space={2} mt={5}>
             <Formik validationSchema={loginValidationSchema} initialValues={{ emailOrPhone: '', password: '' }} onSubmit={onLoginSubmit}>
-              {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
+              {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <VStack space={2} mt={10}>
                   <FormInput
                     isRequired
                     label='Số điện thoại/Email'
                     placeholder='Nhập số điện thoại/Email'
                     value={values.emailOrPhone}
-                    isInvalid={!isValid}
+                    isInvalid={!!errors.emailOrPhone}
                     onChangeText={handleChange('emailOrPhone')}
                     onBlur={handleBlur('emailOrPhone')}
-                    errorMessage={errors.emailOrPhone}
+                    errorMessage={touched.emailOrPhone ? errors.emailOrPhone : ''}
                     keyboardType='ascii-capable'
                   />
                   <FormInput
@@ -61,10 +60,10 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
                     placeholder='Nhập mật khẩu'
                     secureTextEntry
                     value={values.password}
-                    isInvalid={!isValid}
+                    isInvalid={!!errors.password}
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
-                    errorMessage={errors.password}
+                    errorMessage={touched.password ? errors.password : ''}
                   />
                   <VStack space={2}>
                     <Button
@@ -101,12 +100,6 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
               </Link>
             </HStack>
           </Center>
-          <VStack alignItems='center'>
-            <Text fontSize='md' mt={10}>
-              Hoặc đăng nhập với
-            </Text>
-            <Image source={GoogleLogo} alt='img' size={'md'} />
-          </VStack>
         </Box>
       </ScrollView>
     </NativeBaseProvider>

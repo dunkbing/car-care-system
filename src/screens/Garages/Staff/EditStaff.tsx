@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Image } from 'react-native';
 import { NativeBaseProvider, Box, VStack, Button, HStack, Center, ScrollView, Radio, Text } from 'native-base';
 import { observer } from 'mobx-react';
-import BottomSheet from 'reanimated-bottom-sheet';
 import FormInput from '@components/form/FormInput';
 import { AvatarStaff } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -14,8 +13,6 @@ import StaffStore from '@mobx/stores/staff';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import ImagePicker from '@components/ImagePicker';
-import OpacityView from '@components/OpacityView';
-import { fall, animatedShadowOpacity } from '@screens/Home/Map';
 import { Asset } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomDatePicker from '@components/form/DatePicker';
@@ -26,7 +23,8 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
   const staffStore = Container.get(StaffStore);
   const dialogStore = Container.get(DialogStore);
   const [staff, setStaff] = useState(route.params.staff);
-  const sheetRef = useRef<BottomSheet>(null);
+
+  const imagePickerRef = useRef<ImagePicker>(null);
 
   async function saveStaff() {
     await staffStore.update(staff);
@@ -61,7 +59,7 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
             />
             <Button
               onPress={() => {
-                sheetRef.current?.snapTo(0);
+                imagePickerRef.current?.open();
               }}
               size='xs'
               mt='1.5'
@@ -167,29 +165,10 @@ const EditStaff: React.FC<Props> = ({ navigation, route }) => {
           </VStack>
         </Box>
       </ScrollView>
-      <BottomSheet
-        ref={sheetRef}
-        snapPoints={[100, 0]}
-        initialSnap={1}
-        borderRadius={20}
-        callbackNode={fall}
-        enabledGestureInteraction={true}
-        enabledContentTapInteraction={false}
-        onCloseEnd={() => {}}
-        renderContent={() => (
-          <ImagePicker
-            onSelectImage={(image: Asset) => {
-              setStaff({ ...staff, avatar: { name: `${image.fileName}`, type: `${image.type}`, uri: `${image.uri}` } });
-              console.log(staff);
-              sheetRef.current?.snapTo(1);
-            }}
-          />
-        )}
-      />
-      <OpacityView
-        pointerEvents={'none'}
-        style={{
-          opacity: animatedShadowOpacity,
+      <ImagePicker
+        ref={imagePickerRef}
+        onSelectImage={(images: Asset[]) => {
+          setStaff({ ...staff, avatar: { name: `${images[0].fileName}`, type: `${images[0].type}`, uri: `${images[0].uri}` } });
         }}
       />
     </NativeBaseProvider>

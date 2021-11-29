@@ -25,7 +25,7 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
     if (authStore.state === STORE_STATUS.ERROR) {
       toast.show(`${authStore.errorMessage}`);
     } else {
-      rootNavigation.navigate('GarageHomeTab');
+      rootNavigation.navigate('GarageHomeStack');
     }
   }
   return (
@@ -37,17 +37,17 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
           </Heading>
           <VStack space={2} mt={5}>
             <Formik validationSchema={loginValidationSchema} initialValues={{ emailOrPhone: '', password: '' }} onSubmit={onLoginSubmit}>
-              {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
+              {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <VStack space={2} mt={10}>
                   <FormInput
                     isRequired
                     label='Số điện thoại/Email'
                     placeholder='Nhập số điện thoại/Email'
                     value={values.emailOrPhone}
-                    isInvalid={!isValid}
+                    isInvalid={!!errors.emailOrPhone}
                     onChangeText={handleChange('emailOrPhone')}
                     onBlur={handleBlur('emailOrPhone')}
-                    errorMessage={errors.emailOrPhone}
+                    errorMessage={touched.emailOrPhone ? errors.emailOrPhone : ''}
                     keyboardType='ascii-capable'
                   />
                   <FormInput
@@ -56,11 +56,10 @@ const GarageLogin: React.FC<Props> = ({ navigation }) => {
                     placeholder='Nhập mật khẩu'
                     secureTextEntry
                     value={values.password}
-                    isInvalid={!isValid}
+                    isInvalid={!!errors.password}
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
-                    errorMessage={errors.password}
-                    // keyboardType='visible-password'
+                    errorMessage={touched.password ? errors.password : ''}
                   />
                   <VStack space={2}>
                     <Button

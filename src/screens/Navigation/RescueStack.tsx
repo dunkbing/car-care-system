@@ -6,10 +6,13 @@ import DefineCarStatus from '@screens/Customer/DefineCarStatus';
 import { Map } from '@screens/Home';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
-import DefaultGarage from '@screens/Garages/DefaultGarage';
-import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
+import CancelStaffSuggestion from '@screens/Customer/CancelStaffSuggestion';
+import GarageDetail from '@screens/Garages/GarageInfoDetail';
+import QuotationSuggestion from '@screens/Customer/QuotationSuggestion';
 import Payment from '@screens/Payment/CustomerPayment';
 import Feedback from '@screens/Customer/Feedback';
+import NearByGarage from '@screens/Customer/NearByGarages';
+import RepairSuggestion from '@screens/Customer/RepairSuggestion';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -17,6 +20,14 @@ export const RescueStack: React.FC = () => {
   return (
     <RescueStackNav.Navigator initialRouteName='Map' screenOptions={{ contentStyle: { backgroundColor: 'white' } }}>
       <RescueStackNav.Screen name='Map' component={Map} options={{ headerShown: false }} />
+      <RescueStackNav.Screen
+        name='NearByGarages'
+        component={NearByGarage}
+        options={{
+          title: 'Danh sách garage',
+          ...navHeaderStyle,
+        }}
+      />
       <RescueStackNav.Screen
         name='DefineCarStatus'
         component={DefineCarStatus}
@@ -34,6 +45,14 @@ export const RescueStack: React.FC = () => {
         }}
       />
       <RescueStackNav.Screen
+        name='CancelStaffSuggestion'
+        component={CancelStaffSuggestion}
+        options={{
+          title: 'Từ chối đề xuất',
+          ...navHeaderStyle,
+        }}
+      />
+      <RescueStackNav.Screen
         name='DefineRequestCancelReason'
         component={CancelRescueRequest}
         options={{
@@ -43,18 +62,28 @@ export const RescueStack: React.FC = () => {
       />
       <RescueStackNav.Screen
         name='GarageDetail'
-        component={DefaultGarage}
+        component={GarageDetail}
         options={{
           title: 'Thông tin garage',
           ...navHeaderStyle,
         }}
       />
       <RescueStackNav.Screen
-        name='ConfirmSuggestedRepair'
-        component={CustomerConfirmRepairSuggestion}
+        name='RepairSuggestion'
+        component={RepairSuggestion}
+        options={{
+          title: 'Đề xuất sửa chữa',
+          ...navHeaderStyle,
+          headerBackVisible: false,
+        }}
+      />
+      <RescueStackNav.Screen
+        name='QuotationSuggestion'
+        component={QuotationSuggestion}
         options={{
           title: 'Báo giá ban đầu',
           ...navHeaderStyle,
+          headerBackVisible: false,
         }}
       />
       <RescueStackNav.Screen

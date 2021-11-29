@@ -1,38 +1,33 @@
 import React, { useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 import { Button, Center, Checkbox, Image, Input, ScrollView, Text, View, VStack } from 'native-base';
-import InputSpinner from 'react-native-input-spinner';
-import { StackScreenProps } from '@react-navigation/stack';
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
+import firestore from '@react-native-firebase/firestore';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import Container from 'typedi';
-import RescueStore from '@mobx/stores/rescue';
 import { INVOICE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import InvoiceStore from '@mobx/stores/invoice';
-import AutomotivePartStore from '@mobx/stores/automotive-part';
-import { AutomotivePartModel } from '@models/automotive-part';
 import formatMoney from '@utils/format-money';
-import ServiceStore from '@mobx/stores/service';
 import { observer } from 'mobx-react';
-import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
-import FirebaseStore from '@mobx/stores/firebase';
-import { rootNavigation } from '@screens/Navigation/roots';
-import { BackHandler } from 'react-native';
+import { firestoreCollection } from '@mobx/services/api-types';
+import { withProgress } from '@mobx/services/config';
+import { rootNavigation } from '@screens/Navigation';
 
-enum CategoryType {
-  AUTOMOTIVE_PART,
-  SERVICE,
-}
-
-type CategoryDetailProps = {
-  category: Partial<AutomotivePartModel>;
-  type: CategoryType;
+type AutomotivePartItemProps = {
+  id: number;
+  name: string;
+  unit: string;
+  quantity: number;
+  price: number;
   disabled?: boolean;
 };
 
-const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
-  const { name, price, quantity } = props.category;
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const serviceStore = Container.get(ServiceStore);
+const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) => {
+  const invoiceStore = Container.get(InvoiceStore);
+  const { id, name, unit, quantity, price, disabled } = props;
+  const [note, setNote] = useState('');
+  const [warrantyApplied, setWarrantyApplied] = useState(false);
   return (
     <View my={3}>
       <View
@@ -49,9 +44,50 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
         >
           {name}
         </Text>
-        <Text>x 2</Text>
+        <Text>x {quantity}</Text>
       </View>
       <View
+        accessible
+        accessibilityLabel={name}
+        accessibilityRole='checkbox'
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginTop: 5,
+        }}
+      >
+        <Text style={{ fontSize: 16 }}>Áp dụng bảo bảo hành</Text>
+        <Checkbox
+          onChange={(value) => {
+            setWarrantyApplied(value);
+            invoiceStore.editAutomotivePart(id, note, value);
+          }}
+          accessibilityLabel={name}
+          value={`${warrantyApplied}`}
+          defaultIsChecked={warrantyApplied}
+          isChecked={warrantyApplied}
+          isDisabled={disabled}
+        />
+      </View>
+      <Input
+        mt='1'
+        style={{
+          backgroundColor: 'white',
+          borderColor: 'grey',
+          height: 30,
+          width: '100%',
+          fontSize: 12,
+        }}
+        placeholder={'Ghi chú'}
+        value={note}
+        isDisabled={disabled}
+        onChangeText={(value) => {
+          setNote(value);
+          invoiceStore.editAutomotivePart(id, value, warrantyApplied);
+        }}
+      />
+      <View
+        mt='1'
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -63,25 +99,31 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
             justifyContent: 'space-between',
           }}
         >
-          <Input
-            style={{
-              backgroundColor: 'white',
-              borderColor: 'grey',
-              height: 30,
-              width: 100,
-              fontSize: 12,
-            }}
-            placeholder='100000'
-          />
-          <Text fontSize={16}> / chiếc</Text>
+          <Text fontSize={16}>
+            {' '}
+            {`${formatMoney(price)}`} / {unit}
+          </Text>
         </View>
-        <Text fontSize={16}>500.000đ</Text>
+        <Text fontSize={16}>{price * quantity}đ</Text>
       </View>
     </View>
   );
 });
 
-const AutomotivePartItem: React.FC = observer(() => {
+type ServiceItemProps = {
+  id: number;
+  name: string;
+  unit: string;
+  quantity: number;
+  price: number;
+  disabled?: boolean;
+};
+
+const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
+  const invoiceStore = Container.get(InvoiceStore);
+  const { id, name, unit, quantity, disabled } = props;
+  const [note, setNote] = useState('');
+  const [price, setPrice] = useState(invoiceStore.managerProposalDetail?.serviceInvoices?.find((service) => service.id === id)?.price ?? 0);
   return (
     <View my={3}>
       <View
@@ -96,92 +138,36 @@ const AutomotivePartItem: React.FC = observer(() => {
             fontSize: 16,
           }}
         >
-          Thiết bị 1
+          {name}
         </Text>
-        <Text>x 2</Text>
+        <Text>x {quantity}</Text>
       </View>
-      <View
+      <Input
+        mt='1'
         style={{
-          flexDirection: 'row',
-          marginTop: 15,
-          justifyContent: 'space-between',
+          backgroundColor: 'white',
+          borderColor: 'grey',
+          height: 30,
+          width: '100%',
+          fontSize: 12,
         }}
-      >
-        <Text>Áp dụng bảo hành</Text>
-        <Checkbox value={''} />
-      </View>
-      <View
-        style={{
-          marginVertical: 15,
+        placeholder={'Ghi chú'}
+        value={note}
+        isDisabled={disabled}
+        onChangeText={(value) => {
+          setNote(value);
+          invoiceStore.editService(id, value, price);
         }}
-      >
-        <Input
-          style={{
-            fontSize: 14,
-          }}
-          variant='underlined'
-          placeholder='Nhập ghi chú'
-        />
-      </View>
+      />
       <View
+        mt='1'
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
         }}
       >
         <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text fontSize={16}>250.000đ / chiếc</Text>
-        </View>
-        <Text fontSize={16}>500.000đ</Text>
-      </View>
-    </View>
-  );
-});
-
-const serviceItem: React.FC = observer(() => {
-  return (
-    <View my={3}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 16,
-          }}
-        >
-          Dịch vụ 1
-        </Text>
-        <Text>x 1</Text>
-      </View>
-      <View
-        style={{
-          marginVertical: 15,
-        }}
-      >
-        <Input
-          style={{
-            fontSize: 14,
-          }}
-          variant='underlined'
-          placeholder='Nhập ghi chú'
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}
-      >
-        <View
+          mt='1'
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -192,28 +178,29 @@ const serviceItem: React.FC = observer(() => {
               backgroundColor: 'white',
               borderColor: 'grey',
               height: 30,
-              width: 100,
+              width: 80,
               fontSize: 12,
             }}
-            placeholder='100000'
+            placeholder={'Giá dịch vụ'}
+            value={`${price}`}
+            isDisabled={disabled}
+            onChangeText={(value) => {
+              setPrice(Number(value));
+              invoiceStore.editService(id, note, Number(value));
+            }}
+            keyboardType='numeric'
           />
-          <Text fontSize={16}> / lần</Text>
+          <Text fontSize={16}>đ / {unit}</Text>
         </View>
-        <Text fontSize={16}>500.000đ</Text>
+        <Text mt='1' fontSize={16}>
+          {price * quantity}đ
+        </Text>
       </View>
     </View>
   );
 });
 
-const TotalPay: React.FC = observer(() => {
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const serviceStore = Container.get(ServiceStore);
-  const partTotal: number = Array.from(automotivePartStore.chosenParts.values())
-    .map((part) => part.price * (part.quantity || 1))
-    .reduce((prev, curr) => prev + curr, 0);
-  const serviceTotal: number = Array.from(serviceStore.chosenServices.values())
-    .map((service) => service.price * (service.quantity || 1))
-    .reduce((prev, curr) => prev + curr, 0);
+const TotalPay: React.FC<{ total?: number }> = observer(({ total }) => {
   return (
     <View
       style={{
@@ -228,49 +215,61 @@ const TotalPay: React.FC = observer(() => {
           fontSize: 20,
         }}
       >
-        Tổng: {formatMoney(partTotal + serviceTotal)}
+        Tổng: {formatMoney(total)}
       </Text>
     </View>
   );
 });
 
-const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) => {
-  const rescueStore = Container.get(RescueStore);
+const ConfirmButton: React.FC<{
+  enableEditing?: OnPress;
+  disableEditing?: OnPress;
+  proposalId: number;
+  navigation: StackNavigationProp<GarageHomeOptionStackParams, 'RequestCustomerConfirmation'>;
+}> = observer(({ proposalId, enableEditing, disableEditing }) => {
   const invoiceStore = Container.get(InvoiceStore);
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const serviceStore = Container.get(ServiceStore);
 
-  switch (invoiceStore.garageInvoiceDetail?.status) {
-    case INVOICE_STATUS.DRAFT: {
+  const [invoiceStatus, setInvoiceStatus] = useState(invoiceStore.garageInvoiceDetail?.status);
+
+  useEffect(() => {
+    void firestore()
+      .collection('invoices')
+      .doc(`${proposalId}`)
+      .onSnapshot((snapshot) => {
+        if (!snapshot.exists) return;
+
+        const { status } = snapshot.data() || {};
+        if (status !== undefined) {
+          setInvoiceStatus(status);
+        }
+      });
+  }, [proposalId]);
+
+  switch (invoiceStatus) {
+    case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER: {
+      disableEditing?.();
       return (
         <Button style={{ width: '100%' }} isDisabled isLoading>
           Vui lòng chờ khách hàng xác nhận
         </Button>
       );
     }
-    case INVOICE_STATUS.PENDING: {
+    case INVOICE_STATUS.CUSTOMER_CONFIRM_REPAIR: {
       return (
         <Button
+          colorScheme='green'
+          style={{ width: '100%' }}
           onPress={async () => {
-            onPress?.();
-            await rescueStore.changeRescueStatusToWorking();
-            await rescueStore.getCurrentProcessingStaff(false);
-            if (rescueStore.state === STORE_STATUS.ERROR) {
-              toast.show(rescueStore.errorMessage);
-            } else {
-              // navigation.popToTop();
-              rootNavigation.navigate('GarageHomeOptions', {
-                screen: 'Map',
-                params: { request: rescueStore.currentStaffProcessingRescue },
-              });
-            }
-          }}
-          style={{
-            backgroundColor: '#34A853',
-            width: '100%',
+            await withProgress(
+              firestore()
+                .collection(firestoreCollection.invoices)
+                .doc(`${proposalId}`)
+                .update({ status: INVOICE_STATUS.MANAGER_CONFIRM_REPAIR }),
+            );
+            rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
           }}
         >
-          Yêu cầu khách hàng xác nhận
+          Tạo lệnh sửa chữa
         </Button>
       );
     }
@@ -279,23 +278,27 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
-            onPress?.();
-            const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
-              automotivePartId: part.id,
-              quantity: part.quantity || 1,
-            }));
-            const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
-              serviceId: service.id,
-              quantity: service.quantity || 1,
-            }));
-            await invoiceStore.create({
-              rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
-              automotivePartInvoices,
-              serviceInvoices,
+            console.log('send quotation to customer', JSON.stringify(invoiceStore.managerProposalDetail));
+            await invoiceStore.updateProposal({
+              id: proposalId,
+              automotivePartInvoices: (invoiceStore.managerProposalDetail?.automotivePartInvoices || []).map((part) => ({
+                id: part.id,
+                note: `${part.note}`,
+                quantity: part.quantity,
+              })),
+              serviceInvoices: (invoiceStore.managerProposalDetail?.serviceInvoices || []).map((service) => ({
+                id: service.id,
+                note: `${service.note}`,
+                price: service.price,
+                quantity: service.quantity,
+              })),
             });
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(invoiceStore.errorMessage);
+              enableEditing?.();
+            } else {
+              await invoiceStore.getGarageInvoiceDetail(proposalId);
             }
           }}
         >
@@ -306,34 +309,30 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
   }
 });
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'RequestCustomerConfirmation'>;
 
-const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, route }) => {
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const serviceStore = Container.get(ServiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
+const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, route }) => {
+  //#region stores
   const invoiceStore = Container.get(InvoiceStore);
+  //#endregion
 
+  //#region hooks
   const [proposing, setProposing] = useState(false);
+
   useEffect(() => {
+    void invoiceStore.getGarageInvoiceDetail(route.params.invoiceId);
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      return route.name === 'RepairSuggestion';
+      return route.name === 'RequestCustomerConfirmation';
     });
 
     return () => backHandler.remove();
-  }, [route.name]);
+  }, [invoiceStore, invoiceStore.garageInvoiceDetail?.status, navigation, route.name, route.params.invoiceId]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return firebaseStore.rescueDoc?.onSnapshot(async (snapshot) => {
-      if (snapshot.exists) {
-        const { invoiceId } = snapshot.data() as { invoiceId: number };
-        if (invoiceId && invoiceId > 0) {
-          await invoiceStore.getGarageInvoiceDetail(invoiceId);
-        }
-      }
-    });
-  }, [firebaseStore.rescueDoc, invoiceStore]);
+    void invoiceStore.getManagerProposalDetail(route.params.invoiceId);
+  }, [invoiceStore, route.params.invoiceId]);
+
+  //#endregion
 
   return (
     <ScrollView>
@@ -366,8 +365,16 @@ const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, rou
           </Text>
         </View>
         <View>
-          {Array.from(automotivePartStore.chosenParts.values()).map((part) => (
-            <CategoryDetail key={part.id} category={part} type={CategoryType.AUTOMOTIVE_PART} disabled={proposing} />
+          {invoiceStore.managerProposalDetail?.automotivePartInvoices?.map((part) => (
+            <AutomotivePartItem
+              key={part.id}
+              id={part.id}
+              name={part.automotivePart.name}
+              unit={part.automotivePart.unit}
+              price={part.automotivePart.price}
+              quantity={part.quantity}
+              disabled={proposing}
+            />
           ))}
         </View>
         <View
@@ -388,11 +395,19 @@ const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, rou
           </Text>
         </View>
         <View>
-          {Array.from(serviceStore.chosenServices.values()).map((service) => (
-            <CategoryDetail key={service.id} category={service} type={CategoryType.SERVICE} disabled={proposing} />
+          {invoiceStore.managerProposalDetail?.serviceInvoices?.map((service) => (
+            <ServiceItem
+              key={service.id}
+              id={service.id}
+              name={service.service.name}
+              unit={service.service.unit}
+              price={service.price}
+              quantity={service.quantity}
+              disabled={proposing}
+            />
           ))}
         </View>
-        <TotalPay />
+        <TotalPay total={invoiceStore.managerProposalDetail?.total} />
         <View style={{ marginVertical: 15 }}>
           <Text
             style={{
@@ -436,12 +451,14 @@ const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, rou
         </View>
         <Center>
           <ConfirmButton
-            onPress={() => {
-              setProposing(true);
-              navigation.addListener('beforeRemove', (e) => {
-                e.preventDefault();
-              });
+            proposalId={route.params.invoiceId}
+            enableEditing={() => {
+              setProposing(false);
             }}
+            disableEditing={() => {
+              setProposing(true);
+            }}
+            navigation={navigation}
           />
         </Center>
       </VStack>
@@ -449,4 +466,4 @@ const RequestCustomerConfirmation: React.FC<Props> = observer(({ navigation, rou
   );
 });
 
-export default RequestCustomerConfirmation;
+export default ManagerSendQuotationToCustomer;

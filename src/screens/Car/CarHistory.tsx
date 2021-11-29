@@ -1,14 +1,66 @@
-import { Box, HStack, Image, NativeBaseProvider, ScrollView, Text, View, VStack } from 'native-base';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Box, Center, HStack, Image, NativeBaseProvider, ScrollView, Text, View, VStack } from 'native-base';
 import { DefaultCar } from '@assets/images';
 import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
+import { observer } from 'mobx-react';
+import RescueStore from '@mobx/stores/rescue';
+import Container from 'typedi';
+
+type HistoryItemProps = {
+  garageName: string;
+  address: string;
+  time: string;
+};
+
+const HistoryItem: React.FC<HistoryItemProps> = ({ garageName, address, time }) => {
+  return (
+    <View
+      height={110}
+      marginTop={3}
+      marginBottom={1}
+      paddingLeft={2}
+      paddingTop={2}
+      bg='white'
+      borderColor='black'
+      borderRadius={5}
+      style={{
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+        elevation: 6,
+      }}
+    >
+      <Text mt={2} style={{ fontWeight: 'bold', textAlignVertical: 'center', fontSize: 17 }}>
+        {garageName}
+      </Text>
+      <HStack mt={2}>
+        <FAFIcon name='clock' size={20} color='#1F87FE' />
+        <Text style={{ marginLeft: 10 }}>{time}</Text>
+      </HStack>
+      <HStack mt={2}>
+        <FAFIcon style={{ marginLeft: 3 }} name='map-marker-alt' size={20} color='#1F87FE' />
+        <Text style={{ marginLeft: 12 }}>{address}</Text>
+      </HStack>
+    </View>
+  );
+};
 
 type Props = StackScreenProps<ProfileStackParams, 'CarHistory'>;
 
 const CarHistory: React.FC<Props> = ({ route }) => {
+  const rescueStore = Container.get(RescueStore);
   const { car } = route.params;
+
+  useEffect(() => {
+    void rescueStore.getHistories({ keyword: '', carId: car.id });
+  }, [car.id, rescueStore]);
+
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} w='100%' mx='auto' backgroundColor='white'>
@@ -27,74 +79,18 @@ const CarHistory: React.FC<Props> = ({ route }) => {
               <Text style={{ fontSize: 14, marginLeft: 10 }}>{car.licenseNumber}</Text>
             </VStack>
           </HStack>
-          <View
-            height={110}
-            marginTop={3}
-            marginBottom={1}
-            paddingLeft={2}
-            paddingTop={2}
-            bg='white'
-            borderColor='black'
-            borderRadius={5}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 3,
-              },
-              shadowOpacity: 0.27,
-              shadowRadius: 4.65,
-              elevation: 6,
-            }}
-          >
-            <Text mt={2} style={{ fontWeight: 'bold', textAlignVertical: 'center', fontSize: 17 }}>
-              Garage Ô tô Hùng Lý
-            </Text>
-            <HStack mt={2}>
-              <FAFIcon name='clock' size={20} color='#1F87FE' />
-              <Text style={{ marginLeft: 10 }}>23/9/2021 | 18:34PM</Text>
-            </HStack>
-            <HStack mt={2}>
-              <FAFIcon style={{ marginLeft: 3 }} name='map-marker-alt' size={20} color='#1F87FE' />
-              <Text style={{ marginLeft: 12 }}>Km29 Đại lộ Thăng Long, Hà Nội</Text>
-            </HStack>
-          </View>
-          <View
-            height={110}
-            marginTop={3}
-            marginBottom={3}
-            paddingLeft={2}
-            paddingTop={2}
-            bg='white'
-            borderColor='black'
-            borderRadius={5}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 3,
-              },
-              shadowOpacity: 0.27,
-              shadowRadius: 4.65,
-              elevation: 6,
-            }}
-          >
-            <Text mt={2} style={{ fontWeight: 'bold', textAlignVertical: 'center', fontSize: 17 }}>
-              Garage Ô tô Hùng Anh
-            </Text>
-            <HStack mt={2}>
-              <FAFIcon name='clock' size={20} color='#1F87FE' />
-              <Text style={{ marginLeft: 10 }}>11/6/2020 | 10:34AM</Text>
-            </HStack>
-            <HStack mt={2}>
-              <FAFIcon style={{ marginLeft: 3 }} name='map-marker-alt' size={20} color='#1F87FE' />
-              <Text style={{ marginLeft: 12 }}>12 Tôn Thất Thuyết</Text>
-            </HStack>
-          </View>
+          {rescueStore.customerRescueHistories.map((rescue) => (
+            <HistoryItem key={rescue.id} garageName={rescue.garage.name} address={rescue.garage.address} time={`${rescue.createAt}`} />
+          ))}
+          {!rescueStore.customerRescueHistories?.length && (
+            <Center>
+              <Text>Không có lịch sử</Text>
+            </Center>
+          )}
         </ScrollView>
       </Box>
     </NativeBaseProvider>
   );
 };
 
-export default CarHistory;
+export default observer(CarHistory);

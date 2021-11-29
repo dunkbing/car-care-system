@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Center, ScrollView, Text, TextArea, View, VStack } from 'native-base';
+import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
@@ -106,7 +106,7 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
         </Button>
       );
     }
-    case INVOICE_STATUS.PENDING: {
+    case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL: {
       return (
         <Button
           onPress={async () => {
@@ -146,7 +146,7 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
               serviceId: service.id,
               quantity: service.quantity || 1,
             }));
-            await invoiceStore.create({
+            await invoiceStore.createProposal({
               rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
               automotivePartInvoices,
               serviceInvoices,

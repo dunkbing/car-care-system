@@ -3,11 +3,11 @@ import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navig
 import { ProfileStackParams } from './params';
 import Profile from '@screens/Auth/Profile';
 import CarStatus from '@screens/Car/CarStatus';
-import DefaultGarage from '@screens/Garages/DefaultGarage';
+import GarageDetail from '@screens/Garages/GarageInfoDetail';
 import RescueHistory from '@screens/Customer/RescueHistory';
 import { ChangePassword } from '@screens/Auth';
 import { navHeaderStyle } from './roots';
-import SearchGarage from '@screens/Garages/SearchGarage';
+import SearchGarage from '@screens/Customer/SearchGarage';
 import DefineCarModel from '@screens/Car/DefineCarModel';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
@@ -48,7 +48,7 @@ export const ProfileStack: React.FC<Props> = () => {
       <ProfileStackNav.Screen name='DefineCarModel' component={DefineCarModel} options={{ title: 'Thêm xe', ...navHeaderStyle }} />
       <ProfileStackNav.Screen
         name='DefaultGarage'
-        component={DefaultGarage}
+        component={GarageDetail}
         options={{ title: authStore.userType === ACCOUNT_TYPES.CUSTOMER ? 'Garage cứu hộ mặc định' : 'Garage của tôi', ...navHeaderStyle }}
       />
       <ProfileStackNav.Screen

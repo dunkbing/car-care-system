@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Center, ScrollView, Text, View, VStack } from 'native-base';
+import { BackHandler, Image, TouchableOpacity } from 'react-native';
+import { Button, Center, ScrollView, Text, TextArea, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
-import { StackScreenProps } from '@react-navigation/stack';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import firestore from '@react-native-firebase/firestore';
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
@@ -15,8 +18,9 @@ import ServiceStore from '@mobx/stores/service';
 import { observer } from 'mobx-react';
 import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
-import { rootNavigation } from '@screens/Navigation/roots';
-import { BackHandler } from 'react-native';
+import ImagePicker from '@components/ImagePicker';
+import { firestoreCollection } from '@mobx/services/api-types';
+import { rootNavigation } from '@screens/Navigation';
 
 enum CategoryType {
   AUTOMOTIVE_PART,
@@ -59,7 +63,8 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
           {formatMoney((price as number) * (quantity || 1))}
         </Text>
         <InputSpinner
-          disabled={props.disabled}
+          buttonLeftDisabled={props.disabled}
+          buttonRightDisabled={props.disabled}
           max={300}
           min={1}
           step={1}
@@ -72,7 +77,7 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
           }}
           buttonStyle={{
             width: '30%',
-            backgroundColor: '#4285F4',
+            backgroundColor: props.disabled ? 'grey' : '#4285F4',
           }}
           skin='square'
           fontSize={10}
@@ -92,81 +97,133 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
   );
 });
 
-const TotalPay: React.FC = observer(() => {
-  const automotivePartStore = Container.get(AutomotivePartStore);
-  const serviceStore = Container.get(ServiceStore);
-  const partTotal: number = Array.from(automotivePartStore.chosenParts.values())
-    .map((part) => part.price * (part.quantity || 1))
-    .reduce((prev, curr) => prev + curr, 0);
-  const serviceTotal: number = Array.from(serviceStore.chosenServices.values())
-    .map((service) => service.price * (service.quantity || 1))
-    .reduce((prev, curr) => prev + curr, 0);
-  return (
-    <View
-      style={{
-        alignItems: 'flex-end',
-        marginVertical: 10,
-        paddingVertical: 15,
-      }}
-    >
-      <Text
-        style={{
-          fontWeight: 'bold',
-          fontSize: 20,
-        }}
-      >
-        Tổng: {formatMoney(partTotal + serviceTotal)}
-      </Text>
-    </View>
-  );
-});
-
-const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) => {
+const ConfirmButton: React.FC<{
+  navigation: StackNavigationProp<GarageHomeOptionStackParams, 'RepairSuggestion'>;
+  enableEditing?: OnPress;
+  disableEditing?: OnPress;
+}> = observer(({ enableEditing, disableEditing }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
+  const firebaseStore = Container.get(FirebaseStore);
 
-  switch (invoiceStore.garageInvoiceDetail?.status) {
-    case INVOICE_STATUS.DRAFT: {
+  const [status, setStatus] = useState(-1);
+  const [invoiceId, setInvoiceId] = useState(-1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = (
+        await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).get()
+      ).data() as { invoiceId: number };
+
+      if (result.invoiceId) {
+        setInvoiceId(result.invoiceId);
+        firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${result.invoiceId}`)
+          .onSnapshot((snapShot) => {
+            if (snapShot.exists) {
+              const invoice = snapShot.data() as { status: number };
+              setStatus(invoice.status);
+            }
+            void invoiceStore.getProposalDetail(result.invoiceId);
+          });
+      }
+    };
+    void fetchData();
+  }, [invoiceStore, rescueStore.currentStaffProcessingRescue?.id, status]);
+
+  switch (status) {
+    case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER: {
+      disableEditing?.();
       return (
         <Button style={{ width: '100%' }} isDisabled isLoading>
-          Vui lòng chờ khách hàng xác nhận
+          Chờ khách hàng xác nhận
         </Button>
       );
     }
-    case INVOICE_STATUS.PENDING: {
+    case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL: {
+      disableEditing?.();
       return (
         <Button
           onPress={async () => {
-            onPress?.();
-            await rescueStore.changeRescueStatusToWorking();
-            await rescueStore.getCurrentProcessingStaff(false);
-            if (rescueStore.state === STORE_STATUS.ERROR) {
-              toast.show(rescueStore.errorMessage);
-            } else {
-              // navigation.popToTop();
-              rootNavigation.navigate('GarageHomeOptions', {
-                screen: 'Map',
-                params: { request: rescueStore.currentStaffProcessingRescue },
-              });
+            const result = (await firebaseStore.get<{ invoiceId: number }>()) as { invoiceId: number };
+            await invoiceStore.sendProposalToManager(result?.invoiceId);
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(invoiceStore.errorMessage);
             }
+            await invoiceStore.getProposalDetail(result.invoiceId);
           }}
           style={{
             backgroundColor: '#34A853',
             width: '100%',
           }}
         >
+          Đề xuất cho quản lý
+        </Button>
+      );
+    }
+    case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
+    case INVOICE_STATUS.CUSTOMER_CONFIRM_REPAIR:
+    case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER: {
+      disableEditing?.();
+      return (
+        <Button isDisabled isLoading w='100%'>
+          Chờ quản lý xác nhận
+        </Button>
+      );
+    }
+    case INVOICE_STATUS.MANAGER_CONFIRM_REPAIR: {
+      disableEditing?.();
+      return (
+        <Button
+          colorScheme='green'
+          w='100%'
+          onPress={async () => {
+            await rescueStore.changeRescueStatusToWorking();
+            rootNavigation.navigate('GarageHomeStack', { screen: 'Map', params: { request: rescueStore.currentStaffProcessingRescue } });
+          }}
+        >
           Tiến hành sửa chữa
         </Button>
       );
     }
-    default: {
+    case INVOICE_STATUS.DRAFT: {
+      enableEditing?.();
       return (
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
-            onPress?.();
+            disableEditing?.();
+            // onPress?.();
+            // const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
+            //   automotivePartId: part.id,
+            //   quantity: part.quantity || 1,
+            // }));
+            // const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
+            //   serviceId: service.id,
+            //   quantity: service.quantity || 1,
+            // }));
+            await invoiceStore.sendProposalToCustomer(invoiceId);
+
+            if (invoiceStore.state === STORE_STATUS.ERROR) {
+              toast.show(invoiceStore.errorMessage);
+            }
+            setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
+          }}
+        >
+          Đề xuất cho khách hàng
+        </Button>
+      );
+    }
+    default: {
+      enableEditing?.();
+      return (
+        <Button
+          style={{ backgroundColor: '#34A853', width: '100%' }}
+          onPress={async () => {
+            disableEditing?.();
             const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
               automotivePartId: part.id,
               quantity: part.quantity || 1,
@@ -175,7 +232,7 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
               serviceId: service.id,
               quantity: service.quantity || 1,
             }));
-            await invoiceStore.create({
+            await invoiceStore.createProposal({
               rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
               automotivePartInvoices,
               serviceInvoices,
@@ -184,9 +241,10 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(invoiceStore.errorMessage);
             }
+            setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
           }}
         >
-          Yêu cầu khách hàng xác nhận
+          Đề xuất cho khách hàng
         </Button>
       );
     }
@@ -195,11 +253,16 @@ const ConfirmButton: React.FC<{ onPress?: OnPress }> = observer(({ onPress }) =>
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'RepairSuggestion'>;
 
-const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
+const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
   const firebaseStore = Container.get(FirebaseStore);
   const invoiceStore = Container.get(InvoiceStore);
+
+  //#region hooks
+  const imagePickerRef = React.useRef<ImagePicker>(null);
+  const [images, setImages] = React.useState<string[]>([]);
+  //#endregion
 
   const [proposing, setProposing] = useState(false);
   useEffect(() => {
@@ -207,8 +270,15 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
       return route.name === 'RepairSuggestion';
     });
 
-    return () => backHandler.remove();
-  }, [route.name]);
+    const beforeRemove = navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+    });
+
+    return () => {
+      backHandler.remove();
+      beforeRemove();
+    };
+  }, [navigation, route.name]);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -216,11 +286,44 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
       if (snapshot.exists) {
         const { invoiceId } = snapshot.data() as { invoiceId: number };
         if (invoiceId && invoiceId > 0) {
-          await invoiceStore.getGarageInvoiceDetail(invoiceId);
+          await invoiceStore.getProposalDetail(invoiceId);
+
+          if (invoiceStore.state === STORE_STATUS.ERROR) {
+            toast.show(invoiceStore.errorMessage);
+            return;
+          }
+
+          automotivePartStore.clearParts();
+          serviceStore.clearServices();
+
+          invoiceStore.staffProposalDetail?.automotivePartInvoices?.forEach((invoice) => {
+            automotivePartStore.addPart({
+              id: invoice.id,
+              name: invoice.automotivePart.name,
+              quantity: invoice.quantity,
+              price: invoice.automotivePart.price,
+              unit: invoice.automotivePart.unit,
+              checked: true,
+            });
+          });
+          invoiceStore.staffProposalDetail?.serviceInvoices?.forEach((invoice) => {
+            serviceStore.addService({
+              id: invoice.id,
+              name: invoice.service.name,
+              quantity: invoice.quantity,
+              price: invoice.service.price,
+              unit: invoice.service.unit,
+              checked: true,
+            });
+          });
+          if (images.length === 0) {
+            setImages(invoiceStore.staffProposalDetail?.checkImageUrls?.map((img) => img.uri) || []);
+          }
         }
       }
     });
-  }, [firebaseStore.rescueDoc, invoiceStore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [automotivePartStore.chosenParts, firebaseStore.rescueDoc, invoiceStore, serviceStore.chosenServices]);
 
   return (
     <ScrollView>
@@ -253,13 +356,13 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
           </Text>
           <Button
             onPress={() => {
-              navigation.replace('AutomotivePartSuggestion');
+              navigation.push('AutomotivePartSuggestion');
             }}
+            colorScheme='green'
             style={{
               width: '40%',
-              backgroundColor: '#34A853',
             }}
-            disabled={proposing}
+            isDisabled={proposing}
           >
             Thêm thiết bị
           </Button>
@@ -287,13 +390,13 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
           </Text>
           <Button
             onPress={() => {
-              navigation.replace('ServiceSuggestion');
+              navigation.navigate('ServiceSuggestion');
             }}
+            colorScheme='green'
             style={{
               width: '40%',
-              backgroundColor: '#34A853',
             }}
-            disabled={proposing}
+            isDisabled={proposing}
           >
             Thêm dịch vụ
           </Button>
@@ -303,11 +406,53 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
             <CategoryDetail key={service.id} category={service} type={CategoryType.SERVICE} disabled={proposing} />
           ))}
         </View>
-        <TotalPay />
+        <View
+          style={{
+            flexDirection: 'row',
+            marginVertical: 15,
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 20,
+              paddingVertical: 10,
+            }}
+          >
+            Tình trạng xe sau khi kiểm tra
+          </Text>
+        </View>
+        <Center>
+          <TextArea
+            h={20}
+            placeholder='Mô tả tình trạng'
+            w={{
+              base: '100%',
+              md: '25%',
+            }}
+          />
+        </Center>
+        <ScrollView horizontal m='1.5'>
+          <TouchableOpacity onPress={() => imagePickerRef.current?.open()} disabled={proposing || images.length === 8}>
+            <Ionicons name='camera' size={50} />
+          </TouchableOpacity>
+          {images.map((image) => (
+            <Image key={image} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
+          ))}
+        </ScrollView>
         <Center>
           <ConfirmButton
-            onPress={() => {
-              setProposing(true);
+            navigation={navigation}
+            enableEditing={() => {
+              if (proposing) {
+                setProposing(false);
+              }
+            }}
+            disableEditing={() => {
+              if (!proposing) {
+                setProposing(true);
+              }
               navigation.addListener('beforeRemove', (e) => {
                 e.preventDefault();
               });
@@ -315,8 +460,15 @@ const GarageRepairSuggestion: React.FC<Props> = observer(({ navigation, route })
           />
         </Center>
       </VStack>
+      <ImagePicker
+        ref={imagePickerRef}
+        selectionLimit={8}
+        onSelectImage={(selectedImages) => {
+          setImages([...images, ...selectedImages.map((image) => image.uri || '')]);
+        }}
+      />
     </ScrollView>
   );
 });
 
-export default GarageRepairSuggestion;
+export default RepairSuggestion;

@@ -1,17 +1,18 @@
 import { GarageModel } from '@models/garage';
 import { Button, HStack, Link, ScrollView, Spinner, Text, View, VStack } from 'native-base';
 import React, { useEffect } from 'react';
-import FAIcon from 'react-native-vector-icons/FontAwesome';
-import SearchBar from '@components/SearchBar';
-import { AirbnbRating } from 'react-native-ratings';
-import GarageStore from '@mobx/stores/garage';
 import { observer } from 'mobx-react';
+import { Container } from 'typedi';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+import { AirbnbRating } from 'react-native-ratings';
+
+import SearchBar from '@components/SearchBar';
+import GarageStore from '@mobx/stores/garage';
 import { STORE_STATUS } from '@utils/constants';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
 import { customerService } from '@mobx/services/customer';
-import { Container } from 'typedi';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   const garageStore = Container.get(GarageStore);
@@ -42,6 +43,7 @@ type ScreenProps = StackScreenProps<ProfileStackParams | AuthStackParams, 'Searc
 
 const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
+
   const onRefresh = React.useCallback(() => {
     void garageStore.getMany('');
   }, [garageStore]);

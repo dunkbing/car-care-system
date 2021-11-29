@@ -140,7 +140,7 @@ const ProposalList: React.FC<Props> = ({ navigation }) => {
           invoiceStore.pendingProposals.map((proposal) => (
             <ProposalItem
               key={proposal.id}
-              onPress={() => navigation.navigate('RequestCustomerConfirmation', { invoiceId: proposal.id })}
+              onPress={() => navigation.navigate('QuotationSuggestion', { invoiceId: proposal.id })}
               customer={{
                 name: `${proposal.customer?.lastName} ${proposal.customer?.firstName}`,
                 address: `${proposal.customer?.address}`,

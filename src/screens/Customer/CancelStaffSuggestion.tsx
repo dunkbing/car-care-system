@@ -19,7 +19,11 @@ const CancelStaffSuggestion: React.FC<Props> = observer(({ navigation, route }) 
       return;
     }
 
-    await invoiceStore.customerRejectProposal(route.params.invoiceId, reason);
+    if (route.params.quotation) {
+      await invoiceStore.customerRejectQuotation(route.params.invoiceId, reason);
+    } else {
+      await invoiceStore.customerRejectProposal(route.params.invoiceId, reason);
+    }
     if (invoiceStore.errorMessage) {
       toast.show(invoiceStore.errorMessage);
     } else {

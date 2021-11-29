@@ -25,7 +25,7 @@ import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import ServiceSuggestion from '@screens/Garages/RepairSuggestion/ServiceSuggestion';
 import { GarageHomeTab } from './HomeTab';
 import ProposalList from '@screens/Garages/ProposalList';
-import ManagerSendQuotationToCustomer from '@screens/Garages/RepairSuggestion/RequestCustomerConfirmation';
+import QuotationSuggestion from '@screens/Garages/RepairSuggestion/QuotationSuggestion';
 
 const Stack = createNativeStackNavigator<GarageHomeOptionStackParams>();
 
@@ -50,10 +50,10 @@ export const GarageOptionsStack: React.FC = () => {
         }}
       />
       <Stack.Screen
-        name='RequestCustomerConfirmation'
-        component={ManagerSendQuotationToCustomer}
+        name='QuotationSuggestion'
+        component={QuotationSuggestion}
         options={{
-          title: 'Đề xuất sửa chữa',
+          title: 'Đề xuất báo giá',
           ...navHeaderStyle,
           headerBackVisible: false,
         }}

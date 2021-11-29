@@ -44,6 +44,7 @@ const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) 
           value=''
           onChange={(value: boolean) => {
             automotivePart.checked = value;
+            console.log(automotivePart.id, automotivePart.name);
             if (value) {
               automotivePartStore.addPart(automotivePart);
             } else {

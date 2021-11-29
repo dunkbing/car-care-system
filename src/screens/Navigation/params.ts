@@ -59,7 +59,7 @@ export type GarageHomeOptionStackParams = {
   Home: undefined;
   MyGarage: { garage: GarageModel | null };
   ProposalList: undefined;
-  RequestCustomerConfirmation: { invoiceId: number };
+  QuotationSuggestion: { invoiceId: number };
   ManageStaffs: undefined | { rescueId: number };
   AddStaff: undefined;
   EditStaff: { staff: StaffModel };
@@ -109,7 +109,7 @@ export type RescueStackParams = {
         rescueId: number;
         isStaff?: boolean;
       };
-  CancelStaffSuggestion: { invoiceId: number };
+  CancelStaffSuggestion: { invoiceId: number; quotation?: boolean };
   DefineRequestCancelReason:
     | undefined
     | {

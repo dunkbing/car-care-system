@@ -2,15 +2,20 @@ import FeedbackStore from '@mobx/stores/feedback';
 import RescueStore from '@mobx/stores/rescue';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { rootNavigation } from '@screens/Navigation/roots';
 import toast from '@utils/toast';
 import { observer } from 'mobx-react';
 import { Button, Center, Text, View, VStack } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextInput } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import Container from 'typedi';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Feedback'>;
+
+function preventGoingBack(e: any) {
+  e.preventDefault();
+}
 
 const Feedback: React.FC<Props> = ({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
@@ -18,6 +23,10 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
 
   const [comment, setComment] = useState('');
   const [point, setPoint] = useState(5);
+
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', preventGoingBack);
+  }, [navigation]);
 
   return (
     <VStack mt='3'>
@@ -63,7 +72,8 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
                 comment,
                 point,
               });
-              navigation.popToTop();
+              navigation.removeListener('beforeRemove', preventGoingBack);
+              rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
               toast.show('Đã gửi phản hồi');
             }}
             style={{

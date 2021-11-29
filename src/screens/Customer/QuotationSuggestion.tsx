@@ -10,6 +10,7 @@ import formatMoney from '@utils/format-money';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
+import { Image } from 'react-native';
 
 type Props = StackScreenProps<RescueStackParams, 'QuotationSuggestion'>;
 
@@ -65,6 +66,14 @@ const QuotationSuggestion: React.FC<Props> = ({ navigation, route }) => {
         <Text mt='10' bold fontSize='2xl'>
           Tình trạng xe sau khi kiểm tra
         </Text>
+        <Text bold fontSize='sm' w='80%'>
+          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCondition}
+        </Text>
+        <ScrollView horizontal m='1.5'>
+          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
+            <Image key={`${index}`} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
+          ))}
+        </ScrollView>
         <HStack mt='10' justifyContent='space-between'>
           <Button
             colorScheme='green'
@@ -87,7 +96,7 @@ const QuotationSuggestion: React.FC<Props> = ({ navigation, route }) => {
               const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
               const res = await withProgress(firestore().collection('rescues').doc(`${rescueId}`).get());
               const { invoiceId } = res.data() as { invoiceId: number };
-              navigation.navigate('CancelStaffSuggestion', { invoiceId });
+              navigation.navigate('CancelStaffSuggestion', { invoiceId, quotation: true });
             }}
           >
             Từ chối

@@ -31,6 +31,7 @@ export type UpdateProposalRequest = {
   automotivePartInvoices: Array<{
     id: number;
     quantity: number;
+    isWarranty: boolean;
     note: string;
   }>;
 };
@@ -62,8 +63,12 @@ export type InvoiceHistoryDetail = {
     price: number;
     automotivePart: AutomotivePartModel;
     note?: string;
-    warrantyApplied?: boolean;
+    isWarranty?: boolean;
   }>;
+  carCheckInfo: {
+    checkCondition: string;
+    checkCarImages: Array<string>;
+  };
 };
 
 export type InvoiceDetail = InvoiceHistoryDetail;

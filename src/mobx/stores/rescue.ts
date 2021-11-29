@@ -16,6 +16,7 @@ import { ApiService } from '@mobx/services/api-service';
 import { rescueApi } from '@mobx/services/api-types';
 import FirebaseStore from './firebase';
 import { NOTI_SERVER } from '@env';
+import { Avatar } from '@models/common';
 
 @Service()
 export default class RescueStore extends BaseStore {
@@ -43,6 +44,7 @@ export default class RescueStore extends BaseStore {
       getCustomerRejectedRescueCases: action,
       getGarageRejectedRescueCases: action,
       getPendingRescueRequests: action,
+      examineCar: action,
       getRescueCases: action,
     });
     void this.getHistories({ keyword: '' });
@@ -139,6 +141,7 @@ export default class RescueStore extends BaseStore {
    * @param rescueDetail
    */
   public async createRescueDetail(rescueDetail: RescueDetailRequest) {
+    console.log('create rescue detail', rescueDetail);
     this.startLoading();
 
     const { result, error } = await this.apiService.post<AvailableCustomerRescueDetail>(rescueApi.createRescueDetail, rescueDetail, true);
@@ -289,6 +292,21 @@ export default class RescueStore extends BaseStore {
       runInAction(() => {
         this.pendingRescueRequests = [...requests];
       });
+      this.handleSuccess();
+    }
+  }
+
+  /**
+   * examine car
+   */
+  public async examineCar(params: { rescueDetailId: number; checkCondition: string; images: Array<Avatar> }) {
+    this.startLoading();
+    const { error, result } = await this.apiService.patch<any>('rescues/details/examinations', params, true, true);
+
+    console.log(error, result);
+    if (error) {
+      this.handleError(error);
+    } else {
       this.handleSuccess();
     }
   }

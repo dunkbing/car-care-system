@@ -61,7 +61,7 @@ export const invoiceApi = {
   // Customer confirms payment
   customerConfirmPayment: (invoiceId: number) => `invoices/customers/payment-confirmations/${invoiceId}`,
   // Manager confirms payment
-  managerConfirmPayment: (invoiceId: number) => `invoices/managers/payment-confirmations/${invoiceId}`,
+  staffConfirmPayment: (invoiceId: number) => `invoices/staffs/payment-confirmations/${invoiceId}`,
   // Customer reject the proposal
   customerRejectProposal: 'invoices/customer/reject-proposal',
   // Customer reject the quotation

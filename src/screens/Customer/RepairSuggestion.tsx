@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Image } from 'react-native';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import firestore from '@react-native-firebase/firestore';
 import Container from 'typedi';
@@ -9,78 +10,80 @@ import InvoiceStore from '@mobx/stores/invoice';
 import { INVOICE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 import { observer } from 'mobx-react';
-import FirebaseStore from '@mobx/stores/firebase';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
 
 type Props = StackScreenProps<RescueStackParams, 'RepairSuggestion'>;
 
-const ConfirmButton: React.FC<{ navigation: StackNavigationProp<RescueStackParams, 'RepairSuggestion'> }> = observer(({ navigation }) => {
-  const rescueStore = Container.get(RescueStore);
-  const invoiceStore = Container.get(InvoiceStore);
+const ConfirmButton: React.FC<{ status?: number; navigation: StackNavigationProp<RescueStackParams, 'RepairSuggestion'> }> = observer(
+  ({ status, navigation }) => {
+    const rescueStore = Container.get(RescueStore);
+    const invoiceStore = Container.get(InvoiceStore);
 
-  switch (invoiceStore.customerInvoiceDetail?.status) {
-    case INVOICE_STATUS.DRAFT: {
-      return (
-        <Button isLoading isDisabled>
-          Chờ nhân viên kiểm tra
-        </Button>
-      );
+    switch (status) {
+      case INVOICE_STATUS.DRAFT: {
+        return (
+          <Button isLoading isDisabled>
+            Chờ nhân viên kiểm tra
+          </Button>
+        );
+      }
+      case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
+        return (
+          <HStack mt='10' justifyContent='space-between'>
+            <Button
+              colorScheme='green'
+              w='35%'
+              onPress={async () => {
+                const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
+                const res = await firestore().collection('rescues').doc(`${rescueId}`).get();
+                const { invoiceId } = res.data() as { invoiceId: number };
+                await invoiceStore.acceptProposal(invoiceId);
+
+                if (invoiceStore.state === STORE_STATUS.ERROR) {
+                  toast.show(`${invoiceStore.errorMessage}`);
+                } else {
+                  navigation.popToTop();
+                }
+              }}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              colorScheme='danger'
+              w='35%'
+              onPress={async () => {
+                const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
+                const res = await withProgress(firestore().collection('rescues').doc(`${rescueId}`).get());
+                const { invoiceId } = res.data() as { invoiceId: number };
+                navigation.navigate('CancelStaffSuggestion', { invoiceId });
+              }}
+            >
+              Từ chối
+            </Button>
+          </HStack>
+        );
+      default:
+        return (
+          <Button isLoading isDisabled>
+            Chờ garage báo giá
+          </Button>
+        );
     }
-    case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
-      return (
-        <HStack mt='10' justifyContent='space-between'>
-          <Button
-            colorScheme='green'
-            w='35%'
-            onPress={async () => {
-              const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
-              const res = await firestore().collection('rescues').doc(`${rescueId}`).get();
-              const { invoiceId } = res.data() as { invoiceId: number };
-              await invoiceStore.acceptProposal(invoiceId);
-
-              if (invoiceStore.state === STORE_STATUS.ERROR) {
-                toast.show(`${invoiceStore.errorMessage}`);
-              } else {
-                navigation.popToTop();
-              }
-            }}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            colorScheme='danger'
-            w='35%'
-            onPress={async () => {
-              const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
-              const res = await withProgress(firestore().collection('rescues').doc(`${rescueId}`).get());
-              const { invoiceId } = res.data() as { invoiceId: number };
-              navigation.navigate('CancelStaffSuggestion', { invoiceId });
-            }}
-          >
-            Từ chối
-          </Button>
-        </HStack>
-      );
-    default:
-      return (
-        <Button isLoading isDisabled>
-          Chờ garage báo giá
-        </Button>
-      );
-  }
-});
+  },
+);
 
 const RepairSuggestion: React.FC<Props> = ({ navigation, route }) => {
   const invoiceStore = Container.get(InvoiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
 
   useEffect(() => {
     const unsub = firestore()
       .collection(firestoreCollection.invoices)
       .doc(`${route.params.invoiceId}`)
       .onSnapshot((snapShot) => {
+        void invoiceStore.getCustomerInvoiceDetail(route.params.invoiceId);
         if (!snapShot.data() || !snapShot.exists) return;
+
         const { status } = snapShot.data() as {
           status: number;
         };
@@ -94,7 +97,7 @@ const RepairSuggestion: React.FC<Props> = ({ navigation, route }) => {
       });
 
     return () => unsub?.();
-  }, [firebaseStore.rescueDoc, navigation, route.params.invoiceId]);
+  }, [invoiceStore, navigation, route.params.invoiceId]);
 
   return (
     <VStack mt='2' px='1'>
@@ -138,7 +141,15 @@ const RepairSuggestion: React.FC<Props> = ({ navigation, route }) => {
         <Text mt='10' bold fontSize='2xl'>
           Tình trạng xe sau khi kiểm tra
         </Text>
-        <ConfirmButton navigation={navigation} />
+        <Text bold fontSize='sm'>
+          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCondition}
+        </Text>
+        <ScrollView horizontal m='1.5'>
+          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
+            <Image key={`${index}`} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
+          ))}
+        </ScrollView>
+        <ConfirmButton status={invoiceStore.customerInvoiceDetail?.status} navigation={navigation} />
       </ScrollView>
     </VStack>
   );

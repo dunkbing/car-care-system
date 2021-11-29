@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BackHandler, Image, TouchableOpacity } from 'react-native';
+import { BackHandler, ImageBackground, TouchableOpacity } from 'react-native';
 import { Button, Center, ScrollView, Text, TextArea, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,6 +21,7 @@ import FirebaseStore from '@mobx/stores/firebase';
 import ImagePicker from '@components/ImagePicker';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { rootNavigation } from '@screens/Navigation';
+import { Avatar } from '@models/common';
 
 enum CategoryType {
   AUTOMOTIVE_PART,
@@ -101,12 +102,12 @@ const ConfirmButton: React.FC<{
   navigation: StackNavigationProp<GarageHomeOptionStackParams, 'RepairSuggestion'>;
   enableEditing?: OnPress;
   disableEditing?: OnPress;
-}> = observer(({ enableEditing, disableEditing }) => {
+  examineCar?: OnPress;
+}> = observer(({ enableEditing, disableEditing, examineCar }) => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
 
   const [status, setStatus] = useState(-1);
   const [invoiceId, setInvoiceId] = useState(-1);
@@ -148,7 +149,9 @@ const ConfirmButton: React.FC<{
       return (
         <Button
           onPress={async () => {
-            const result = (await firebaseStore.get<{ invoiceId: number }>()) as { invoiceId: number };
+            const result = (
+              await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).get()
+            ).data() as { invoiceId: number };
             await invoiceStore.sendProposalToManager(result?.invoiceId);
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(invoiceStore.errorMessage);
@@ -197,20 +200,31 @@ const ConfirmButton: React.FC<{
           onPress={async () => {
             disableEditing?.();
             // onPress?.();
-            // const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
-            //   automotivePartId: part.id,
-            //   quantity: part.quantity || 1,
-            // }));
-            // const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
-            //   serviceId: service.id,
-            //   quantity: service.quantity || 1,
-            // }));
-            await invoiceStore.sendProposalToCustomer(invoiceId);
+            const automotivePartProposals: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
+              automotivePartId: part.id,
+              quantity: part.quantity ?? 1,
+            }));
+            const serviceProposals: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
+              serviceId: service.id,
+              quantity: service.quantity ?? 1,
+            }));
 
-            if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(invoiceStore.errorMessage);
+            try {
+              await Promise.resolve(examineCar?.());
+              await invoiceStore.updateProposal({
+                invoiceId,
+                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
+                automotivePartProposals,
+                serviceProposals,
+              });
+
+              if (invoiceStore.state === STORE_STATUS.ERROR) {
+                toast.show(invoiceStore.errorMessage);
+              }
+              setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
+            } catch (error) {
+              toast.show(JSON.stringify(error));
             }
-            setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
           }}
         >
           Đề xuất cho khách hàng
@@ -226,22 +240,27 @@ const ConfirmButton: React.FC<{
             disableEditing?.();
             const automotivePartInvoices: AutomotivePartInvoice[] = Array.from(automotivePartStore.chosenParts.values()).map((part) => ({
               automotivePartId: part.id,
-              quantity: part.quantity || 1,
+              quantity: part.quantity ?? 1,
             }));
             const serviceInvoices: ServiceInvoice[] = Array.from(serviceStore.chosenServices.values()).map((service) => ({
               serviceId: service.id,
-              quantity: service.quantity || 1,
+              quantity: service.quantity ?? 1,
             }));
-            await invoiceStore.createProposal({
-              rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
-              automotivePartInvoices,
-              serviceInvoices,
-            });
+            try {
+              await Promise.resolve(examineCar?.());
+              await invoiceStore.createProposal({
+                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
+                automotivePartInvoices,
+                serviceInvoices,
+              });
 
-            if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(invoiceStore.errorMessage);
+              if (invoiceStore.state === STORE_STATUS.ERROR) {
+                toast.show(invoiceStore.errorMessage);
+              }
+              setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
+            } catch (error) {
+              toast.show(JSON.stringify(error));
             }
-            setStatus(INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER);
           }}
         >
           Đề xuất cho khách hàng
@@ -258,13 +277,14 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   const serviceStore = Container.get(ServiceStore);
   const firebaseStore = Container.get(FirebaseStore);
   const invoiceStore = Container.get(InvoiceStore);
+  const rescueStore = Container.get(RescueStore);
 
   //#region hooks
   const imagePickerRef = React.useRef<ImagePicker>(null);
-  const [images, setImages] = React.useState<string[]>([]);
-  //#endregion
-
+  const [images, setImages] = React.useState<Avatar[]>([]);
   const [proposing, setProposing] = useState(false);
+  const [checkCondition, setCheckCondition] = useState('');
+
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       return route.name === 'RepairSuggestion';
@@ -293,37 +313,37 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
             return;
           }
 
-          automotivePartStore.clearParts();
-          serviceStore.clearServices();
+          if (automotivePartStore.chosenParts.size <= 0) {
+            invoiceStore.staffProposalDetail?.automotivePartInvoices?.forEach((invoice) => {
+              automotivePartStore.addPart({
+                id: invoice.automotivePart.id,
+                name: invoice.automotivePart.name,
+                quantity: invoice.quantity,
+                price: invoice.automotivePart.price,
+                unit: invoice.automotivePart.unit,
+                checked: true,
+              });
+            });
+          }
 
-          invoiceStore.staffProposalDetail?.automotivePartInvoices?.forEach((invoice) => {
-            automotivePartStore.addPart({
-              id: invoice.id,
-              name: invoice.automotivePart.name,
-              quantity: invoice.quantity,
-              price: invoice.automotivePart.price,
-              unit: invoice.automotivePart.unit,
-              checked: true,
+          if (serviceStore.chosenServices.size <= 0) {
+            invoiceStore.staffProposalDetail?.serviceInvoices?.forEach((invoice) => {
+              serviceStore.addService({
+                id: invoice.service.id,
+                name: invoice.service.name,
+                quantity: invoice.quantity,
+                price: invoice.service.price,
+                unit: invoice.service.unit,
+                checked: true,
+              });
             });
-          });
-          invoiceStore.staffProposalDetail?.serviceInvoices?.forEach((invoice) => {
-            serviceStore.addService({
-              id: invoice.id,
-              name: invoice.service.name,
-              quantity: invoice.quantity,
-              price: invoice.service.price,
-              unit: invoice.service.unit,
-              checked: true,
-            });
-          });
-          if (images.length === 0) {
-            setImages(invoiceStore.staffProposalDetail?.checkImageUrls?.map((img) => img.uri) || []);
           }
         }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [automotivePartStore.chosenParts, firebaseStore.rescueDoc, invoiceStore, serviceStore.chosenServices]);
+  //#endregion
 
   return (
     <ScrollView>
@@ -431,19 +451,44 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
               base: '100%',
               md: '25%',
             }}
+            isDisabled={proposing}
+            onChangeText={(text) => {
+              setCheckCondition(text);
+            }}
           />
         </Center>
         <ScrollView horizontal m='1.5'>
           <TouchableOpacity onPress={() => imagePickerRef.current?.open()} disabled={proposing || images.length === 8}>
             <Ionicons name='camera' size={50} />
           </TouchableOpacity>
-          {images.map((image) => (
-            <Image key={image} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
+          {images.map((image, index) => (
+            <ImageBackground key={`${image.name}-${index}`} source={{ uri: image.uri }} style={{ width: 60, height: 60, marginLeft: 10 }}>
+              <TouchableOpacity
+                style={{ alignItems: 'flex-end' }}
+                disabled={proposing}
+                onPress={() => {
+                  setImages(images.filter((i) => i.uri !== image.uri));
+                }}
+              >
+                <Ionicons name='close-circle-sharp' color={proposing ? 'grey' : 'red'} size={15} />
+              </TouchableOpacity>
+            </ImageBackground>
           ))}
         </ScrollView>
         <Center>
           <ConfirmButton
             navigation={navigation}
+            examineCar={async () => {
+              await rescueStore.examineCar({
+                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
+                checkCondition,
+                images: Array.from(images),
+              });
+
+              if (rescueStore.state === STORE_STATUS.ERROR) {
+                toast.show(rescueStore.errorMessage);
+              }
+            }}
             enableEditing={() => {
               if (proposing) {
                 setProposing(false);
@@ -464,7 +509,12 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
         ref={imagePickerRef}
         selectionLimit={8}
         onSelectImage={(selectedImages) => {
-          setImages([...images, ...selectedImages.map((image) => image.uri || '')]);
+          const newImages: Avatar[] = selectedImages.map((image) => ({
+            name: `${image.fileName}`,
+            type: `${image.type}`,
+            uri: `${image.uri}`,
+          }));
+          setImages([...images, ...newImages]);
         }}
       />
     </ScrollView>

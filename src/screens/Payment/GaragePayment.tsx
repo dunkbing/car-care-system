@@ -24,7 +24,6 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#endregion
 
   const { currentStaffProcessingRescue } = rescueStore;
-  const { garageInvoiceDetail } = invoiceStore;
 
   //#region hooks
   const [invoiceStatus, setInvoiceStatus] = React.useState(-1);
@@ -114,7 +113,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        {garageInvoiceDetail?.automotivePartInvoices.map((part) => (
+        {invoiceStore.staffProposalDetail?.automotivePartInvoices.map((part) => (
           <VStack key={part.id} mt={3}>
             <Text bold fontSize='sm'>
               {`${part.automotivePart.name}`}
@@ -130,7 +129,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        {garageInvoiceDetail?.serviceInvoices.map((service) => (
+        {invoiceStore.staffProposalDetail?.serviceInvoices.map((service) => (
           <VStack key={service.id} mt={3}>
             <Text bold fontSize='sm'>
               {service.service.name}
@@ -142,7 +141,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
           </VStack>
         ))}
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(garageInvoiceDetail?.total || 0)}
+          Tổng {formatMoney(invoiceStore.staffProposalDetail?.total || 0)}
         </Text>
         {invoiceStatus !== INVOICE_STATUS.CUSTOMER_CONFIRM_PAID ? (
           <Button mt='10' mb='5' isLoading isDisabled>
@@ -156,7 +155,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             _text={{ color: 'white' }}
             onPress={async () => {
               const data = await firebaseStore.get<{ invoiceId: number }>();
-              await invoiceStore.managerConfirmsPayment(data?.invoiceId as number);
+              await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
               await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
                 customerFeedback: true,
                 status: RESCUE_STATUS.DONE,

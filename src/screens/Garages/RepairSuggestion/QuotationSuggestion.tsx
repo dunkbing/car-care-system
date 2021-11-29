@@ -27,7 +27,7 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
   const invoiceStore = Container.get(InvoiceStore);
   const { id, name, unit, quantity, price, disabled } = props;
   const [note, setNote] = useState('');
-  const [warrantyApplied, setWarrantyApplied] = useState(false);
+  const [isWarranty, setIsWarranty] = useState(false);
   return (
     <View my={3}>
       <View
@@ -56,16 +56,16 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
           marginTop: 5,
         }}
       >
-        <Text style={{ fontSize: 16 }}>Áp dụng bảo bảo hành</Text>
+        <Text style={{ fontSize: 16 }}>Áp dụng bảo hành</Text>
         <Checkbox
           onChange={(value) => {
-            setWarrantyApplied(value);
+            setIsWarranty(value);
             invoiceStore.editAutomotivePart(id, note, value);
           }}
           accessibilityLabel={name}
-          value={`${warrantyApplied}`}
-          defaultIsChecked={warrantyApplied}
-          isChecked={warrantyApplied}
+          value={`${isWarranty}`}
+          defaultIsChecked={isWarranty}
+          isChecked={isWarranty}
           isDisabled={disabled}
         />
       </View>
@@ -83,7 +83,7 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
         isDisabled={disabled}
         onChangeText={(value) => {
           setNote(value);
-          invoiceStore.editAutomotivePart(id, value, warrantyApplied);
+          invoiceStore.editAutomotivePart(id, value, isWarranty);
         }}
       />
       <View
@@ -100,11 +100,10 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
           }}
         >
           <Text fontSize={16}>
-            {' '}
-            {`${formatMoney(price)}`} / {unit}
+            {!isWarranty ? `${formatMoney(price)}` : '0đ'} / {unit}
           </Text>
         </View>
-        <Text fontSize={16}>{price * quantity}đ</Text>
+        <Text fontSize={16}>{!isWarranty ? price * quantity : '0'}đ</Text>
       </View>
     </View>
   );
@@ -123,7 +122,9 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
   const invoiceStore = Container.get(InvoiceStore);
   const { id, name, unit, quantity, disabled } = props;
   const [note, setNote] = useState('');
-  const [price, setPrice] = useState(invoiceStore.managerProposalDetail?.serviceInvoices?.find((service) => service.id === id)?.price ?? 0);
+  const [price, setPrice] = useState(
+    invoiceStore.managerProposalDetail?.serviceInvoices?.find((service) => service.service.id === id)?.price ?? 0,
+  );
   return (
     <View my={3}>
       <View
@@ -200,7 +201,17 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
   );
 });
 
-const TotalPay: React.FC<{ total?: number }> = observer(({ total }) => {
+const TotalPay: React.FC = observer(() => {
+  const invoiceStore = Container.get(InvoiceStore);
+  const partTotal =
+    invoiceStore.managerProposalDetail?.automotivePartInvoices
+      .map((part) => part.automotivePart.price * part.quantity)
+      .reduce((a, b) => a + b, 0) ?? 0;
+  const serviceTotal =
+    invoiceStore.managerProposalDetail?.serviceInvoices
+      .map((service) => service.service.price * service.quantity)
+      .reduce((a, b) => a + b, 0) ?? 0;
+  const total = partTotal + serviceTotal;
   return (
     <View
       style={{
@@ -225,7 +236,7 @@ const ConfirmButton: React.FC<{
   enableEditing?: OnPress;
   disableEditing?: OnPress;
   proposalId: number;
-  navigation: StackNavigationProp<GarageHomeOptionStackParams, 'RequestCustomerConfirmation'>;
+  navigation: StackNavigationProp<GarageHomeOptionStackParams, 'QuotationSuggestion'>;
 }> = observer(({ proposalId, enableEditing, disableEditing }) => {
   const invoiceStore = Container.get(InvoiceStore);
 
@@ -274,23 +285,25 @@ const ConfirmButton: React.FC<{
       );
     }
     default: {
+      enableEditing?.();
       return (
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
             console.log('send quotation to customer', JSON.stringify(invoiceStore.managerProposalDetail));
-            await invoiceStore.updateProposal({
+            await invoiceStore.managerUpdateProposal({
               id: proposalId,
               automotivePartInvoices: (invoiceStore.managerProposalDetail?.automotivePartInvoices || []).map((part) => ({
                 id: part.id,
-                note: `${part.note}`,
                 quantity: part.quantity,
+                isWarranty: !!part.isWarranty,
+                note: `${part.note}`,
               })),
               serviceInvoices: (invoiceStore.managerProposalDetail?.serviceInvoices || []).map((service) => ({
                 id: service.id,
-                note: `${service.note}`,
-                price: service.price,
                 quantity: service.quantity,
+                price: service.price,
+                note: `${service.note}`,
               })),
             });
 
@@ -309,9 +322,9 @@ const ConfirmButton: React.FC<{
   }
 });
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'RequestCustomerConfirmation'>;
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'QuotationSuggestion'>;
 
-const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, route }) => {
+const QuotationSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   //#region stores
   const invoiceStore = Container.get(InvoiceStore);
   //#endregion
@@ -322,7 +335,7 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
   useEffect(() => {
     void invoiceStore.getGarageInvoiceDetail(route.params.invoiceId);
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      return route.name === 'RequestCustomerConfirmation';
+      return route.name === 'QuotationSuggestion';
     });
 
     return () => backHandler.remove();
@@ -367,8 +380,8 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
         <View>
           {invoiceStore.managerProposalDetail?.automotivePartInvoices?.map((part) => (
             <AutomotivePartItem
-              key={part.id}
-              id={part.id}
+              key={part.automotivePart.id}
+              id={part.automotivePart.id}
               name={part.automotivePart.name}
               unit={part.automotivePart.unit}
               price={part.automotivePart.price}
@@ -397,8 +410,8 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
         <View>
           {invoiceStore.managerProposalDetail?.serviceInvoices?.map((service) => (
             <ServiceItem
-              key={service.id}
-              id={service.id}
+              key={service.service.id}
+              id={service.service.id}
               name={service.service.name}
               unit={service.service.unit}
               price={service.price}
@@ -407,7 +420,7 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
             />
           ))}
         </View>
-        <TotalPay total={invoiceStore.managerProposalDetail?.total} />
+        <TotalPay />
         <View style={{ marginVertical: 15 }}>
           <Text
             style={{
@@ -417,37 +430,14 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
           >
             Tình trạng xe sau khi kiểm tra
           </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 20,
-            }}
-          >
-            Xe bị hỏng ắc quy, bugi bị ẩm, cần thay bugi
+          <Text bold fontSize='sm' w='80%'>
+            {invoiceStore.managerProposalDetail?.carCheckInfo?.checkCondition}
           </Text>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              justifyContent: 'flex-start',
-            }}
-          >
-            <Image
-              source={{
-                uri: 'https://wallpaperaccess.com/full/317501.jpg',
-              }}
-              alt='Ảnh tình trạng xe'
-              size='md'
-              resizeMode='contain'
-              style={{
-                width: 90,
-                height: 90,
-                marginVertical: 10,
-                marginEnd: 10,
-              }}
-            />
-          </View>
+          <ScrollView horizontal m='1.5'>
+            {invoiceStore.managerProposalDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
+              <Image key={`${index}`} alt='img' source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
+            ))}
+          </ScrollView>
         </View>
         <Center>
           <ConfirmButton
@@ -466,4 +456,4 @@ const ManagerSendQuotationToCustomer: React.FC<Props> = observer(({ navigation, 
   );
 });
 
-export default ManagerSendQuotationToCustomer;
+export default QuotationSuggestion;

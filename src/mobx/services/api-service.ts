@@ -163,9 +163,29 @@ export class ApiService {
     }
   }
 
-  public async patch<Response>(path: string, params?: RequestParams, reportProgress = false): Promise<ServiceResult<Response>> {
+  public async patch<Response>(
+    path: string,
+    params?: RequestParams,
+    reportProgress = false,
+    formData = false,
+  ): Promise<ServiceResult<Response>> {
     const headers = this.createRequestHeaders();
-    let promise = axios.patch<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
+    let promise;
+    if (formData) {
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(params)) {
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            formData.append(key, item);
+          }
+        } else {
+          formData.append(key, value);
+        }
+      }
+      promise = axios.patch<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), formData, { headers });
+    } else {
+      promise = axios.patch<any, AxiosResponse<ResponseSingular<Response>>>(this.createRequestURL(path), params, { headers });
+    }
     if (reportProgress) {
       promise = withProgress(promise);
     }

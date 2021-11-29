@@ -33,10 +33,10 @@ export default class InvoiceStore extends BaseStore {
       staffProposalDetail: observable,
       managerProposalDetail: observable,
       createProposal: action,
-      updateProposal: action,
+      managerUpdateProposal: action,
       acceptProposal: action,
       customerConfirmsPayment: action,
-      managerConfirmsPayment: action,
+      staffConfirmsPayment: action,
       getGarageInvoiceDetail: action,
       getCustomerInvoiceDetail: action,
       getProposalDetail: action,
@@ -70,12 +70,12 @@ export default class InvoiceStore extends BaseStore {
     }
   }
 
-  public editAutomotivePart(id: number, note: string, warrantyApplied: boolean) {
+  public editAutomotivePart(id: number, note: string, isWarranty: boolean) {
     runInAction(() => {
-      const part = this.managerProposalDetail?.automotivePartInvoices.find((part) => part.id === id);
+      const part = this.managerProposalDetail?.automotivePartInvoices.find((part) => part.automotivePart.id === id);
       if (part) {
         part.note = note;
-        part.warrantyApplied = warrantyApplied;
+        part.isWarranty = isWarranty;
       }
     });
   }
@@ -83,13 +83,10 @@ export default class InvoiceStore extends BaseStore {
   public editService(id: number, note: string, price: number) {
     runInAction(() => {
       if (this.managerProposalDetail) {
-        const service = this.managerProposalDetail.serviceInvoices.find((service) => service.id === id);
+        const service = this.managerProposalDetail.serviceInvoices.find((service) => service.service.id === id);
         if (service) {
           service.note = note;
-          service.price = price;
-          const partTotal = this.managerProposalDetail.automotivePartInvoices.reduce((total, part) => total + part.price, 0);
-          const serviceTotal = this.managerProposalDetail.serviceInvoices.reduce((total, service) => total + service.price, 0);
-          this.managerProposalDetail.total = partTotal + serviceTotal;
+          service.service.price = price;
         }
       }
     });
@@ -103,8 +100,14 @@ export default class InvoiceStore extends BaseStore {
       invoiceApi.createProposal,
       {
         rescueDetailId: proposal.rescueDetailId,
-        serviceIds: proposal.serviceInvoices.map((service) => service.serviceId),
-        automotivePartIds: proposal.automotivePartInvoices.map((part) => part.automotivePartId),
+        serviceProposals: proposal.serviceInvoices.map((service) => ({
+          serviceId: service.serviceId,
+          quantity: service.quantity,
+        })),
+        automotivePartProposals: proposal.automotivePartInvoices.map((part) => ({
+          automotivePartId: part.automotivePartId,
+          quantity: part.quantity,
+        })),
       },
       true,
     );
@@ -128,8 +131,39 @@ export default class InvoiceStore extends BaseStore {
     }
   }
 
-  // Update a proposal (draft invoice)
-  public async updateProposal(proposal: UpdateProposalRequest) {
+  // Update a proposal
+  public async updateProposal(proposal: {
+    invoiceId: number;
+    rescueDetailId: number;
+    serviceProposals: Array<{
+      serviceId: number;
+      quantity: number;
+    }>;
+    automotivePartProposals: Array<{
+      automotivePartId: number;
+      quantity: number;
+    }>;
+  }) {
+    this.startLoading();
+    console.log('update proposal', proposal);
+
+    const { result, error } = await this.apiService.put<InvoiceProposal>(invoiceApi.update, proposal, true);
+
+    console.log('update proposal', error, result);
+
+    if (error) {
+      this.handleError(error);
+    } else {
+      await firestore()
+        .collection(firestoreCollection.invoices)
+        .doc(`${proposal.invoiceId}`)
+        .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
+      this.handleSuccess();
+    }
+  }
+
+  // Manager update a proposal (draft invoice)
+  public async managerUpdateProposal(proposal: UpdateProposalRequest) {
     this.startLoading();
     const { error } = await this.apiService.put('invoices', proposal, true);
 
@@ -226,9 +260,9 @@ export default class InvoiceStore extends BaseStore {
   }
 
   // Staff confirms payment and switch the rescue detail status to Done
-  public async managerConfirmsPayment(invoiceId: number) {
+  public async staffConfirmsPayment(invoiceId: number) {
     this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.managerConfirmPayment(invoiceId), {}, true);
+    const { error } = await this.apiService.patch(invoiceApi.staffConfirmPayment(invoiceId), {}, true);
 
     if (error) {
       this.handleError(error);
@@ -253,6 +287,7 @@ export default class InvoiceStore extends BaseStore {
 
   // Customer reject quotation
   public async customerRejectQuotation(invoiceId: number, rejectReason: string) {
+    console.log('reject quotation', invoiceId, rejectReason);
     this.startLoading();
     const { error } = await this.apiService.patch(invoiceApi.customerRejectQuotation, { invoiceId, rejectReason }, true);
 
@@ -273,14 +308,14 @@ export default class InvoiceStore extends BaseStore {
   public async getCustomerInvoiceDetail(invoiceId: number) {
     this.startLoading();
     const { result, error } = await this.apiService.get<InvoiceHistoryDetail>(invoiceApi.getCustomerInvoiceDetail(invoiceId), true);
-    console.log(result);
+    console.log('getCustomerInvoiceDetail', result);
 
     if (error) {
       this.handleError(error);
     } else {
       this.handleSuccess();
       runInAction(() => {
-        this.customerInvoiceDetail = result;
+        this.customerInvoiceDetail = Object.assign({}, result);
       });
     }
   }

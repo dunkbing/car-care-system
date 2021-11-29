@@ -2,6 +2,7 @@ import InvoiceStore from '@mobx/stores/invoice';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { observer } from 'mobx-react';
+import firestore from '@react-native-firebase/firestore';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import React, { useEffect } from 'react';
 import Container from 'typedi';
@@ -11,6 +12,7 @@ import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 import { BackHandler } from 'react-native';
+import { firestoreCollection } from '@mobx/services/api-types';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
@@ -25,13 +27,26 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   const { garageInvoiceDetail } = invoiceStore;
 
   //#region hooks
+  const [invoiceStatus, setInvoiceStatus] = React.useState(-1);
   useEffect(() => {
     const fetchData = async () => {
-      const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+      const { invoiceId } = (
+        await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).get()
+      ).data() as any;
+      firestore()
+        .collection(firestoreCollection.invoices)
+        .doc(`${invoiceId}`)
+        .onSnapshot((snapShot) => {
+          if (snapShot.exists) {
+            const invoice = snapShot.data() as { status: number };
+            setInvoiceStatus(invoice.status);
+          }
+          void invoiceStore.getProposalDetail(invoiceId);
+        });
       await invoiceStore.getGarageInvoiceDetail(invoiceId);
     };
     void fetchData();
-  }, [firebaseStore, invoiceStore]);
+  }, [invoiceStore, rescueStore.currentStaffProcessingRescue?.id]);
 
   useEffect(() => {
     return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
@@ -129,7 +144,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
           Tổng {formatMoney(garageInvoiceDetail?.total || 0)}
         </Text>
-        {invoiceStore.garageInvoiceDetail?.status === INVOICE_STATUS.PENDING ? (
+        {invoiceStatus !== INVOICE_STATUS.CUSTOMER_CONFIRM_PAID ? (
           <Button mt='10' mb='5' isLoading isDisabled>
             Vui lòng chờ khách hàng thanh toán
           </Button>
@@ -141,7 +156,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             _text={{ color: 'white' }}
             onPress={async () => {
               const data = await firebaseStore.get<{ invoiceId: number }>();
-              await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
+              await invoiceStore.managerConfirmsPayment(data?.invoiceId as number);
               await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
                 customerFeedback: true,
                 status: RESCUE_STATUS.DONE,
@@ -149,11 +164,10 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
 
               if (invoiceStore.state === STORE_STATUS.ERROR) {
                 toast.show(`${invoiceStore.errorMessage}`);
-              } else {
-                navigation.navigate('Feedback', {
-                  customerName: `${currentStaffProcessingRescue?.customer?.lastName} ${currentStaffProcessingRescue?.customer?.firstName}`,
-                });
               }
+              navigation.navigate('Feedback', {
+                customerName: `${currentStaffProcessingRescue?.customer?.lastName} ${currentStaffProcessingRescue?.customer?.firstName}`,
+              });
             }}
           >
             Xác nhận đã thanh toán

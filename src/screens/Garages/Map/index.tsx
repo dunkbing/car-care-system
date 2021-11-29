@@ -5,6 +5,7 @@ import { Box, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
+import firestore from '@react-native-firebase/firestore';
 
 import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import GarageStore from '@mobx/stores/garage';
@@ -13,7 +14,7 @@ import { Container } from 'typedi';
 import Marker from '@components/map/Marker';
 import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
 import RescueStore from '@mobx/stores/rescue';
-import { RESCUE_STATUS } from '@utils/constants';
+import { INVOICE_STATUS, RESCUE_STATUS } from '@utils/constants';
 import { mapService } from '@mobx/services/map';
 import InvoiceStore from '@mobx/stores/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
@@ -23,6 +24,8 @@ import { Location } from '@models/common';
 import { RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '@screens/Home/Map/map-component';
 import LocationService from '@mobx/services/location';
 import toast from '@utils/toast';
+import DialogStore from '@mobx/stores/dialog';
+import { firestoreCollection } from '@mobx/services/api-types';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -51,6 +54,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   const invoiceStore = Container.get(InvoiceStore);
   const firebaseStore = Container.get(FirebaseStore);
   const locationService = Container.get(LocationService);
+  const dialogStore = Container.get(DialogStore);
   //#endregion store
 
   //#region hooks
@@ -81,15 +85,22 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
                   setDuration(`${distanceMatrix?.rows[0].elements[0].duration.text}`);
                 });
               setStaffLocation(location);
-              firebaseStore.rescueDoc?.update({ staffLocation: JSON.stringify(location) });
+              void firestore()
+                .collection(firestoreCollection.rescues)
+                .doc(`${rescueStore.currentStaffProcessingRescue?.id}`)
+                .update({ staffLocation: JSON.stringify(location) });
             }
           })
           .catch((error) => toast.show(error.message));
       }
     }, 5000);
 
+    navigation.addListener('blur', () => {
+      clearInterval(intervalId);
+    });
+
     return () => clearInterval(intervalId);
-  }, [firebaseStore.rescueDoc, locationService, rescueStore.currentStaffProcessingRescue]);
+  }, [locationService, navigation, rescueStore.currentStaffProcessingRescue]);
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
@@ -107,7 +118,13 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
       if (!snapShot.data()) return;
 
       await rescueStore.getCurrentProcessingStaff();
-      const { status, garageFeedback } = snapShot.data() as { status: number; garageFeedback: boolean };
+      const { status, invoiceId, garageFeedback } = snapShot.data() as {
+        status: number;
+        garageFeedback: boolean;
+        invoiceId: number;
+      };
+      await invoiceStore.getProposalDetail(invoiceId);
+      const invoiceStatus = await (await firestore().collection('invoices').doc(`${invoiceId}`).get()).data()?.status;
       switch (status) {
         case RESCUE_STATUS.ACCEPTED: {
           break;
@@ -116,8 +133,10 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.ARRIVED: {
-          if (!invoiceStore.garageInvoiceDetail) {
+          if (!invoiceStatus || invoiceStatus <= INVOICE_STATUS.DRAFT) {
             navigation.navigate('AutomotivePartSuggestion');
+          } else if (invoiceStatus > INVOICE_STATUS.DRAFT) {
+            navigation.navigate('RepairSuggestion');
           }
           break;
         }
@@ -125,6 +144,22 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           break;
         }
         case RESCUE_STATUS.DONE: {
+          break;
+        }
+        default:
+          break;
+      }
+
+      switch (invoiceStatus) {
+        case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
+        case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL:
+        case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER:
+        case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
+          dialogStore.closeProgressDialog();
+          navigation.navigate('RepairSuggestion');
+          break;
+        case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID: {
+          navigation.push('Payment');
           break;
         }
         default:

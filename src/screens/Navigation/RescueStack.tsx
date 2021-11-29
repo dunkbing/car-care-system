@@ -7,12 +7,12 @@ import { Map } from '@screens/Home';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import CancelStaffSuggestion from '@screens/Customer/CancelStaffSuggestion';
-import DefaultGarage from '@screens/Garages/GarageInfoDetail';
-import CustomerConfirmRepairSuggestion from '@screens/Payment/ConfirmSuggestedRepair';
+import GarageDetail from '@screens/Garages/GarageInfoDetail';
+import QuotationSuggestion from '@screens/Customer/QuotationSuggestion';
 import Payment from '@screens/Payment/CustomerPayment';
 import Feedback from '@screens/Customer/Feedback';
 import NearByGarage from '@screens/Customer/NearByGarages';
-import StaffRepairSuggestion from '@screens/Customer/StaffRepairSuggestion';
+import RepairSuggestion from '@screens/Customer/RepairSuggestion';
 
 const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 
@@ -62,15 +62,15 @@ export const RescueStack: React.FC = () => {
       />
       <RescueStackNav.Screen
         name='GarageDetail'
-        component={DefaultGarage}
+        component={GarageDetail}
         options={{
           title: 'Thông tin garage',
           ...navHeaderStyle,
         }}
       />
       <RescueStackNav.Screen
-        name='StaffRepairSuggestion'
-        component={StaffRepairSuggestion}
+        name='RepairSuggestion'
+        component={RepairSuggestion}
         options={{
           title: 'Đề xuất sửa chữa',
           ...navHeaderStyle,
@@ -78,8 +78,8 @@ export const RescueStack: React.FC = () => {
         }}
       />
       <RescueStackNav.Screen
-        name='ConfirmSuggestedRepair'
-        component={CustomerConfirmRepairSuggestion}
+        name='QuotationSuggestion'
+        component={QuotationSuggestion}
         options={{
           title: 'Báo giá ban đầu',
           ...navHeaderStyle,

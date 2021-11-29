@@ -64,7 +64,6 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
                 point,
               });
               navigation.popToTop();
-              navigation.goBack();
               toast.show('Đã gửi phản hồi');
             }}
             style={{

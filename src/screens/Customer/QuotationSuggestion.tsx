@@ -4,17 +4,18 @@ import firestore from '@react-native-firebase/firestore';
 import Container from 'typedi';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RescueStackParams } from '@screens/Navigation/params';
-import RescueStore from '@mobx/stores/rescue';
 import InvoiceStore from '@mobx/stores/invoice';
-import { STORE_STATUS } from '@utils/constants';
-import toast from '@utils/toast';
+import { INVOICE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
+import { firestoreCollection } from '@mobx/services/api-types';
+import { withProgress } from '@mobx/services/config';
+import RescueStore from '@mobx/stores/rescue';
 
-type Props = StackScreenProps<RescueStackParams, 'ConfirmSuggestedRepair'>;
+type Props = StackScreenProps<RescueStackParams, 'QuotationSuggestion'>;
 
-const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
-  const rescueStore = Container.get(RescueStore);
+const QuotationSuggestion: React.FC<Props> = ({ navigation, route }) => {
   const invoiceStore = Container.get(InvoiceStore);
+  const rescueStore = Container.get(RescueStore);
 
   return (
     <VStack mt='2' px='1'>
@@ -61,32 +62,40 @@ const CustomerConfirmRepairSuggestion: React.FC<Props> = ({ navigation }) => {
             </VStack>
           );
         })}
-        <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(invoiceStore.customerInvoiceDetail?.total || 0)}
+        <Text mt='10' bold fontSize='2xl'>
+          Tình trạng xe sau khi kiểm tra
         </Text>
-        <Button
-          mt='10'
-          mb='5'
-          backgroundColor='#34A853'
-          _text={{ color: 'white' }}
-          onPress={async () => {
-            const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
-            const res = await firestore().collection('rescues').doc(`${rescueId}`).get();
-            const { invoiceId } = res.data() as { invoiceId: number };
-            await invoiceStore.acceptProposal(invoiceId);
-
-            if (invoiceStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${invoiceStore.errorMessage}`);
-            } else {
-              navigation.goBack();
-            }
-          }}
-        >
-          Xác nhận sửa chữa
-        </Button>
+        <HStack mt='10' justifyContent='space-between'>
+          <Button
+            colorScheme='green'
+            w='35%'
+            onPress={async () => {
+              await withProgress(
+                firestore().collection(firestoreCollection.invoices).doc(`${route.params.invoiceId}`).update({
+                  status: INVOICE_STATUS.CUSTOMER_CONFIRM_REPAIR,
+                }),
+              );
+              navigation.popToTop();
+            }}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            colorScheme='danger'
+            w='35%'
+            onPress={async () => {
+              const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
+              const res = await withProgress(firestore().collection('rescues').doc(`${rescueId}`).get());
+              const { invoiceId } = res.data() as { invoiceId: number };
+              navigation.navigate('CancelStaffSuggestion', { invoiceId });
+            }}
+          >
+            Từ chối
+          </Button>
+        </HStack>
       </ScrollView>
     </VStack>
   );
 };
 
-export default CustomerConfirmRepairSuggestion;
+export default QuotationSuggestion;

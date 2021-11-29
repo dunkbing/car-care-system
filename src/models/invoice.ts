@@ -1,6 +1,7 @@
 import { ACCOUNT_TYPES, Gender, INVOICE_STATUS } from '@utils/constants';
 import { AutomotivePartModel } from './automotive-part';
 import { CarModel } from './car';
+import { Avatar } from './common';
 import { ServiceModel } from './service';
 
 export type ServiceInvoice = {
@@ -22,16 +23,14 @@ export type CreateProposalRequest = {
 export type UpdateProposalRequest = {
   id: number;
   serviceInvoices: Array<{
-    serviceId: number;
+    id: number;
     quantity: number;
     price: number;
     note: string;
   }>;
   automotivePartInvoices: Array<{
-    automotivePartId: number;
+    id: number;
     quantity: number;
-    price: number;
-    warrantyEndDate: string;
     note: string;
   }>;
 };
@@ -48,17 +47,22 @@ export type InvoiceHistoryDetail = {
   id: number;
   total: number;
   status: INVOICE_STATUS;
+  checkImageUrls: Array<Avatar> | null;
   serviceInvoices: Array<{
     id: number;
     quantity: number;
     price: number;
     service: ServiceModel;
+    note?: string;
+    warrantyApplied?: boolean;
   }>;
   automotivePartInvoices: Array<{
     id: number;
     quantity: number;
     price: number;
     automotivePart: AutomotivePartModel;
+    note?: string;
+    warrantyApplied?: boolean;
   }>;
 };
 

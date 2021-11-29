@@ -120,9 +120,9 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
         <AddButton
           onPress={() => {
             if (serviceStore.chosenServices.size === 0) {
-              navigation.replace('ServiceSuggestion');
+              navigation.navigate('ServiceSuggestion');
             } else {
-              navigation.replace('RepairSuggestion');
+              navigation.navigate('RepairSuggestion');
             }
           }}
         />

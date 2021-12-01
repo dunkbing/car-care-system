@@ -1,11 +1,12 @@
 /* eslint-disable indent */
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { BackHandler, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Center, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { GOONG_API_KEY, GOONG_MAP_TILE_KEY } from '@env';
 import GarageStore from '@mobx/stores/garage';
@@ -26,6 +27,7 @@ import LocationService from '@mobx/services/location';
 import toast from '@utils/toast';
 import DialogStore from '@mobx/stores/dialog';
 import { firestoreCollection } from '@mobx/services/api-types';
+import {log} from "@utils/logger";
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -88,18 +90,36 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
               void firestore()
                 .collection(firestoreCollection.rescues)
                 .doc(`${rescueStore.currentStaffProcessingRescue?.id}`)
-                .update({ staffLocation: JSON.stringify(location) });
+                .update({
+                  staffLocation: JSON.stringify({
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  }),
+                });
             }
           })
           .catch((error) => toast.show(error.message));
       }
     }, 5000);
 
-    navigation.addListener('blur', () => {
+    void AsyncStorage.getItem('ids').then((value) => {
+      const ids = value !== null ? JSON.parse(value) : [];
+      ids.push(intervalId);
+      void AsyncStorage.setItem('ids', JSON.stringify(ids));
+    });
+
+    const unsubBlur = navigation.addListener('blur', () => {
+      clearInterval(intervalId);
+    });
+    const unsubBeforeRemove = navigation.addListener('beforeRemove', () => {
       clearInterval(intervalId);
     });
 
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      unsubBlur();
+      unsubBeforeRemove();
+    };
   }, [locationService, navigation, rescueStore.currentStaffProcessingRescue]);
 
   useEffect(() => {
@@ -113,75 +133,87 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   }, [navigation, rescueStore]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const unsub = firebaseStore.rescuesRef.doc(`${rescueStore.currentStaffProcessingRescue?.id}`).onSnapshot(async (snapShot) => {
-      if (!snapShot.data()) return;
+    const unsub = firestore()
+      .collection(firestoreCollection.rescues)
+      .doc(`${rescueStore.currentStaffProcessingRescue?.id}`)
+      .onSnapshot((snapShot) => {
+        if (!snapShot.data()) return;
 
-      await rescueStore.getCurrentProcessingStaff();
-      const { status, invoiceId, garageFeedback } = snapShot.data() as {
-        status: number;
-        garageFeedback: boolean;
-        invoiceId: number;
-      };
-      await invoiceStore.getProposalDetail(invoiceId);
-      const invoiceStatus = await (await firestore().collection('invoices').doc(`${invoiceId}`).get()).data()?.status;
-      switch (status) {
-        case RESCUE_STATUS.ACCEPTED: {
-          break;
-        }
-        case RESCUE_STATUS.ARRIVING: {
-          break;
-        }
-        case RESCUE_STATUS.ARRIVED: {
-          if (!invoiceStatus || invoiceStatus <= INVOICE_STATUS.DRAFT) {
-            navigation.navigate('AutomotivePartSuggestion');
-          } else if (invoiceStatus > INVOICE_STATUS.DRAFT) {
-            navigation.navigate('RepairSuggestion');
+        void (async function () {
+          await rescueStore.getCurrentProcessingStaff();
+          const { status, invoiceId, garageFeedback } = snapShot.data() as {
+            status: number;
+            garageFeedback: boolean;
+            invoiceId: number;
+          };
+          await invoiceStore.getProposalDetail(invoiceId);
+          const invoiceStatus = await (await firestore().collection('invoices').doc(`${invoiceId}`).get()).data()?.status;
+          switch (status) {
+            case RESCUE_STATUS.ACCEPTED: {
+              break;
+            }
+            case RESCUE_STATUS.ARRIVING: {
+              break;
+            }
+            case RESCUE_STATUS.ARRIVED: {
+              if (!invoiceStatus || invoiceStatus <= INVOICE_STATUS.DRAFT) {
+                navigation.navigate('AutomotivePartSuggestion');
+              } else if (invoiceStatus > INVOICE_STATUS.DRAFT && invoiceStatus <= INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER) {
+                navigation.navigate('RepairSuggestion');
+              }
+              break;
+            }
+            case RESCUE_STATUS.WORKING: {
+              break;
+            }
+            case RESCUE_STATUS.DONE: {
+              void AsyncStorage.getItem('ids').then((value) => {
+                const ids = value !== null ? JSON.parse(value) : [];
+                ids.forEach((id: any) => {
+                  log.info(id);
+                  clearInterval(id as number);
+                });
+                void AsyncStorage.removeItem('ids');
+              });
+              break;
+            }
+            default:
+              break;
           }
-          break;
-        }
-        case RESCUE_STATUS.WORKING: {
-          break;
-        }
-        case RESCUE_STATUS.DONE: {
-          break;
-        }
-        default:
-          break;
-      }
 
-      switch (invoiceStatus) {
-        case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
-        case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL:
-        case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER:
-        case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
-          dialogStore.closeProgressDialog();
-          navigation.navigate('RepairSuggestion');
-          break;
-        case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID: {
-          navigation.push('Payment');
-          break;
-        }
-        default:
-          break;
-      }
+          switch (invoiceStatus) {
+            case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
+            case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL:
+            case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER:
+            case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
+              dialogStore.closeProgressDialog();
+              navigation.replace('RepairSuggestion');
+              break;
+            case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID: {
+              navigation.replace('Payment');
+              break;
+            }
+            default:
+              break;
+          }
 
-      if (garageFeedback) {
-        navigation.goBack();
-      }
-    });
+          if (garageFeedback) {
+            navigation.goBack();
+          }
+        })();
+      });
 
-    return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rescueStore.currentStaffProcessingRescue?.id, firebaseStore.rescuesRef]);
+    return () => {
+      unsub();
+    };
+  }, [rescueStore.currentStaffProcessingRescue?.id, rescueStore, invoiceStore, navigation, dialogStore]);
 
   useEffect(() => {
-    return navigation.addListener('beforeRemove', (e) => {
-      if (rescueStore.currentStaffProcessingRescue && rescueStore.currentStaffProcessingRescue?.status !== RESCUE_STATUS.DONE) {
-        e.preventDefault();
-      }
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return route.name === 'Map';
     });
-  }, [navigation, rescueStore.currentStaffProcessingRescue, rescueStore.currentStaffProcessingRescue?.status]);
+    return () => backHandler.remove();
+  }, [route.name]);
   //#endregion
 
   //#region misc
@@ -297,7 +329,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             automotivePartStore.clearParts();
             serviceStore.clearServices();
             await rescueStore.changeRescueStatusToArrived();
-            navigation.navigate('AutomotivePartSuggestion');
+            navigation.replace('AutomotivePartSuggestion');
           }}
           activeOpacity={0.8}
           style={{

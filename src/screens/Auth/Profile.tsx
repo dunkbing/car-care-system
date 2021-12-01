@@ -31,7 +31,6 @@ const Profile: React.FC<Props> = ({ navigation }) => {
     authStore.userType === ACCOUNT_TYPES.CUSTOMER
       ? (authStore.user as CustomerLoginResponseModel)
       : (authStore.user as GarageLoginResponseModel);
-  console.log(user.dateOfBirth);
   const [avatar, setAvatar] = React.useState<Avatar>({
     name: user.firstName,
     uri: user.avatarUrl,
@@ -41,7 +40,6 @@ const Profile: React.FC<Props> = ({ navigation }) => {
   const imagePickerRef = React.useRef<ImagePicker>(null);
 
   async function updateProfile(values: CustomerUpdateQueryModel) {
-    console.log(values);
     const { error } = await customerService.updateInfo({ ...values, avatar });
 
     if (error) {

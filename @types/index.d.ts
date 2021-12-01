@@ -11,3 +11,4 @@ declare module '*.png' {
 }
 
 declare type OnPress = () => void;
+declare type OnPressAsync = () => Promise<void>;

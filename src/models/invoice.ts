@@ -16,11 +16,13 @@ export type AutomotivePartInvoice = {
 
 export type CreateProposalRequest = {
   rescueDetailId: number;
-  serviceInvoices: Array<ServiceInvoice>;
-  automotivePartInvoices: Array<AutomotivePartInvoice>;
+  serviceProposals: Array<{ serviceId: number; quantity: number }>;
+  automotivePartProposals: Array<{ automotivePartId: number; quantity: number }>;
 };
 
-export type UpdateProposalRequest = {
+export type UpdateProposalRequest = { invoiceId: number } & CreateProposalRequest;
+
+export type ManagerUpdateProposalRequest = {
   id: number;
   serviceInvoices: Array<{
     id: number;

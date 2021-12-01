@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import { STORE_STATUS, ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import Container, { Service } from 'typedi';
+import firestore from '@react-native-firebase/firestore';
+
 import {
   AvailableCustomerRescueDetail,
   RescueState,
@@ -13,10 +15,11 @@ import {
 } from '@models/rescue';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
-import { rescueApi } from '@mobx/services/api-types';
+import { firestoreCollection, rescueApi } from '@mobx/services/api-types';
 import FirebaseStore from './firebase';
 import { NOTI_SERVER } from '@env';
 import { Avatar } from '@models/common';
+import { log } from '@utils/logger';
 
 @Service()
 export default class RescueStore extends BaseStore {
@@ -79,41 +82,46 @@ export default class RescueStore extends BaseStore {
 
   /**
    * get current user's rescue histories.
-   * @param keyword
+   * @param params
    * @param userType
    */
   public async getHistories(
     params?: { keyword: string; carId?: number; customerId?: number },
     userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER,
   ) {
-    this.state = STORE_STATUS.LOADING;
+    this.startLoading();
+    log.info('getHistories', params);
 
-    if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistory>(rescueApi.customerHistories, params);
+    try {
+      if (userType === ACCOUNT_TYPES.CUSTOMER) {
+        const { result, error } = await this.apiService.getPluralWithPagination<CustomerRescueHistory>(rescueApi.customerHistories, params);
 
-      if (error) {
-        this.handleError(error);
+        if (error) {
+          this.handleError(error);
+        } else {
+          const rescues = result || [];
+          runInAction(() => {
+            this.state = STORE_STATUS.SUCCESS;
+            this.customerRescueHistories = [...rescues];
+          });
+        }
       } else {
-        const rescues = result || [];
-        runInAction(() => {
-          this.state = STORE_STATUS.SUCCESS;
-          this.customerRescueHistories = [...rescues];
-        });
-      }
-    } else {
-      const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistory>(rescueApi.garageHistories, params);
+        const { result, error } = await this.apiService.getPluralWithPagination<GarageRescueHistory>(rescueApi.garageHistories, params);
 
-      if (error) {
-        runInAction(() => {
-          this.state = STORE_STATUS.ERROR;
-        });
-      } else {
-        const rescues = result || [];
-        runInAction(() => {
-          this.state = STORE_STATUS.SUCCESS;
-          this.garageRescueHistories = [...rescues];
-        });
+        if (error) {
+          runInAction(() => {
+            this.state = STORE_STATUS.ERROR;
+          });
+        } else {
+          const rescues = result || [];
+          runInAction(() => {
+            this.state = STORE_STATUS.SUCCESS;
+            this.garageRescueHistories = [...rescues];
+          });
+        }
       }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -122,6 +130,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getRescueCases() {
     this.startLoading();
+    log.info('getRescueCases');
 
     const { result, error } = await this.apiService.getPlural<RescueCase>(rescueApi.cases, {}, true);
 
@@ -141,24 +150,28 @@ export default class RescueStore extends BaseStore {
    * @param rescueDetail
    */
   public async createRescueDetail(rescueDetail: RescueDetailRequest) {
-    console.log('create rescue detail', rescueDetail);
     this.startLoading();
+    log.info('createRescueDetail', rescueDetail);
 
-    const { result, error } = await this.apiService.post<AvailableCustomerRescueDetail>(rescueApi.createRescueDetail, rescueDetail, true);
+    try {
+      const { result, error } = await this.apiService.post<AvailableCustomerRescueDetail>(rescueApi.createRescueDetail, rescueDetail, true);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      await this.firebaseStore.set(`${result?.id}`, { status: RESCUE_STATUS.PENDING });
-      await this.apiService.post(
-        `${NOTI_SERVER}/rescues`,
-        {
-          garageId: rescueDetail.garageId,
-          description: rescueDetail.description,
-        },
-        true,
-      );
-      this.handleSuccess();
+      if (error) {
+        this.handleError(error);
+      } else {
+        await this.firebaseStore.set(`${result?.id}`, { status: RESCUE_STATUS.PENDING });
+        await this.apiService.post(
+          `${NOTI_SERVER}/rescues`,
+          {
+            garageId: rescueDetail.garageId,
+            description: rescueDetail.description,
+          },
+          true,
+        );
+        this.handleSuccess();
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -167,24 +180,30 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingCustomer() {
     this.startLoading();
-    const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(rescueApi.currentProcessingCustomer, {}, true);
+    log.info('getCurrentProcessingCustomer');
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      runInAction(() => {
-        this.currentCustomerProcessingRescue = result;
-      });
-      this.handleSuccess();
+    try {
+      const { result, error } = await this.apiService.get<AvailableCustomerRescueDetail>(rescueApi.currentProcessingCustomer, {}, true);
 
-      if (this.currentCustomerProcessingRescue) {
-        if (!this.firebaseStore.rescueDoc) {
-          this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentCustomerProcessingRescue.id}`);
+      if (error) {
+        this.handleError(error);
+      } else {
+        runInAction(() => {
+          this.currentCustomerProcessingRescue = result;
+        });
+        this.handleSuccess();
+
+        if (this.currentCustomerProcessingRescue) {
+          if (!this.firebaseStore.rescueDoc) {
+            this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentCustomerProcessingRescue.id}`);
+          }
+          await this.firebaseStore
+            .update(`${this.currentCustomerProcessingRescue?.id}`, { status: this.currentCustomerProcessingRescue?.status })
+            .catch(console.error);
         }
-        await this.firebaseStore
-          .update(`${this.currentCustomerProcessingRescue?.id}`, { status: this.currentCustomerProcessingRescue?.status })
-          .catch(console.error);
       }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -193,39 +212,56 @@ export default class RescueStore extends BaseStore {
    */
   public async getCurrentProcessingStaff(loading = true) {
     this.startLoading();
-    const { result, error } = await this.apiService.get<any>(rescueApi.currentProcessingGarage, {}, loading);
+    log.info('getCurrentProcessingStaff');
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      runInAction(() => {
-        this.currentStaffProcessingRescue = result;
-      });
-      this.handleSuccess();
-      if (this.currentStaffProcessingRescue) {
-        if (!this.firebaseStore.rescueDoc) {
-          this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentStaffProcessingRescue.id}`);
+    try {
+      const { result, error } = await this.apiService.get<any>(rescueApi.currentProcessingGarage, {}, loading);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        runInAction(() => {
+          this.currentStaffProcessingRescue = result;
+        });
+        this.handleSuccess();
+        if (this.currentStaffProcessingRescue) {
+          if (!this.firebaseStore.rescueDoc) {
+            this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentStaffProcessingRescue.id}`);
+          }
+          await this.firebaseStore
+            .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
+            .catch((error) => this.handleError(error));
         }
-        await this.firebaseStore
-          .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
-          .catch((error) => this.handleError(error));
       }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
   /**
    * assign staff to rescue detail.
+   * @param params { staffId: number, rescueId: number }
    */
   public async assignStaff(params: { staffId: number; rescueDetailId: number }) {
     this.startLoading();
-    const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(rescueApi.assignStaff, params, true);
+    log.info('assignStaff', params);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
-      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.ACCEPTED } as any;
-      await this.firebaseStore.set(`${result?.rescueDetailId}`, { status: RESCUE_STATUS.ACCEPTED, invoiceId: -1 });
+    try {
+      const { result, error } = await this.apiService.patch<{ rescueDetailId: number; staffId: number }>(
+        rescueApi.assignStaff,
+        params,
+        true,
+      );
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        this.handleSuccess();
+        this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.ACCEPTED } as any;
+        await this.firebaseStore.set(`${result?.rescueDetailId}`, { status: RESCUE_STATUS.ACCEPTED, invoiceId: -1 });
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -234,14 +270,20 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToArriving(params: { status: RESCUE_STATUS; estimatedArrivalTime: number }) {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(rescueApi.arrivingRescue, params, true);
+    log.info('changeRescueStatusToArriving', params);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
-      this.handleSuccess();
-      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVING });
+    try {
+      const { error } = await this.apiService.patch<any>(rescueApi.arrivingRescue, params, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
+        this.handleSuccess();
+        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVING });
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -250,14 +292,20 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToArrived() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(rescueApi.arrivedRescue, {}, true);
+    log.info('changeRescueStatusToArrived');
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
-      this.handleSuccess();
-      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVED });
+    try {
+      const { error } = await this.apiService.patch<any>(rescueApi.arrivedRescue, {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
+        this.handleSuccess();
+        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVED });
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -266,14 +314,20 @@ export default class RescueStore extends BaseStore {
    */
   public async changeRescueStatusToWorking() {
     this.startLoading();
-    const { error } = await this.apiService.patch<any>(rescueApi.workingRescue, {}, true);
+    log.info('changeRescueStatusToWorking');
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
-      this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
-      await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING }).catch(console.error);
+    try {
+      const { error } = await this.apiService.patch<any>(rescueApi.workingRescue, {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        this.handleSuccess();
+        this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
+        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING }).catch(console.error);
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -282,17 +336,22 @@ export default class RescueStore extends BaseStore {
    */
   public async getPendingRescueRequests() {
     this.startLoading();
+    log.info('getPendingRescueRequests');
 
-    const { result, error } = await this.apiService.getPlural<AvailableCustomerRescueDetail>(rescueApi.pendingDetails);
+    try {
+      const { result, error } = await this.apiService.getPlural<AvailableCustomerRescueDetail>(rescueApi.pendingDetails);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      const requests = result || [];
-      runInAction(() => {
-        this.pendingRescueRequests = [...requests];
-      });
-      this.handleSuccess();
+      if (error) {
+        this.handleError(error);
+      } else {
+        const requests = result || [];
+        runInAction(() => {
+          this.pendingRescueRequests = [...requests];
+        });
+        this.handleSuccess();
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -301,9 +360,10 @@ export default class RescueStore extends BaseStore {
    */
   public async examineCar(params: { rescueDetailId: number; checkCondition: string; images: Array<Avatar> }) {
     this.startLoading();
-    const { error, result } = await this.apiService.patch<any>('rescues/details/examinations', params, true, true);
+    log.info('examineCar', params);
 
-    console.log(error, result);
+    const { error } = await this.apiService.patch<any>('rescues/details/examinations', params, true, true);
+
     if (error) {
       this.handleError(error);
     } else {
@@ -316,6 +376,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getCustomerRejectedRescueCases() {
     this.startLoading();
+    log.info('getCustomerRejectedRescueCases');
 
     const { error, result } = await this.apiService.getPlural<RejectCase>(rescueApi.customerRejectedCases, {}, true);
 
@@ -335,14 +396,22 @@ export default class RescueStore extends BaseStore {
    */
   public async customerRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
     this.startLoading();
+    log.info('customerRejectCurrentRescueCase', params);
 
-    const { error } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
-    await this.firebaseStore.rescueDoc?.update({ status: RESCUE_STATUS.REJECTED, customerRejected: true });
+    try {
+      const { error, result } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${result}`)
+          .update({ status: RESCUE_STATUS.REJECTED, customerRejected: true });
+        this.handleSuccess();
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 
@@ -351,6 +420,7 @@ export default class RescueStore extends BaseStore {
    */
   public async getGarageRejectedRescueCases() {
     this.startLoading();
+    log.info('getGarageRejectedRescueCases');
 
     const { error, result } = await this.apiService.getPlural<RejectCase>(rescueApi.garageRejectedCases, {}, true);
 
@@ -370,14 +440,22 @@ export default class RescueStore extends BaseStore {
    */
   public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
     this.startLoading();
+    log.info('garageRejectCurrentRescueCase', params);
 
-    const { error, result } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
-    await this.firebaseStore.update(`${result}`, { status: RESCUE_STATUS.REJECTED, garageRejected: true });
+    try {
+      const { error, result } = await this.apiService.patch<any>(rescueApi.garageRejectCurrentCase, params, true);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${result}`)
+          .update({ status: RESCUE_STATUS.REJECTED, garageRejected: true });
+        this.handleSuccess();
+      }
+    } catch (ex) {
+      this.handleError(ex);
     }
   }
 }

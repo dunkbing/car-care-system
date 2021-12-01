@@ -8,19 +8,15 @@ import {
   InvoiceDetail,
   InvoiceHistoryDetail,
   InvoiceProposal,
+  ManagerUpdateProposalRequest,
   PendingProposal,
   UpdateProposalRequest,
 } from '@models/invoice';
 import firestore from '@react-native-firebase/firestore';
 import RescueStore from './rescue';
-import FirebaseStore from './firebase';
 import { ACCOUNT_TYPES, INVOICE_STATUS } from '@utils/constants';
 import AuthStore from './auth';
-
-export enum FeedbackTypes {
-  CUSTOMER,
-  GARAGE,
-}
+import { log } from '@utils/logger';
 
 @Service()
 export default class InvoiceStore extends BaseStore {
@@ -32,9 +28,9 @@ export default class InvoiceStore extends BaseStore {
       garageInvoiceDetail: observable,
       staffProposalDetail: observable,
       managerProposalDetail: observable,
-      createProposal: action,
+      staffCreateProposal: action,
       managerUpdateProposal: action,
-      acceptProposal: action,
+      customerAcceptProposal: action,
       customerConfirmsPayment: action,
       staffConfirmsPayment: action,
       getGarageInvoiceDetail: action,
@@ -45,7 +41,6 @@ export default class InvoiceStore extends BaseStore {
 
   private readonly apiService = Container.get(ApiService);
   private readonly rescueStore = Container.get(RescueStore);
-  private readonly firebaseStore = Container.get(FirebaseStore);
   private readonly authStore = Container.get(AuthStore);
 
   invoiceProposal: InvoiceProposal | null = null;
@@ -56,284 +51,158 @@ export default class InvoiceStore extends BaseStore {
   pendingProposals: PendingProposal[] = [];
 
   //#region manager process proposal
-  public async getManagerProposalDetail(invoiceId: number) {
-    this.startLoading();
-    const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), {}, true);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      runInAction(() => {
-        this.managerProposalDetail = result;
-      });
-      this.handleSuccess();
+  /**
+   * manager update a proposal, change invoice status to SENT_QUOTATION_TO_CUSTOMER
+   * @param proposal
+   */
+  public async managerUpdateProposal(proposal: ManagerUpdateProposalRequest) {
+    log.info('managerUpdateProposal', JSON.stringify(proposal));
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.put('invoices', proposal, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${proposal.id}`)
+          .update({ status: INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
     }
   }
 
+  /**
+   * get manager proposal detail
+   * @param invoiceId
+   */
+  public async getManagerProposalDetail(invoiceId: number) {
+    log.info('getManagerProposalDetail', invoiceId);
+    this.startLoading();
+
+    try {
+      const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        runInAction(() => {
+          this.managerProposalDetail = result;
+          this.managerProposalDetail?.automotivePartInvoices.forEach((partInvoice) => {
+            partInvoice.automotivePart.listedPrice = partInvoice.automotivePart.price;
+            partInvoice.note = partInvoice.note ?? '';
+          });
+          this.managerProposalDetail?.serviceInvoices?.forEach((serviceInvoice) => {
+            serviceInvoice.service.listedPrice = serviceInvoice.service.price;
+            serviceInvoice.note = serviceInvoice.note ?? '';
+          });
+        });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * update an automotive part by id
+   * @param id
+   * @param note
+   * @param isWarranty
+   */
   public editAutomotivePart(id: number, note: string, isWarranty: boolean) {
     runInAction(() => {
       const part = this.managerProposalDetail?.automotivePartInvoices.find((part) => part.automotivePart.id === id);
       if (part) {
         part.note = note;
         part.isWarranty = isWarranty;
+        part.automotivePart.price = isWarranty ? 0 : part.automotivePart.listedPrice;
       }
     });
   }
 
-  public editService(id: number, note: string, price: number) {
+  /**
+   * edit a service by id
+   * @param id
+   * @param noteOrPrice
+   */
+  public editService(id: number, noteOrPrice: string | number) {
     runInAction(() => {
       if (this.managerProposalDetail) {
         const service = this.managerProposalDetail.serviceInvoices.find((service) => service.service.id === id);
         if (service) {
-          service.note = note;
-          service.service.price = price;
+          if (typeof noteOrPrice === 'string') {
+            service.note = noteOrPrice;
+          } else {
+            service.service.price = noteOrPrice;
+          }
         }
       }
     });
   }
   //#endregion
 
-  // Create a proposal (draft invoice)
-  public async createProposal(proposal: CreateProposalRequest) {
+  /**
+   * staff create a proposal (draft invoice)
+   * @param proposal
+   */
+  public async staffCreateProposal(proposal: CreateProposalRequest) {
+    log.info('staffCreateProposal', proposal);
     this.startLoading();
-    const { result, error } = await this.apiService.post<InvoiceProposal>(
-      invoiceApi.createProposal,
-      {
-        rescueDetailId: proposal.rescueDetailId,
-        serviceProposals: proposal.serviceInvoices.map((service) => ({
-          serviceId: service.serviceId,
-          quantity: service.quantity,
-        })),
-        automotivePartProposals: proposal.automotivePartInvoices.map((part) => ({
-          automotivePartId: part.automotivePartId,
-          quantity: part.quantity,
-        })),
-      },
-      true,
-    );
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.invoiceProposal = result;
-      if (this.authStore.userType === ACCOUNT_TYPES.CUSTOMER) {
-        await this.getCustomerInvoiceDetail(result!.id);
+    try {
+      const { result, error } = await this.apiService.post<InvoiceProposal>(invoiceApi.createProposal, proposal, true);
+
+      if (error) {
+        this.handleError(error);
       } else {
-        await this.getGarageInvoiceDetail(result!.id);
+        this.invoiceProposal = result;
+        const invoiceId = result!.id;
+        if (this.authStore.userType === ACCOUNT_TYPES.CUSTOMER) {
+          await this.getCustomerInvoiceDetail(invoiceId);
+        } else {
+          await this.getGarageInvoiceDetail(invoiceId);
+          await this.staffSendProposalToManager(invoiceId);
+        }
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
+          .update({ invoiceId: result?.id });
+        await firestore().collection(firestoreCollection.invoices).doc(`${result?.id}`).set({ status: result?.status });
+        this.handleSuccess();
       }
-      await firestore()
-        .collection(firestoreCollection.rescues)
-        .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
-        .update({ invoiceId: result?.id, invoiceStatus: result?.status })
-        .catch(console.error);
-      await firestore().collection(firestoreCollection.invoices).doc(`${result?.id}`).set({ status: result?.status }).catch(console.error);
-      this.handleSuccess();
-    }
-  }
-
-  // Update a proposal
-  public async updateProposal(proposal: {
-    invoiceId: number;
-    rescueDetailId: number;
-    serviceProposals: Array<{
-      serviceId: number;
-      quantity: number;
-    }>;
-    automotivePartProposals: Array<{
-      automotivePartId: number;
-      quantity: number;
-    }>;
-  }) {
-    this.startLoading();
-    console.log('update proposal', proposal);
-
-    const { result, error } = await this.apiService.put<InvoiceProposal>(invoiceApi.update, proposal, true);
-
-    console.log('update proposal', error, result);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${proposal.invoiceId}`)
-        .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
-      this.handleSuccess();
-    }
-  }
-
-  // Manager update a proposal (draft invoice)
-  public async managerUpdateProposal(proposal: UpdateProposalRequest) {
-    this.startLoading();
-    const { error } = await this.apiService.put('invoices', proposal, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${proposal.id}`)
-        .update({ status: INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER });
-      this.handleSuccess();
-    }
-  }
-
-  // Get detail proposal
-  public async getProposalDetail(invoiceId: number) {
-    this.startLoading();
-    const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getProposalDetail(invoiceId));
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      runInAction(() => {
-        this.staffProposalDetail = result;
-      });
-      this.handleSuccess();
-    }
-  }
-
-  public async sendProposalToCustomer(invoiceId: number) {
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.sendProposalToCustomer(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
-      this.handleSuccess();
-    }
-  }
-
-  // Customer accept proposal (Draft invoice)
-  public async acceptProposal(invoiceId: number) {
-    this.startLoading();
-    const { error } = await this.apiService.post(invoiceApi.accepProposal(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL });
-      runInAction(() => {
-        this.customerInvoiceDetail = { ...this.customerInvoiceDetail, status: INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL } as any;
-      });
-      this.handleSuccess();
-    }
-  }
-
-  // Send proposal to manager
-  public async sendProposalToManager(invoiceId: number) {
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.sendProposalToManager(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER });
-      this.handleSuccess();
-    }
-  }
-
-  // Customer confirms payment
-  public async customerConfirmsPayment(invoiceId: number) {
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.customerConfirmPayment(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRM_PAID });
-      this.handleSuccess();
-    }
-  }
-
-  // Staff confirms payment and switch the rescue detail status to Done
-  public async staffConfirmsPayment(invoiceId: number) {
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.staffConfirmPayment(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore().collection(firestoreCollection.invoices).doc(`${invoiceId}`).update({ status: INVOICE_STATUS.STAFF_CONFIRM_PAID });
-      this.handleSuccess();
-    }
-  }
-
-  // Customer reject proposal
-  public async customerRejectProposal(invoiceId: number, rejectReason: string) {
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.customerRejectProposal, { invoiceId, rejectReason }, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore().collection(firestoreCollection.invoices).doc(`${invoiceId}`).update({ status: INVOICE_STATUS.DRAFT });
-      this.handleSuccess();
-    }
-  }
-
-  // Customer reject quotation
-  public async customerRejectQuotation(invoiceId: number, rejectReason: string) {
-    console.log('reject quotation', invoiceId, rejectReason);
-    this.startLoading();
-    const { error } = await this.apiService.patch(invoiceApi.customerRejectQuotation, { invoiceId, rejectReason }, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      await firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER });
-      this.handleSuccess();
+    } catch (e) {
+      this.handleError(e);
     }
   }
 
   /**
-   * Get invoice detail for customer side
+   * staff update a proposal, change invoice status to SENT_PROPOSAL_TO_CUSTOMER
+   * @param proposal
    */
-  public async getCustomerInvoiceDetail(invoiceId: number) {
+  public async staffUpdateProposal(proposal: UpdateProposalRequest) {
+    log.info('updateProposal', proposal);
     this.startLoading();
-    const { result, error } = await this.apiService.get<InvoiceHistoryDetail>(invoiceApi.getCustomerInvoiceDetail(invoiceId), true);
-    console.log('getCustomerInvoiceDetail', result);
 
-    if (error) {
-      this.handleError(error);
-    } else {
-      this.handleSuccess();
-      runInAction(() => {
-        this.customerInvoiceDetail = Object.assign({}, result);
-      });
-    }
-  }
+    try {
+      const { error } = await this.apiService.put<InvoiceProposal>(invoiceApi.update, proposal, true);
 
-  /**
-   * Get invoice detail for garage side
-   */
-  public async getGarageInvoiceDetail(invoiceId: number) {
-    this.startLoading();
-    const { result, error } = await this.apiService.get<InvoiceHistoryDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), {}, true);
-
-    if (error) {
-      this.handleError(error);
-    } else {
-      runInAction(() => {
-        this.garageInvoiceDetail = result;
-      });
-      this.handleSuccess();
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${proposal.invoiceId}`)
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
     }
   }
 
@@ -352,6 +221,248 @@ export default class InvoiceStore extends BaseStore {
         this.pendingProposals = proposals;
       });
       this.handleSuccess();
+    }
+  }
+
+  /**
+   * get proposal detail by id
+   * @param invoiceId
+   */
+  public async getProposalDetail(invoiceId: number) {
+    log.info('getProposalDetail', invoiceId);
+    this.startLoading();
+    const { result, error } = await this.apiService.get<InvoiceDetail>(invoiceApi.getProposalDetail(invoiceId));
+
+    if (error) {
+      this.handleError(error);
+    } else {
+      runInAction(() => {
+        this.staffProposalDetail = result;
+      });
+      this.handleSuccess();
+    }
+  }
+
+  /**
+   * send proposal to customer, change invoice status to SENT_PROPOSAL_TO_CUSTOMER
+   * @param invoiceId
+   */
+  public async sendProposalToCustomer(invoiceId: number) {
+    log.info('sendProposalToCustomer', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.sendProposalToCustomer(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * customer accept proposal (draft invoice)
+   * @param invoiceId
+   */
+  public async customerAcceptProposal(invoiceId: number) {
+    log.info('customerAcceptProposal', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.post(invoiceApi.accepProposal(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL });
+        runInAction(() => {
+          this.customerInvoiceDetail = { ...this.customerInvoiceDetail, status: INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL } as any;
+        });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * send proposal to manager
+   * @param invoiceId
+   */
+  public async staffSendProposalToManager(invoiceId: number) {
+    log.info('staffSendProposalToManager', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.sendProposalToManager(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * customer confirms payment
+   * @param invoiceId
+   */
+  public async customerConfirmsPayment(invoiceId: number) {
+    log.info('customerConfirmsPayment', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.customerConfirmPayment(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRM_PAID });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * staff confirms payment and switch the rescue detail status to Done
+   * @param invoiceId
+   */
+  public async staffConfirmsPayment(invoiceId: number) {
+    log.info('staffConfirmsPayment', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.staffConfirmPayment(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.STAFF_CONFIRM_PAID });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * customer reject proposal
+   * @param invoiceId
+   * @param rejectReason
+   */
+  public async customerRejectProposal(invoiceId: number, rejectReason: string) {
+    log.info('customerRejectProposal', invoiceId);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.customerRejectProposal, { invoiceId, rejectReason }, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore().collection(firestoreCollection.invoices).doc(`${invoiceId}`).update({ status: INVOICE_STATUS.DRAFT });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * customer reject quotation
+   * @param invoiceId
+   * @param rejectReason
+   */
+  public async customerRejectQuotation(invoiceId: number, rejectReason: string) {
+    log.info('customerRejectQuotation', invoiceId, rejectReason);
+    this.startLoading();
+
+    try {
+      const { error } = await this.apiService.patch(invoiceApi.customerRejectQuotation, { invoiceId, rejectReason }, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * get invoice detail for customer side
+   */
+  public async getCustomerInvoiceDetail(invoiceId: number) {
+    log.info('getCustomerInvoiceDetail', invoiceId);
+    this.startLoading();
+
+    try {
+      const { result, error } = await this.apiService.get<InvoiceHistoryDetail>(invoiceApi.getCustomerInvoiceDetail(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        this.handleSuccess();
+        runInAction(() => {
+          this.customerInvoiceDetail = Object.assign({}, result);
+        });
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  /**
+   * get invoice detail for garage side
+   */
+  public async getGarageInvoiceDetail(invoiceId: number) {
+    log.info('getGarageInvoiceDetail', invoiceId);
+    this.startLoading();
+
+    try {
+      const { result, error } = await this.apiService.get<InvoiceHistoryDetail>(invoiceApi.getGarageInvoiceDetail(invoiceId), {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        runInAction(() => {
+          this.garageInvoiceDetail = result;
+        });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
     }
   }
 }

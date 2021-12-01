@@ -3,7 +3,7 @@ import { Gender, STORE_STATUS } from '@utils/constants';
 import { Service } from 'typedi';
 
 @Service()
-class AuthService {
+class AuthStore {
   state: STORE_STATUS = STORE_STATUS.IDLE;
   user: User = {
     id: 1,
@@ -32,4 +32,4 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService();
+export const authService = new AuthStore();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
-import { Button, Center, Checkbox, Image, Input, ScrollView, Text, View, VStack } from 'native-base';
+import { Button, Center, Checkbox, Image, Input, ScrollView, Text, View, VStack, HStack } from 'native-base';
 import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 import firestore from '@react-native-firebase/firestore';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
@@ -30,12 +30,7 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
   const [isWarranty, setIsWarranty] = useState(false);
   return (
     <View my={3}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}
-      >
+      <HStack justifyContent='space-between'>
         <Text
           style={{
             fontWeight: 'bold',
@@ -45,17 +40,8 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
           {name}
         </Text>
         <Text>x {quantity}</Text>
-      </View>
-      <View
-        accessible
-        accessibilityLabel={name}
-        accessibilityRole='checkbox'
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginTop: 5,
-        }}
-      >
+      </HStack>
+      <HStack accessibilityRole='checkbox' justifyContent='space-between'>
         <Text style={{ fontSize: 16 }}>Áp dụng bảo hành</Text>
         <Checkbox
           onChange={(value) => {
@@ -68,7 +54,7 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
           isChecked={isWarranty}
           isDisabled={disabled}
         />
-      </View>
+      </HStack>
       <Input
         mt='1'
         style={{
@@ -86,25 +72,12 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
           invoiceStore.editAutomotivePart(id, value, isWarranty);
         }}
       />
-      <View
-        mt='1'
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text fontSize={16}>
-            {!isWarranty ? `${formatMoney(price)}` : '0đ'} / {unit}
-          </Text>
-        </View>
-        <Text fontSize={16}>{!isWarranty ? price * quantity : '0'}đ</Text>
-      </View>
+      <HStack mt='1' justifyContent='space-between'>
+        <Text fontSize={16}>
+          {formatMoney(price)} / {unit}
+        </Text>
+        <Text fontSize={16}>{!isWarranty ? formatMoney(price * quantity) : '0đ'}</Text>
+      </HStack>
     </View>
   );
 });
@@ -120,11 +93,7 @@ type ServiceItemProps = {
 
 const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
   const invoiceStore = Container.get(InvoiceStore);
-  const { id, name, unit, quantity, disabled } = props;
-  const [note, setNote] = useState('');
-  const [price, setPrice] = useState(
-    invoiceStore.managerProposalDetail?.serviceInvoices?.find((service) => service.service.id === id)?.price ?? 0,
-  );
+  const { id, name, unit, quantity, disabled, price } = props;
   return (
     <View my={3}>
       <View
@@ -153,11 +122,9 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
           fontSize: 12,
         }}
         placeholder={'Ghi chú'}
-        value={note}
         isDisabled={disabled}
         onChangeText={(value) => {
-          setNote(value);
-          invoiceStore.editService(id, value, price);
+          invoiceStore.editService(id, value);
         }}
       />
       <View
@@ -186,8 +153,7 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
             value={`${price}`}
             isDisabled={disabled}
             onChangeText={(value) => {
-              setPrice(Number(value));
-              invoiceStore.editService(id, note, Number(value));
+              invoiceStore.editService(id, Number(value));
             }}
             keyboardType='numeric'
           />
@@ -213,21 +179,8 @@ const TotalPay: React.FC = observer(() => {
       .reduce((a, b) => a + b, 0) ?? 0;
   const total = partTotal + serviceTotal;
   return (
-    <View
-      style={{
-        alignItems: 'flex-end',
-        marginVertical: 10,
-        paddingVertical: 15,
-      }}
-    >
-      <Text
-        style={{
-          fontWeight: 'bold',
-          fontSize: 20,
-        }}
-      >
-        Tổng: {formatMoney(total)}
-      </Text>
+    <View alignItems='flex-end' my='10' py='15'>
+      <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Tổng: {formatMoney(total)}</Text>
     </View>
   );
 });
@@ -290,20 +243,19 @@ const ConfirmButton: React.FC<{
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
-            console.log('send quotation to customer', JSON.stringify(invoiceStore.managerProposalDetail));
             await invoiceStore.managerUpdateProposal({
               id: proposalId,
-              automotivePartInvoices: (invoiceStore.managerProposalDetail?.automotivePartInvoices || []).map((part) => ({
-                id: part.id,
-                quantity: part.quantity,
-                isWarranty: !!part.isWarranty,
-                note: `${part.note}`,
+              automotivePartInvoices: (invoiceStore.managerProposalDetail?.automotivePartInvoices || []).map((partInvoice) => ({
+                id: partInvoice.id,
+                quantity: partInvoice.quantity,
+                isWarranty: !!partInvoice.isWarranty,
+                note: `${partInvoice.note}`,
               })),
-              serviceInvoices: (invoiceStore.managerProposalDetail?.serviceInvoices || []).map((service) => ({
-                id: service.id,
-                quantity: service.quantity,
-                price: service.price,
-                note: `${service.note}`,
+              serviceInvoices: (invoiceStore.managerProposalDetail?.serviceInvoices || []).map((serviceInvoice) => ({
+                id: serviceInvoice.id,
+                quantity: serviceInvoice.quantity,
+                price: serviceInvoice.service.price,
+                note: `${serviceInvoice.note}`,
               })),
             });
 
@@ -408,14 +360,14 @@ const QuotationSuggestion: React.FC<Props> = observer(({ navigation, route }) =>
           </Text>
         </View>
         <View>
-          {invoiceStore.managerProposalDetail?.serviceInvoices?.map((service) => (
+          {invoiceStore.managerProposalDetail?.serviceInvoices?.map((serviceInvoice) => (
             <ServiceItem
-              key={service.service.id}
-              id={service.service.id}
-              name={service.service.name}
-              unit={service.service.unit}
-              price={service.price}
-              quantity={service.quantity}
+              key={serviceInvoice.service.id}
+              id={serviceInvoice.service.id}
+              name={serviceInvoice.service.name}
+              unit={serviceInvoice.service.unit}
+              price={serviceInvoice.service.price}
+              quantity={serviceInvoice.quantity}
               disabled={proposing}
             />
           ))}
@@ -443,10 +395,14 @@ const QuotationSuggestion: React.FC<Props> = observer(({ navigation, route }) =>
           <ConfirmButton
             proposalId={route.params.invoiceId}
             enableEditing={() => {
-              setProposing(false);
+              if (proposing) {
+                setProposing(false);
+              }
             }}
             disableEditing={() => {
-              setProposing(true);
+              if (!proposing) {
+                setProposing(true);
+              }
             }}
             navigation={navigation}
           />

@@ -16,9 +16,7 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
     <Box width='100%' height={190} backgroundColor='white'>
       <HStack px='6' py='8' space={2}>
         <Image
-          source={{
-            uri: 'https://wallpaperaccess.com/full/317501.jpg',
-          }}
+          source={garage?.imageUrl ? { uri: garage.imageUrl } : { uri: 'https://wallpaperaccess.com/full/317501.jpg' }}
           alt='img'
           size='lg'
           w='30%'
@@ -46,7 +44,9 @@ const PopupGarage = ({ garage, viewGarageDetail, handleSos }: Props) => {
               Gửi yêu cầu
             </Button>
           ) : (
-            <Text color='red'>Hiện tại tất cả nhân viên sửa chữa đều đang bận</Text>
+            <Text color='red' w='70%'>
+              Hiện tại tất cả nhân viên sửa chữa đều đang bận
+            </Text>
           )}
         </VStack>
       </HStack>

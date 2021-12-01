@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import { FlatList } from 'react-native';
+import { BackHandler, FlatList } from 'react-native';
 import { Button, Checkbox, NativeBaseProvider, Spinner, Text, View, VStack } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 
-import SearchBar from '../../../components/SearchBar';
+import SearchBar from '@components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { AutomotivePartModel } from '@models/automotive-part';
 import AutomotivePartStore from '@mobx/stores/automotive-part';
-import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
 import RescueStore from '@mobx/stores/rescue';
 import ServiceStore from '@mobx/stores/service';
@@ -44,7 +44,6 @@ const AutomotivePart: React.FC<AutomotivePartModel> = observer((automotivePart) 
           value=''
           onChange={(value: boolean) => {
             automotivePart.checked = value;
-            console.log(automotivePart.id, automotivePart.name);
             if (value) {
               automotivePartStore.addPart(automotivePart);
             } else {
@@ -69,19 +68,21 @@ const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSuggestion'>;
 
-const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
+const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   //#region store
-  const rescueStore = Container.get(RescueStore);
+  Container.get(RescueStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
   //#endregion
 
   //#region hooks
   useEffect(() => {
-    if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
-      navigation.goBack();
-    }
-  }, [automotivePartStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return route.name === 'AutomotivePartSuggestion';
+    });
+
+    return () => backHandler.remove();
+  }, [route.name]);
 
   useEffect(() => {
     void automotivePartStore.getMany();
@@ -121,9 +122,9 @@ const AutomotivePartSuggestion: React.FC<Props> = observer(({ navigation }) => {
         <AddButton
           onPress={() => {
             if (serviceStore.chosenServices.size === 0) {
-              navigation.navigate('ServiceSuggestion');
+              navigation.replace('ServiceSuggestion');
             } else {
-              navigation.navigate('RepairSuggestion');
+              navigation.replace('RepairSuggestion');
             }
           }}
         />

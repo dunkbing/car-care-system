@@ -8,7 +8,7 @@ import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 
-type Props = StackScreenProps<RescueStackParams, 'DetailRescueRequest'>;
+type Props = StackScreenProps<RescueStackParams, 'DefineRequestCancelReason'>;
 
 const CancelRescueRequest: React.FC<Props> = observer(({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);

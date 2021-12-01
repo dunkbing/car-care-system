@@ -5,32 +5,31 @@ import { mapService } from '@mobx/services/map';
 import { Location, Route } from '@models/common';
 import { GarageModel } from '@models/garage';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
 
-export const GarageMarkers: React.FC<{ garages: GarageModel[]; onGaragePress: (garage: GarageModel) => () => void }> = ({
-  garages,
-  onGaragePress,
-}) => {
-  if (!garages || !garages.length) {
-    return null;
-  }
+export const GarageMarkers: React.FC<{ garages: GarageModel[]; onGaragePress: (garage: GarageModel) => () => void }> = memo(
+  ({ garages, onGaragePress }) => {
+    if (!garages || !garages.length) {
+      return null;
+    }
 
-  return (
-    <>
-      {garages.map((garage) => {
-        return (
-          <Marker
-            key={garage.id}
-            id={garage.id.toString()}
-            coordinate={[garage.location.longitude, garage.location.latitude]}
-            onPress={onGaragePress(garage)}
-          />
-        );
-      })}
-    </>
-  );
-};
+    return (
+      <>
+        {garages.map((garage) => {
+          return (
+            <Marker
+              key={garage.id}
+              id={garage.id.toString()}
+              coordinate={[garage.location.longitude, garage.location.latitude]}
+              onPress={onGaragePress(garage)}
+            />
+          );
+        })}
+      </>
+    );
+  },
+);
 
 export const RescueLocationMarker: React.FC<{ coordinate?: Location | null }> = ({ coordinate }) => {
   if (!coordinate) return null;
@@ -92,7 +91,7 @@ export const RescueRoutes: React.FC<{ origin?: Location | null; destination?: Lo
       });
   }, [origin, destination]);
 
-  if (!routes || !routes.length) return null;
+  if (!routes || !routes.length || !origin || !destination) return null;
 
   return (
     <MapboxGL.ShapeSource

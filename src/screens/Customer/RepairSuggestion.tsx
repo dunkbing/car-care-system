@@ -23,14 +23,14 @@ const ConfirmButton: React.FC<{ status?: number; navigation: StackNavigationProp
     switch (status) {
       case INVOICE_STATUS.DRAFT: {
         return (
-          <Button isLoading isDisabled>
+          <Button my='4' isLoading isDisabled>
             Chờ nhân viên kiểm tra
           </Button>
         );
       }
       case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
         return (
-          <HStack mt='10' justifyContent='space-between'>
+          <HStack my='4' justifyContent='space-between'>
             <Button
               colorScheme='green'
               w='35%'
@@ -38,7 +38,7 @@ const ConfirmButton: React.FC<{ status?: number; navigation: StackNavigationProp
                 const rescueId = rescueStore.currentCustomerProcessingRescue?.id as number;
                 const res = await firestore().collection('rescues').doc(`${rescueId}`).get();
                 const { invoiceId } = res.data() as { invoiceId: number };
-                await invoiceStore.acceptProposal(invoiceId);
+                await invoiceStore.customerAcceptProposal(invoiceId);
 
                 if (invoiceStore.state === STORE_STATUS.ERROR) {
                   toast.show(`${invoiceStore.errorMessage}`);
@@ -65,7 +65,7 @@ const ConfirmButton: React.FC<{ status?: number; navigation: StackNavigationProp
         );
       default:
         return (
-          <Button isLoading isDisabled>
+          <Button my={4} isLoading isDisabled>
             Chờ garage báo giá
           </Button>
         );

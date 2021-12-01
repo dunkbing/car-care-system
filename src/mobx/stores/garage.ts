@@ -7,6 +7,7 @@ import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { garageApi } from '@mobx/services/api-types';
 import { GarageCustomerDetail } from '@models/user';
+import { log } from '@utils/logger';
 
 @Service()
 export default class GarageStore extends BaseStore {
@@ -45,20 +46,26 @@ export default class GarageStore extends BaseStore {
     });
   }
 
-  public async getMany(keyword: string) {
-    this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getMany, { keyword });
+  public async getMany(
+    params: {
+      keyword?: string;
+      distance?: string;
+      'CustomerLocation.Longitude'?: string;
+      'CustomerLocation.Latitude'?: string;
+    } = {},
+  ) {
+    this.startLoading();
+    log.info('searchGarages', params);
+    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getMany, params);
 
     if (error) {
-      runInAction(() => {
-        this.state = STORE_STATUS.ERROR;
-      });
+      this.handleError(error);
     } else {
       const garages = result || [];
       runInAction(() => {
-        this.state = STORE_STATUS.SUCCESS;
         this.garages = [...garages];
       });
+      this.handleSuccess();
     }
   }
 

@@ -31,7 +31,9 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
     const fetchData = async () => {
       const { invoiceId } = (
         await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).get()
-      ).data() as any;
+      ).data() || {} as any;
+
+      if (!invoiceId) return;
       firestore()
         .collection(firestoreCollection.invoices)
         .doc(`${invoiceId}`)
@@ -113,7 +115,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        {invoiceStore.staffProposalDetail?.automotivePartInvoices.map((part) => (
+        {invoiceStore.garageInvoiceDetail?.automotivePartInvoices?.map((part) => (
           <VStack key={part.id} mt={3}>
             <Text bold fontSize='sm'>
               {`${part.automotivePart.name}`}
@@ -129,7 +131,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        {invoiceStore.staffProposalDetail?.serviceInvoices.map((service) => (
+        {invoiceStore.garageInvoiceDetail?.serviceInvoices?.map((service) => (
           <VStack key={service.id} mt={3}>
             <Text bold fontSize='sm'>
               {service.service.name}
@@ -141,7 +143,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
           </VStack>
         ))}
         <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(invoiceStore.staffProposalDetail?.total || 0)}
+          Tổng {formatMoney(invoiceStore.garageInvoiceDetail?.total || 0)}
         </Text>
         {invoiceStatus !== INVOICE_STATUS.CUSTOMER_CONFIRM_PAID ? (
           <Button mt='10' mb='5' isLoading isDisabled>
@@ -154,9 +156,8 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             backgroundColor='#E86870'
             _text={{ color: 'white' }}
             onPress={async () => {
-              const data = await firebaseStore.get<{ invoiceId: number }>();
-              await invoiceStore.staffConfirmsPayment(data?.invoiceId as number);
-              await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
+              await invoiceStore.staffConfirmsPayment(invoiceStore.garageInvoiceDetail?.id as number);
+              await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).update({
                 customerFeedback: true,
                 status: RESCUE_STATUS.DONE,
               });

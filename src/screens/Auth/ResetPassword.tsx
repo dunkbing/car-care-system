@@ -15,7 +15,6 @@ type Props = StackScreenProps<AuthStackParams, 'ResetPassword'>;
 const ResetPassword: React.FC<Props> = ({ navigation, route }) => {
   const authStore = Container.get(AuthStore);
   async function resetPassword(values: ResetPasswordQueryModel) {
-    console.log(values);
     await authStore.createNewPassword(route.params.verifyCode, values.password, values.confirmPassword);
 
     if (authStore.errorMessage) {

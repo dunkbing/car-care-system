@@ -20,17 +20,20 @@ app.post('/rescues', async (req, res) => {
 
   if (data.exists) {
     const tokens = data.data()?.tokens || [];
-    console.log(tokens);
-    for (const token of tokens) {
-      admin.messaging().sendToDevice(token, {
+
+    try {
+      await admin.messaging().sendToDevice(tokens, {
         notification: {
           title: 'Yêu cầu mới',
           body: description,
+          sound: 'default',
         },
         data: {
           type: 'rescue',
         },
       });
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
   res.status(200).send({

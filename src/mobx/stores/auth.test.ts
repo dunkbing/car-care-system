@@ -1,19 +1,14 @@
 // mocking api call
-jest.mock('../services/auth');
-
-import AuthService from '@mobx/services/auth';
 import { STORE_STATUS } from '@utils/constants';
 import Container from 'typedi';
 import AuthStore from './auth';
-import GarageStore from './garage';
 
 describe('Auth Store', () => {
   let store: AuthStore;
 
-  beforeEach(() => {
-    Container.set(AuthService, new AuthService());
-    Container.set(GarageStore, new GarageStore());
-    store = new AuthStore();
+  beforeAll(() => {
+    Container.set(AuthStore, new AuthStore());
+    store = Container.get(AuthStore);
   });
 
   it('should login', async () => {

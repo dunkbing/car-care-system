@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
-import { FlatList } from 'react-native';
+import { BackHandler, FlatList } from 'react-native';
 import { Button, Checkbox, NativeBaseProvider, Spinner, Text, View, VStack } from 'native-base';
 import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react';
 import Container from 'typedi';
 
-import SearchBar from '../../../components/SearchBar';
+import SearchBar from '@components/SearchBar';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
-import { RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
+import { STORE_STATUS } from '@utils/constants';
 import formatMoney from '@utils/format-money';
 import RescueStore from '@mobx/stores/rescue';
 import ServiceStore from '@mobx/stores/service';
@@ -64,20 +64,22 @@ const AddButton: React.FC<{ onPress: OnPress }> = observer(({ onPress }) => {
   );
 });
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'AutomotivePartSuggestion'>;
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'ServiceSuggestion'>;
 
-const ServiceSuggestion: React.FC<Props> = observer(({ navigation }) => {
+const ServiceSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   //#region store
-  const rescueStore = Container.get(RescueStore);
+  Container.get(RescueStore);
   const serviceStore = Container.get(ServiceStore);
   //#endregion
 
   //#region hooks
   useEffect(() => {
-    if (rescueStore.currentStaffProcessingRescue?.status === RESCUE_STATUS.WORKING) {
-      navigation.goBack();
-    }
-  }, [serviceStore, navigation, rescueStore.currentStaffProcessingRescue?.status]);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return route.name === 'ServiceSuggestion';
+    });
+
+    return () => backHandler.remove();
+  }, [route.name]);
 
   useEffect(() => {
     void serviceStore.getMany();
@@ -116,7 +118,7 @@ const ServiceSuggestion: React.FC<Props> = observer(({ navigation }) => {
         )}
         <AddButton
           onPress={() => {
-            navigation.navigate('RepairSuggestion');
+            navigation.replace('RepairSuggestion');
           }}
         />
       </VStack>

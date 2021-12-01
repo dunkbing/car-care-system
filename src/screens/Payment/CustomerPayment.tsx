@@ -170,30 +170,32 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
         <Text mt='5' bold fontSize='xl'>
           Thiết bị
         </Text>
-        {customerInvoiceDetail?.automotivePartInvoices.map((part) => (
-          <VStack key={part.id} mt={3}>
+        {customerInvoiceDetail?.automotivePartInvoices.map((partInvoice) => (
+          <VStack key={partInvoice.id} mt={3}>
             <Text bold fontSize='sm'>
-              {`${part.automotivePart.name}`}
+              {`${partInvoice.automotivePart.name}`}
             </Text>
+            <Text style={{ color: 'green' }}>Ghi chú: {partInvoice.note || ''}</Text>
             <HStack style={{ justifyContent: 'space-between' }}>
               <Text>
-                {formatMoney(part.price)} x {`${part.quantity}`}
+                {formatMoney(partInvoice.price)} x {`${partInvoice.quantity}`}
               </Text>
-              <Text>{formatMoney(part.price * part.quantity)}</Text>
+              <Text>{formatMoney(partInvoice.price * partInvoice.quantity)}</Text>
             </HStack>
           </VStack>
         ))}
         <Text mt='5' bold fontSize='xl'>
           Dịch vụ
         </Text>
-        {customerInvoiceDetail?.serviceInvoices.map((service) => (
-          <VStack key={service.id} mt={3}>
+        {customerInvoiceDetail?.serviceInvoices.map((serviceInvoice) => (
+          <VStack key={serviceInvoice.id} mt={3}>
             <Text bold fontSize='sm'>
-              {service.service.name}
+              {serviceInvoice.service.name}
             </Text>
+            <Text style={{ color: 'green' }}>Ghi chú: {serviceInvoice.note || ''}</Text>
             <HStack style={{ justifyContent: 'space-between' }}>
-              <Text>{formatMoney(service.price)} x 1</Text>
-              <Text>{formatMoney(service.price)}</Text>
+              <Text>{formatMoney(serviceInvoice.price)} x 1</Text>
+              <Text>{formatMoney(serviceInvoice.price)}</Text>
             </HStack>
           </VStack>
         ))}

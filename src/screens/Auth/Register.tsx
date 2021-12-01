@@ -17,7 +17,6 @@ type Props = StackScreenProps<AuthStackParams, 'Register'>;
 const Register: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
   async function onRegisterSubmit(values: RegisterQueryModel) {
-    console.log(values);
     await authStore.register(values);
 
     if (authStore.errorMessage) {

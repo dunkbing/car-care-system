@@ -10,7 +10,7 @@ import { Gender, STORE_STATUS } from '@utils/constants';
 import Container from 'typedi';
 import StaffStore from '@mobx/stores/staff';
 import toast from '@utils/toast';
-import ImagePicker from '@components/ImagePicker';
+import ImagePicker from '@components/image/ImagePicker';
 import { Asset } from 'react-native-image-picker';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';

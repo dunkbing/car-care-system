@@ -18,7 +18,7 @@ import ServiceStore from '@mobx/stores/service';
 import { observer } from 'mobx-react';
 import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
 import FirebaseStore from '@mobx/stores/firebase';
-import ImagePicker from '@components/ImagePicker';
+import ImagePicker from '@components/image/ImagePicker';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { rootNavigation } from '@screens/Navigation';
 import { Avatar } from '@models/common';
@@ -212,7 +212,6 @@ const ConfirmButton: React.FC<{
         <Button
           style={{ backgroundColor: '#34A853', width: '100%' }}
           onPress={async () => {
-            disableEditing?.();
             const { automotivePartProposals, serviceProposals } = getProposalData();
             try {
               await examineCar();

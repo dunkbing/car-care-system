@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Image } from 'react-native';
 import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import firestore from '@react-native-firebase/firestore';
 import Container from 'typedi';
@@ -12,6 +11,7 @@ import toast from '@utils/toast';
 import { observer } from 'mobx-react';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
+import { ImageCarousel } from '@components/image';
 
 type Props = StackScreenProps<RescueStackParams, 'RepairSuggestion'>;
 
@@ -144,11 +144,7 @@ const RepairSuggestion: React.FC<Props> = ({ navigation, route }) => {
         <Text bold fontSize='sm'>
           {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCondition}
         </Text>
-        <ScrollView horizontal m='1.5'>
-          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
-            <Image key={`${index}`} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
-          ))}
-        </ScrollView>
+        <ImageCarousel imageUrls={invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages || []} />
         <ConfirmButton status={invoiceStore.customerInvoiceDetail?.status} navigation={navigation} />
       </ScrollView>
     </VStack>

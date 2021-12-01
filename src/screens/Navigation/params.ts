@@ -88,7 +88,7 @@ export type GarageHomeOptionStackParams = {
   AutomotivePartSuggestion: undefined;
   ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
-  Payment: undefined;
+  Payment: { invoiceId: number };
   RejectRequest: undefined;
   Feedback: undefined | { customerName: string };
 };

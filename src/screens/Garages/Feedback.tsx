@@ -74,7 +74,10 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
               });
               navigation.removeListener('beforeRemove', preventGoingBack);
               rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
-              toast.show('Đã gửi phản hồi');
+
+              if (feedbackStore.errorMessage) {
+                toast.show(feedbackStore.errorMessage);
+              }
             }}
             style={{
               marginVertical: 50,

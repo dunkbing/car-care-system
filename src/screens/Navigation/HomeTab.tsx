@@ -14,13 +14,14 @@ import AuthStore from '@mobx/stores/auth';
 import { ACCOUNT_TYPES, RESCUE_STATUS } from '@utils/constants';
 import { observer } from 'mobx-react';
 import RescueStore from '@mobx/stores/rescue';
+import { log } from '@utils/logger';
 
 const CustomerTab = createBottomTabNavigator<CustomerTabParams>();
 const GarageTab = createBottomTabNavigator<GarageTabParams>();
 
 export const CustomerHomeTab: React.FC = observer(() => {
   const rescueStore = Container.get(RescueStore);
-  console.log('customer home tab', rescueStore.currentCustomerProcessingRescue);
+  log.debug('customer home tab', rescueStore.currentCustomerProcessingRescue);
   return (
     <CustomerTab.Navigator
       screenOptions={({ route }) => ({

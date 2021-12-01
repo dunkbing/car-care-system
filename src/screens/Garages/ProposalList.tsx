@@ -106,9 +106,7 @@ const ProposalList: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      if (invoiceStore.pendingProposals.length === 0) {
-        void invoiceStore.getPendingProposals();
-      }
+      void invoiceStore.getPendingProposals();
     });
   }, [navigation, invoiceStore]);
 

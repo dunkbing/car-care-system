@@ -20,7 +20,7 @@ import {
 import CustomDatePicker from '@components/form/DatePicker';
 import toast from '@utils/toast';
 import { customerService } from '@mobx/services/customer';
-import ImagePicker from '@components/ImagePicker';
+import ImagePicker from '@components/image/ImagePicker';
 import { Avatar } from '@models/common';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
@@ -174,7 +174,6 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                   onBlur={handleBlur('taxCode')}
                   errorMessage={errors.taxCode}
                   keyboardType='default'
-                  isDisabled={values.customerType === CUSTOMER_TYPES.PERSONAL}
                 />
                 {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
                   <Center>

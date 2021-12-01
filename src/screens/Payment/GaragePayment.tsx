@@ -24,35 +24,31 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#endregion
 
   const { currentStaffProcessingRescue } = rescueStore;
+  const { invoiceId } = route.params;
 
   //#region hooks
   const [invoiceStatus, setInvoiceStatus] = React.useState(-1);
   useEffect(() => {
-    const fetchData = async () => {
-      const { invoiceId } = (
-        await firestore().collection(firestoreCollection.rescues).doc(`${rescueStore.currentStaffProcessingRescue?.id}`).get()
-      ).data() || {} as any;
+    void invoiceStore.getGarageInvoiceDetail(invoiceId);
 
-      if (!invoiceId) return;
-      firestore()
-        .collection(firestoreCollection.invoices)
-        .doc(`${invoiceId}`)
-        .onSnapshot((snapShot) => {
-          if (snapShot.exists) {
-            const invoice = snapShot.data() as { status: number };
-            setInvoiceStatus(invoice.status);
-          }
-          void invoiceStore.getProposalDetail(invoiceId);
-        });
-      await invoiceStore.getGarageInvoiceDetail(invoiceId);
-    };
-    void fetchData();
-  }, [invoiceStore, rescueStore.currentStaffProcessingRescue?.id]);
+    const unsub = firestore()
+      .collection(firestoreCollection.invoices)
+      .doc(`${invoiceId}`)
+      .onSnapshot((snapShot) => {
+        if (snapShot.exists) {
+          const invoice = snapShot.data() as { status: number };
+          setInvoiceStatus(invoice.status);
+        }
+        void invoiceStore.getProposalDetail(invoiceId);
+      });
+
+    return () => unsub();
+  }, [invoiceId, invoiceStore, rescueStore.currentStaffProcessingRescue?.id]);
 
   useEffect(() => {
     return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
       if (snapshot.exists) {
-        const { garageConfirm, invoiceId } = snapshot.data() as any;
+        const { garageConfirm, invoiceId } = (snapshot.data() as any) || {};
         if (garageConfirm) {
           void invoiceStore.getGarageInvoiceDetail(invoiceId);
         }

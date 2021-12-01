@@ -209,14 +209,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
             customerConfirm,
             garageRejected,
             staffLocation: sl,
-          } = rescueSnapshot.data() as {
+          } = (rescueSnapshot.data() as {
             status: number;
             invoiceId: number;
             customerConfirm: boolean;
             customerRejected: boolean;
             garageRejected: boolean;
             staffLocation: string;
-          };
+          }) || {};
           switch (status) {
             case RESCUE_STATUS.PENDING:
               timeOutId = setTimeout(() => {

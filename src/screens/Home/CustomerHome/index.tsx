@@ -32,7 +32,7 @@ import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
 import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
-import { GarageMarkers, RescueLocationMarker, RescueRoutes, StaffLocationMarker } from './map-component';
+import { GarageMarkers, RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '../../../components/map';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { SearchBar, OpacityView } from '@components/index';
 

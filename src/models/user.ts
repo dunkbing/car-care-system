@@ -61,9 +61,9 @@ export const registerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
-    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
-    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+    .min(10, 'Số điện thoại phải có 10 chữ số')
+    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   password: yup
     .string()
@@ -81,9 +81,9 @@ export const updateCustomerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
-    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
-    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+    .min(10, 'Số điện thoại phải có 10 chữ số')
+    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   address: yup.string().required('Không được bỏ trống'),
   customerType: yup.number(),

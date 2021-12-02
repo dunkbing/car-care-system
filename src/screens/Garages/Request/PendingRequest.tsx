@@ -134,7 +134,11 @@ const PendingRequest: React.FC<Props> = ({ navigation }) => {
             />
           ))
         )}
-        {rescueStore.pendingRescueRequests.length === 0 && <Text>Không có yêu cầu nào</Text>}
+        {rescueStore.pendingRescueRequests.length === 0 && (
+          <Center mt='2'>
+            <Text>Không có yêu cầu nào</Text>
+          </Center>
+        )}
       </VStack>
     </ScrollView>
   );

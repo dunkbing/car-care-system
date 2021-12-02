@@ -438,7 +438,7 @@ export default class RescueStore extends BaseStore {
   /**
    * garage reject current rescue case
    */
-  public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
+  public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectCase: string; rejectReason: string }) {
     this.startLoading();
     log.info('garageRejectCurrentRescueCase', params);
 
@@ -451,7 +451,11 @@ export default class RescueStore extends BaseStore {
         await firestore()
           .collection(firestoreCollection.rescues)
           .doc(`${result}`)
-          .update({ status: RESCUE_STATUS.REJECTED, garageRejected: true });
+          .update({
+            status: RESCUE_STATUS.REJECTED,
+            garageRejected: true,
+            garageRejectReason: `Lý do: ${params.rejectCase}\nMô tả: ${params.rejectReason}`,
+          });
         this.handleSuccess();
       }
     } catch (ex) {

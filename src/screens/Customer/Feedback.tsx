@@ -9,8 +9,6 @@ import { AirbnbRating } from 'react-native-ratings';
 import FeedbackStore from '@mobx/stores/feedback';
 import RescueStore from '@mobx/stores/rescue';
 import { ProfileStackParams } from '@screens/Navigation/params';
-import FirebaseStore from '@mobx/stores/firebase';
-import { RESCUE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 
 type Props = StackScreenProps<ProfileStackParams, 'EditFeedback'>;
@@ -22,7 +20,6 @@ function preventGoingBack(e: any) {
 const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
-  const firebaseStore = Container.get(FirebaseStore);
   const rescue = route.params?.rescue || rescueStore.currentCustomerProcessingRescue || {};
   const [comment, setComment] = React.useState('');
   const [point, setPoint] = React.useState(5);
@@ -79,11 +76,15 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
                 comment,
                 point,
               });
-              await firebaseStore.update(`${rescueDetailId}`, { status: RESCUE_STATUS.DONE });
-              navigation.removeListener('beforeRemove', preventGoingBack);
-              navigation.goBack();
-              navigation.goBack();
-              toast.show('Đã gửi phản hồi');
+
+              if (feedbackStore.errorMessage) {
+                toast.show(feedbackStore.errorMessage);
+              } else {
+                navigation.removeListener('beforeRemove', preventGoingBack);
+                navigation.goBack();
+                navigation.goBack();
+                toast.show('Đã gửi phản hồi');
+              }
             }}
             style={{
               marginVertical: 50,

@@ -22,12 +22,13 @@ export default class ExaminationStore extends BaseStore {
   public selectImages = (images: Avatar[]) => {
     runInAction(() => {
       this.images = [...this.images, ...images];
+      console.log(this.images);
     });
   };
 
   public removeImage(index: number) {
     runInAction(() => {
-      this.images.splice(index, 1);
+      this.images = this.images.filter((image, i) => i !== index);
     });
   }
 

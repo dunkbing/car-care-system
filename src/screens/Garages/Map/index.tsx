@@ -73,6 +73,14 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           .then((location) => {
             if (location) {
               const { rescueLocation } = rescueStore.currentStaffProcessingRescue!;
+              if (rescueLocation) {
+                cameraRef.current?.fitBounds(
+                  [location.longitude, location.latitude],
+                  [rescueLocation.longitude, rescueLocation.latitude],
+                  150,
+                  2,
+                );
+              }
               void mapService
                 .getDistanceMatrix({
                   api_key: GOONG_API_KEY,
@@ -159,12 +167,13 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             case RESCUE_STATUS.ARRIVED: {
               switch (invoiceStatus) {
                 case undefined:
-                case INVOICE_STATUS.DRAFT:
+                case -1:
                   navigation.replace('AutomotivePartSuggestion');
                   break;
                 case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID:
                 case INVOICE_STATUS.STAFF_CONFIRM_PAID:
                   break;
+                case INVOICE_STATUS.DRAFT:
                 default:
                   navigation.replace('RepairSuggestion');
                   break;

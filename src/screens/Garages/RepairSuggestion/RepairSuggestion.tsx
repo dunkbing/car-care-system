@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { BackHandler, ImageBackground, TouchableOpacity } from 'react-native';
+import { BackHandler, TouchableOpacity } from 'react-native';
 import { Button, Center, HStack, ScrollView, Text, TextArea, View, VStack } from 'native-base';
 import InputSpinner from 'react-native-input-spinner';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -17,12 +17,12 @@ import formatMoney from '@utils/format-money';
 import ServiceStore from '@mobx/stores/service';
 import { observer } from 'mobx-react';
 import { AutomotivePartInvoice, ServiceInvoice } from '@models/invoice';
-import FirebaseStore from '@mobx/stores/firebase';
 import ImagePicker from '@components/image/ImagePicker';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { rootNavigation } from '@screens/Navigation';
 import { Avatar } from '@models/common';
 import ExaminationStore from '@mobx/stores/examination';
+import { ImageCarousel } from '@components/image';
 
 enum CategoryType {
   AUTOMOTIVE_PART,
@@ -273,7 +273,6 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
   const examinationStore = Container.get(ExaminationStore);
-  const firebaseStore = Container.get(FirebaseStore);
   const invoiceStore = Container.get(InvoiceStore);
   const rescueStore = Container.get(RescueStore);
 
@@ -345,8 +344,14 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
           }
         })();
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [automotivePartStore.chosenParts, firebaseStore.rescueDoc, invoiceStore, serviceStore.chosenServices]);
+  }, [
+    automotivePartStore,
+    automotivePartStore.chosenParts,
+    invoiceStore,
+    rescueStore.currentStaffProcessingRescue?.id,
+    serviceStore,
+    serviceStore.chosenServices,
+  ]);
   //#endregion
 
   return (
@@ -444,24 +449,23 @@ const RepairSuggestion: React.FC<Props> = observer(({ navigation, route }) => {
             }}
           />
         </Center>
-        <ScrollView horizontal m='1.5'>
-          <TouchableOpacity onPress={() => imagePickerRef.current?.open()} disabled={proposing || examinationStore.images.length === 8}>
+        <HStack m='2'>
+          <TouchableOpacity
+            style={{ justifyContent: 'center' }}
+            onPress={() => imagePickerRef.current?.open()}
+            disabled={proposing || examinationStore.images.length === 8}
+          >
             <Ionicons name='camera' size={50} />
           </TouchableOpacity>
-          {examinationStore.images.map((image, index) => (
-            <ImageBackground key={`${image.name}-${index}`} source={{ uri: image.uri }} style={{ width: 60, height: 60, marginLeft: 10 }}>
-              <TouchableOpacity
-                style={{ alignItems: 'flex-end' }}
-                disabled={proposing}
-                onPress={() => {
-                  examinationStore.removeImage(index);
-                }}
-              >
-                <Ionicons name='close-circle-sharp' color={proposing ? 'grey' : 'red'} size={15} />
-              </TouchableOpacity>
-            </ImageBackground>
-          ))}
-        </ScrollView>
+          <ImageCarousel
+            removable
+            deleteDisabled={proposing}
+            onDeleteImage={(index) => {
+              examinationStore.removeImage(index);
+            }}
+            imageUrls={examinationStore.images.map((img) => img.uri) || []}
+          />
+        </HStack>
         <Center>
           <ConfirmButton
             navigation={navigation}

@@ -108,7 +108,7 @@ export const RescueRoutes: React.FC<{ origin?: Location | null; destination?: Lo
         }),
       }}
     >
-      {routes.map((route, index) => {
+      {routes.reverse().map((route, index) => {
         return (
           <MapboxGL.LineLayer
             key={index}

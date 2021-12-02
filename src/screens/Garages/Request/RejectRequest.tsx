@@ -19,8 +19,10 @@ const RejectRequest: React.FC<Props> = ({ navigation }) => {
       toast.show('Vui lòng chọn lý do hủy yêu cầu');
       return;
     }
+
     await rescueStore.garageRejectCurrentRescueCase({
       rejectRescueCaseId: Number(selectedCase),
+      rejectCase: `${rescueStore.garageRejectedCases.find((item) => item.id === Number(selectedCase))?.reason}`,
       rejectReason: reason || `${rescueStore.customerRejectedCases.find((item) => item.id === Number(selectedCase))?.reason}`,
     });
 

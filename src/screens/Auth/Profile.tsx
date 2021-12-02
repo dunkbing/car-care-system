@@ -22,6 +22,7 @@ import toast from '@utils/toast';
 import { customerService } from '@mobx/services/customer';
 import ImagePicker from '@components/image/ImagePicker';
 import { Avatar } from '@models/common';
+import { AvatarStaff } from '@assets/images';
 
 type Props = NativeStackScreenProps<ProfileStackParams, 'ProfileInfo'>;
 
@@ -45,6 +46,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
     if (error) {
       toast.show(`${JSON.stringify(error)}`);
     } else {
+      await authStore.getDetail();
       navigation.pop();
     }
   }
@@ -55,7 +57,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
       _contentContainerStyle={{
         px: '20px',
         mb: '4',
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
       }}
     >
       <Box safeArea flex={1} p={2} w='90%' mx='auto'>
@@ -78,7 +80,10 @@ const Profile: React.FC<Props> = ({ navigation }) => {
             {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
               <VStack space={2} mt={3}>
                 <Center>
-                  <Image source={{ uri: avatar.uri }} style={{ width: 100, height: 100, margin: 5, borderRadius: 50 }} />
+                  <Image
+                    source={avatar.uri ? { uri: avatar.uri } : AvatarStaff}
+                    style={{ width: 100, height: 100, margin: 5, borderRadius: 50 }}
+                  />
                   <Button
                     onPress={() => {
                       imagePickerRef.current?.open();
@@ -87,7 +92,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                     mt='1.5'
                     leftIcon={<Ionicons name='cloud-upload-outline' size={15} />}
                   >
-                    Chọn avatar
+                    {avatar.uri ? 'Sửa ảnh đại diện' : 'Thêm ảnh đại diện'}
                   </Button>
                 </Center>
                 <FormInput
@@ -96,8 +101,8 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                   placeholder='Nhập họ và tên'
                   value={values.fullName}
                   isInvalid={!!errors.fullName}
-                  onChangeText={handleChange('firstName')}
-                  onBlur={handleBlur('firstName')}
+                  onChangeText={handleChange('fullName')}
+                  onBlur={handleBlur('fullName')}
                   errorMessage={errors.fullName}
                   keyboardType='ascii-capable'
                 />

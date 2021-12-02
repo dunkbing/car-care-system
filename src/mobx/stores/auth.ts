@@ -126,4 +126,24 @@ export default class AuthStore extends BaseStore {
       this.apiService.accessToken = null;
     });
   }
+
+  public async getDetail() {
+    this.startLoading();
+
+    try {
+      const { result, error } = await this.apiService.get('customers', {}, true);
+
+      if (error) {
+        this.handleError(error);
+      } else {
+        runInAction(() => {
+          this.user = result as any;
+          this.state = STORE_STATUS.SUCCESS;
+        });
+        this.handleSuccess();
+      }
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
 }

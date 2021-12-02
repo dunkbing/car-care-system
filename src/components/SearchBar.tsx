@@ -40,6 +40,7 @@ export default (props: Props & TextInputProps & WidthProps & SpaceProps) => {
   return (
     <Center mt={props.mt as any}>
       <Input
+        style={{ maxHeight: 50 }}
         placeholder={placeholder}
         placeholderTextColor='#8A8D91'
         value={state.query}

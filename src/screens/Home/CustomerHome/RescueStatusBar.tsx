@@ -1,6 +1,7 @@
 import React from 'react';
-import { Center, Text } from 'native-base';
+import { Center, HStack, Text } from 'native-base';
 import { RESCUE_STATUS } from '@utils/constants';
+import { ActivityIndicator } from 'react-native';
 
 const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
   <Center
@@ -31,7 +32,10 @@ const RescueStatusBar: React.FC<{ status?: RESCUE_STATUS; duration?: string }> =
     case RESCUE_STATUS.ARRIVED:
       return (
         <ViewWrapper>
-          <Text bold>Vui lòng chờ nhân viên kiểm tra</Text>
+          <HStack space={2}>
+            <ActivityIndicator />
+            <Text bold>Vui lòng chờ nhân viên kiểm tra</Text>
+          </HStack>
         </ViewWrapper>
       );
     case RESCUE_STATUS.WORKING:

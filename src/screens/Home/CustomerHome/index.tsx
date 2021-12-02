@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
-import { Box, Button, Center, Text, View } from 'native-base';
+import { ActivityIndicator, Dimensions, ListRenderItemInfo, Platform, StyleSheet } from 'react-native';
+import { Box, Button, Center, HStack, Text, View } from 'native-base';
 import { observer } from 'mobx-react';
 import MapboxGL, { Logger } from '@react-native-mapbox-gl/maps';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -72,6 +72,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const [staffLocation, setStaffLocation] = useState<Pick<Location, 'longitude' | 'latitude'>>();
   const [duration, setDuration] = useState('');
   const [garage, setGarage] = useState<GarageModel | null>(null);
+  const [address, setAddress] = useState('');
   const [rescueRequestDetail, setRescueRequestDetail] = useState<RescueDetailRequest>({
     carId: -1,
     address: '',
@@ -136,9 +137,13 @@ const Map: React.FC<Props> = ({ navigation }) => {
                         longitude: location.longitude,
                         latitude: location.latitude,
                       },
-                      address: geocoding?.results[0].formatted_address as string,
+                      address: geocoding?.results[0]?.formatted_address as string,
                       carId: car?.id || -1,
                     });
+
+                    if (!address) {
+                      setAddress(geocoding?.results[0]?.formatted_address as string);
+                    }
                   })
                   .catch(console.error);
                 if (!rescueLocation) {
@@ -208,6 +213,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             invoiceId,
             customerConfirm,
             garageRejected,
+            garageRejectReason,
             staffLocation: sl,
           } = (rescueSnapshot.data() as {
             status: number;
@@ -215,6 +221,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
             customerConfirm: boolean;
             customerRejected: boolean;
             garageRejected: boolean;
+            garageRejectReason: string;
             staffLocation: string;
           }) || {};
           switch (status) {
@@ -303,7 +310,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
               if (garageRejected) {
                 dialogStore.openMsgDialog({
                   title: 'Garage đã từ chối yêu cầu của bạn',
-                  message: 'Rất tiếc chúng tôi không thể gửi xe cứu hộ tới vì xe của bạn ở quá xa',
+                  message: `${garageRejectReason}`,
                   type: DIALOG_TYPE.CONFIRM,
                   onAgreed: () => {
                     void rescueSnapshot.ref.update({ status: RESCUE_STATUS.IDLE });
@@ -332,6 +339,14 @@ const Map: React.FC<Props> = ({ navigation }) => {
             case RESCUE_STATUS.WORKING: {
               if (sl) {
                 setStaffLocation(JSON.parse(sl));
+                if (rescueLocation && staffLocation) {
+                  cameraRef.current?.fitBounds(
+                    [rescueLocation.longitude, rescueLocation.latitude],
+                    [staffLocation.longitude, staffLocation.latitude],
+                    80,
+                    3.5,
+                  );
+                }
                 void mapService
                   .getDistanceMatrix({
                     api_key: GOONG_API_KEY,
@@ -355,7 +370,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
 
           if (invoiceId !== null && invoiceId !== undefined) {
             dialogStore.closeMsgDialog();
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             const invoiceUnsub = firestore()
               .collection(firestoreCollection.invoices)
               .doc(`${invoiceId}`)
@@ -398,16 +412,17 @@ const Map: React.FC<Props> = ({ navigation }) => {
       rescueUnsub();
       clearTimeout(timeOutId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dialogStore,
     handleSos,
-    invoiceStore,
     navigation,
-    rescueLocation?.latitude,
-    rescueLocation?.longitude,
+    rescueStore,
     rescueRequestDetail.customerCurrentLocation.latitude,
     rescueRequestDetail.customerCurrentLocation.longitude,
-    rescueStore,
+    invoiceStore,
+    rescueLocation?.latitude,
+    rescueLocation?.longitude,
     staffLocation?.latitude,
     staffLocation?.longitude,
   ]);
@@ -525,7 +540,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
               </Center>
             ) : (
               <Center w='100%' backgroundColor='white' h='50'>
-                <Text bold>Đang đợi nhân viên khởi hành</Text>
+                <HStack space={2}>
+                  <ActivityIndicator />
+                  <Text bold>Đang đợi nhân viên khởi hành</Text>
+                </HStack>
               </Center>
             )}
           </Box>
@@ -576,6 +594,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       <MapboxGL.MapView
         style={{ ...StyleSheet.absoluteFillObject }}
         styleURL={`https://tiles.goong.io/assets/goong_map_web.json?api_key=${GOONG_MAP_TILE_KEY}`}
+        rotateEnabled={false}
       >
         <MapboxGL.UserLocation
           onUpdate={(location) => {
@@ -585,7 +604,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
         />
         <MapboxGL.Camera
           ref={cameraRef}
-          zoomLevel={10}
+          zoomLevel={14}
           centerCoordinate={[rescueLocation?.longitude || userLocation?.longitude, rescueLocation?.latitude || userLocation.latitude]}
         />
         <RescueLocationMarker coordinate={rescueLocation} />
@@ -596,7 +615,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
       {!rescueStore.currentCustomerProcessingRescue && (
         <Box pt={10}>
           <SearchBar
-            placeholder='Nhập vị trí cần cứu hộ'
+            placeholder={address ? address : 'Nhập vị trí cần cứu hộ'}
             timeout={500}
             width='90%'
             onSearch={searchPlaces}
@@ -623,6 +642,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
                 address: item.description,
                 rescueLocation: resLo,
               });
+              setAddress(item.description);
             }}
           />
         </Box>

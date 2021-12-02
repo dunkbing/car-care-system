@@ -32,6 +32,7 @@ export type Staff = {
 
 export type CustomerRescueHistory = {
   id: number;
+  address: string;
   description: string;
   car: CarModel;
   garage: GarageModel;
@@ -40,7 +41,7 @@ export type CustomerRescueHistory = {
   staff: Staff | null;
   invoiceId: any;
   customerFeedback: CustomerFeedback | null;
-  status: 0;
+  status: RESCUE_STATUS;
 };
 
 export type GarageRescueHistory = {

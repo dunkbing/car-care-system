@@ -26,7 +26,10 @@ const CustomerSettings: React.FC<Props> = () => {
           <OptionProfile />
           <OptionItem
             text='Thông tin cá nhân'
-            onPress={() => rootNavigation.navigate('Profile', { screen: 'ProfileInfo' })}
+            onPress={async () => {
+              await authStore.getDetail();
+              rootNavigation.navigate('Profile', { screen: 'ProfileInfo' });
+            }}
             icon={<MatCommuIcon name='account-circle-outline' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />
           <OptionItem

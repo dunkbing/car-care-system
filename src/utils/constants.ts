@@ -90,3 +90,11 @@ export const colors = {
   'undefined': 'Khác',
 };
 //#endregion
+
+//#region noti
+export const NOTI_TYPE = {
+  RESCUE: 'rescue',
+  CUSTOMER_CANCEL_REQUEST: 'customer-cancel-request',
+  GARAGE_REJECT_REQUEST: 'garage-reject-request',
+};
+//#endregion

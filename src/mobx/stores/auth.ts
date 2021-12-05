@@ -1,3 +1,7 @@
+import Container, { Service } from 'typedi';
+import { action, makeObservable, observable, runInAction } from 'mobx';
+import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging';
 import {
   CustomerLoginResponseModel,
   GarageLoginResponseModel,
@@ -7,13 +11,11 @@ import {
   User,
 } from '@models/user';
 import { STORE_STATUS, ACCOUNT_TYPES } from '@utils/constants';
-import { action, makeObservable, observable, runInAction } from 'mobx';
-import { setHeader } from '@mobx/services/config';
-import Container, { Service } from 'typedi';
+import { setHeader, withProgress } from '@mobx/services/config';
 import GarageStore from './garage';
 import { ApiService } from '@mobx/services/api-service';
 import BaseStore from './base-store';
-import { authApi } from '@mobx/services/api-types';
+import { authApi, firestoreCollection } from '@mobx/services/api-types';
 
 @Service()
 export default class AuthStore extends BaseStore {
@@ -33,33 +35,59 @@ export default class AuthStore extends BaseStore {
   userType: ACCOUNT_TYPES | undefined | null = ACCOUNT_TYPES.CUSTOMER;
 
   public async login(loginQuery: LoginQueryModel, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
-    if (userType === ACCOUNT_TYPES.CUSTOMER) {
-      const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(authApi.customerLogin, loginQuery, true);
-      if (error) {
-        this.handleError(error);
+    try {
+      const token = await messaging().getToken();
+      if (userType === ACCOUNT_TYPES.CUSTOMER) {
+        const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(authApi.customerLogin, loginQuery, true);
+        if (error) {
+          this.handleError(error);
+        } else {
+          await withProgress(
+            firestore().collection(firestoreCollection.customerDeviceTokens).doc(`${user?.id}`).set(
+              {
+                token,
+              },
+              { merge: true },
+            ),
+          );
+          runInAction(() => {
+            this.user = user;
+            this.state = STORE_STATUS.SUCCESS;
+            this.userType = userType;
+            this.apiService.accessToken = user?.accessToken;
+            setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
+          });
+        }
       } else {
-        runInAction(() => {
-          this.user = user;
-          this.state = STORE_STATUS.SUCCESS;
-          this.userType = userType;
-          this.apiService.accessToken = user?.accessToken;
-          setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
-        });
+        const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(authApi.garageLogin, loginQuery, true);
+        if (error) {
+          this.handleError(error);
+        } else {
+          const collection =
+            user?.accountType === ACCOUNT_TYPES.GARAGE_MANAGER
+              ? firestoreCollection.managerDeviceTokens
+              : firestoreCollection.staffDeviceTokens;
+          const doc = user?.accountType === ACCOUNT_TYPES.GARAGE_MANAGER ? user?.garage?.id : user?.id;
+          await withProgress(
+            firestore().collection(collection).doc(`${doc}`).set(
+              {
+                token,
+              },
+              { merge: true },
+            ),
+          );
+          runInAction(() => {
+            this.user = user;
+            this.state = STORE_STATUS.SUCCESS;
+            this.userType = user?.accountType;
+            this.garageStore.setGarage(user?.garage as any);
+            this.apiService.accessToken = user?.accessToken;
+            setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
+          });
+        }
       }
-    } else {
-      const { result: user, error } = await this.apiService.post<GarageLoginResponseModel>(authApi.garageLogin, loginQuery, true);
-      if (error) {
-        this.handleError(error);
-      } else {
-        runInAction(() => {
-          this.user = user;
-          this.state = STORE_STATUS.SUCCESS;
-          this.userType = user?.accountType;
-          this.garageStore.setGarage(user?.garage as any);
-          this.apiService.accessToken = user?.accessToken;
-          setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
-        });
-      }
+    } catch (e) {
+      this.handleError(e);
     }
   }
 

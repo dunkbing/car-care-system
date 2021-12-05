@@ -46,6 +46,7 @@ export type CustomerRescueHistory = {
 
 export type GarageRescueHistory = {
   id: number;
+  address: string;
   description: string;
   car: CarModel;
   customer: RescuedCustomerModel;

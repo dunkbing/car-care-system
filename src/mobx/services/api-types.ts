@@ -111,9 +111,15 @@ export const staffApi = {
   get: (id: number) => `staffs/${id}`,
 };
 
+export const notificationApi = {
+  newRescue: 'rescues',
+  changeRescueStatus: 'rescues/garage/status',
+};
+
 export const firestoreCollection = {
   rescues: 'rescues',
   invoices: 'invoices',
-  garageDeviceTokens: 'garage-device-tokens',
+  managerDeviceTokens: 'manager-device-tokens',
+  staffDeviceTokens: 'staff-device-tokens',
   customerDeviceTokens: 'customer-device-tokens',
 };

@@ -151,17 +151,17 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
               fontSize: 12,
             }}
             placeholder={'Giá dịch vụ'}
-            value={`${price}`}
+            value={`${price.toLocaleString()}`}
             isDisabled={disabled}
             onChangeText={(value) => {
-              invoiceStore.editService(id, Number(value));
+              invoiceStore.editService(id, Number(value?.replaceAll(',', '')));
             }}
             keyboardType='numeric'
           />
           <Text fontSize={16}>đ / {unit}</Text>
         </View>
         <Text mt='1' fontSize={16}>
-          {price * quantity}đ
+          {formatMoney(price * quantity)}
         </Text>
       </View>
     </View>

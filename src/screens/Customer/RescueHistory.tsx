@@ -12,48 +12,49 @@ import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
 import { formatAMPM } from '@utils/time';
 
-const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistory, 'car' | 'garage' | 'address' | 'rescueCase' | 'createAt'>> =
-  ({ onPress, car, address, garage, createAt }) => {
-    const rescueDate = new Date(createAt as string);
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
-          <View width='100%'>
-            <Text mb={3} bold={true} fontSize={17}>
-              {garage?.name}
-            </Text>
-            <Text mb={3} bold={true} fontSize={17}>
-              {car?.brandName || 'null'} {car?.modelName || 'null'}
-            </Text>
+const HistoryView: React.FC<
+  { onPress: OnPress } & Pick<CustomerRescueHistory, 'car' | 'garage' | 'address' | 'rescueCase' | 'createAt'>
+> = ({ onPress, car, address, garage, createAt }) => {
+  const rescueDate = new Date(createAt as string);
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
+        <View width='100%'>
+          <Text mb={3} bold={true} fontSize={17}>
+            {garage?.name}
+          </Text>
+          <Text mb={3} bold={true} fontSize={17}>
+            {car?.brandName || 'null'} {car?.modelName || 'null'}
+          </Text>
+        </View>
+        <View>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              marginBottom: 15,
+            }}
+          >
+            <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
+            <Text style={{ flex: 1, marginLeft: 10 }}>{address}</Text>
           </View>
-          <View>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                marginBottom: 15,
-              }}
-            >
-              <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-              <Text style={{ flex: 1, marginLeft: 10 }}>{address}</Text>
-            </View>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                marginBottom: 15,
-              }}
-            >
-              <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
-              <Text style={{ flex: 1, marginLeft: 10 }}>
-                {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
-              </Text>
-            </View>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              marginBottom: 15,
+            }}
+          >
+            <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
+            <Text style={{ flex: 1, marginLeft: 10 }}>
+              {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
+            </Text>
           </View>
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 type Props = StackScreenProps<ProfileStackParams, 'RescueHistory'>;
 

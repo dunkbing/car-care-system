@@ -11,7 +11,7 @@ import Dialog from '@components/dialog';
 import { API_URL } from '@env';
 import Container from 'typedi';
 import AuthStore from '@mobx/stores/auth';
-import { ACCOUNT_TYPES } from '@utils/constants';
+import { ACCOUNT_TYPES, NOTI_TYPE } from '@utils/constants';
 import { observer } from 'mobx-react';
 import { GarageOptionsStack } from '@screens/Navigation/GarageOptionsStack';
 import RescueStore from '@mobx/stores/rescue';
@@ -26,14 +26,41 @@ const App: React.FC = observer(() => {
   const dialogStore = Container.get(DialogStore);
   useEffect(() => {
     const unsubscribe = messaging().onMessage((remoteMessage) => {
-      if (remoteMessage.data?.type === 'rescue' && authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER) {
-        dialogStore.openMsgDialog({
-          type: DIALOG_TYPE.CONFIRM,
-          message: 'Có yêu cầu cứu hộ mới',
-          onAgreed: () => {
-            void rescueStore.getPendingRescueRequests();
-          },
-        });
+      console.log('Message received. ', remoteMessage);
+      switch (remoteMessage.data?.type) {
+        case NOTI_TYPE.RESCUE:
+          if (authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER) {
+            dialogStore.openMsgDialog({
+              type: DIALOG_TYPE.CONFIRM,
+              message: 'Có yêu cầu cứu hộ mới',
+              onAgreed: () => {
+                void rescueStore.getPendingRescueRequests();
+              },
+            });
+          }
+          break;
+        case NOTI_TYPE.GARAGE_REJECT_REQUEST:
+          if (authStore.userType === ACCOUNT_TYPES.CUSTOMER) {
+            dialogStore.openMsgDialog({
+              type: DIALOG_TYPE.CONFIRM,
+              message: 'Yêu cầu cứu hộ đã bị từ chối',
+              onAgreed: () => {
+                void rescueStore.getCurrentProcessingCustomer();
+              },
+            });
+          }
+          break;
+        case NOTI_TYPE.CUSTOMER_CANCEL_REQUEST: {
+          if (authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER) {
+            dialogStore.openMsgDialog({
+              type: DIALOG_TYPE.CONFIRM,
+              message: 'Yêu cầu cứu hộ đã bị hủy',
+            });
+          }
+          break;
+        }
+        default:
+          break;
       }
     });
     return unsubscribe;

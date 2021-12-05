@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Image, NativeBaseProvider, Text, View, VStack } from 'native-base';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
-import { DefaultCar } from '@assets/images';
 import { StackScreenProps } from '@react-navigation/stack';
-import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
+import { observer } from 'mobx-react';
 import Container from 'typedi';
+import messaging from '@react-native-firebase/messaging';
+
+import { DefaultCar } from '@assets/images';
+import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import RescueStore from '@mobx/stores/rescue';
+import { NOTI_TYPE } from '@utils/constants';
+import { DialogStore } from '@mobx/stores';
+import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 
 const Label: React.FC<{ name: string }> = (props) => {
   return (
@@ -24,7 +30,29 @@ type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
 
 const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
   const rescueStore = Container.get(RescueStore);
+  const dialogStore = Container.get(DialogStore);
   const { request } = route.params;
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage((remoteMessage) => {
+      switch (remoteMessage.data?.type) {
+        case NOTI_TYPE.CUSTOMER_CANCEL_REQUEST: {
+          if (route.name === 'DetailRequest') {
+            dialogStore.openMsgDialog({
+              message: 'Khách hàng đã hủy yêu cầu',
+              type: DIALOG_TYPE.CONFIRM,
+              onAgreed: () => {
+                navigation.goBack();
+              },
+            });
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    });
+    return unsubscribe;
+  }, [dialogStore, navigation, route.name]);
   return (
     <NativeBaseProvider>
       <Box safeArea flex={1} p={2} w='100%' h='100%' mx='auto' bg='#FFFFFF'>
@@ -87,7 +115,7 @@ const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
             <Button
               onPress={async () => {
                 await rescueStore.getGarageRejectedRescueCases();
-                navigation.navigate('RejectRequest');
+                navigation.navigate('RejectRequest', { customerId: request.customer?.id as number });
               }}
               style={{ width: 130, backgroundColor: '#EA4335' }}
             >
@@ -100,4 +128,4 @@ const DetailRequest: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-export default DetailRequest;
+export default observer(DetailRequest);

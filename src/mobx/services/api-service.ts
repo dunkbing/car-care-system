@@ -1,5 +1,6 @@
 import { API_URL } from '@env';
 import DialogStore from '@mobx/stores/dialog';
+import { log } from '@utils/logger';
 import axios, { AxiosError, AxiosRequestHeaders, AxiosResponse } from 'axios';
 import Container, { Service } from 'typedi';
 import { ResponsePlural, ResponseSingular, ServiceResult, WithPagination, withProgress } from './config';
@@ -151,14 +152,17 @@ export class ApiService {
     }
     try {
       const response = await promise;
+      log.info('response', response);
       const { data } = response;
       if (data.errors.length) {
         return { result: null, error: data.errors };
       }
       return { result: data.data.result, error: null };
     } catch (error) {
+      log.error('error', error);
       return { result: null, error: this.processError(error) };
     } finally {
+      console.log('finally');
       this.dialogStore.closeProgressDialog();
     }
   }

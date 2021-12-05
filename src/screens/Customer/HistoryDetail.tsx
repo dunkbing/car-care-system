@@ -4,7 +4,7 @@ import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AirbnbRating } from 'react-native-ratings';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
-import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import { formatAMPM } from '@utils/time';
 import { ApiService } from '@mobx/services/api-service';
 import { rescueApi } from '@mobx/services/api-types';
 import { GarageRescueHistoryDetail } from '@models/rescue';
@@ -108,7 +108,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
           }}
         >
           <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-          <Text style={{ marginLeft: 10 }}>{rescue.garage.address}</Text>
+          <Text style={{ marginLeft: 10 }}>{rescue.address}</Text>
         </View>
         <View
           style={{
@@ -118,7 +118,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
         >
           <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
           <Text style={{ marginLeft: 10 }}>
-            {rescueDate.toLocaleDateString('vi-VN')} | {to12HoursTime(toHourAndMinute(rescueDate))}
+            {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
           </Text>
         </View>
         {rescue.status === RESCUE_STATUS.REJECTED ? (

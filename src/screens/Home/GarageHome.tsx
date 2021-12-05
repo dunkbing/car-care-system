@@ -42,7 +42,7 @@ const ManagerOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOption
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              navigation.navigate('MyGarage', { garage: garageStore.garageDefaultGarage });
+              navigation.navigate('MyGarage', { garageId: garageStore.garageDefaultGarage?.id as number });
             }}
           />
           <OptionItem
@@ -96,7 +96,7 @@ const StaffOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOptionSt
             name='Garage của tôi'
             imgSrc={ScrewDriverWrench}
             onPress={() => {
-              navigation.navigate('MyGarage', { garage: garageStore.garageDefaultGarage });
+              navigation.navigate('MyGarage', { garageId: garageStore.garageDefaultGarage?.id as number });
             }}
           />
           <OptionItem

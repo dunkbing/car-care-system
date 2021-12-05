@@ -57,7 +57,7 @@ export type GarageTabParams = {
 
 export type GarageHomeOptionStackParams = {
   Home: undefined;
-  MyGarage: { garage: GarageModel | null };
+  MyGarage: { garageId: number };
   ProposalList: undefined;
   QuotationSuggestion: { invoiceId: number };
   ManageStaffs: undefined | { rescueId: number };
@@ -89,7 +89,7 @@ export type GarageHomeOptionStackParams = {
   ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
   Payment: { invoiceId: number };
-  RejectRequest: undefined;
+  RejectRequest: { customerId: number };
   Feedback: undefined | { customerName: string };
 };
 

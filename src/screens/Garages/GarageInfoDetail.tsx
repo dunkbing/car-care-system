@@ -78,7 +78,9 @@ const GarageDetail: React.FC<Props> = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.garageId) {
+      console.log('route.params.garageId', route.params.garageId);
       void apiService.get<GarageModel>(garageApi.get(route.params?.garageId), {}, true).then(({ result }) => {
+        console.log('result', result);
         setGarage(result);
       });
     }

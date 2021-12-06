@@ -36,11 +36,11 @@ export type ProfileStackParams = {
   CarHistory: { car: CarDetailModel };
   EditCarDetail: { car: CarDetailModel };
   DefineCarModel: { loggedIn: boolean };
-  DefaultGarage: { garageId: number };
+  GarageDetail: { garageId: number; side: 'garage' | 'customer' };
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
-  EditFeedback: { rescue: Pick<CustomerRescueHistory, 'garage' | 'staff' | 'customerFeedback'> };
+  EditFeedback: { rescueDetailId: number; staffName: string; garage: string; rating: number; comment: string };
   ChangePassword: undefined;
 };
 
@@ -57,7 +57,7 @@ export type GarageTabParams = {
 
 export type GarageHomeOptionStackParams = {
   Home: undefined;
-  MyGarage: { garage: GarageModel | null };
+  GarageDetail: { garageId: number; side: 'garage' | 'customer' };
   ProposalList: undefined;
   QuotationSuggestion: { invoiceId: number };
   ManageStaffs: undefined | { rescueId: number };
@@ -88,9 +88,9 @@ export type GarageHomeOptionStackParams = {
   AutomotivePartSuggestion: undefined;
   ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
-  Payment: undefined;
-  RejectRequest: undefined;
-  Feedback: undefined | { customerName: string };
+  Payment: { invoiceId: number };
+  RejectRequest: { customerId: number };
+  Feedback: { rescueDetailId: number; customerName: string };
 };
 
 export type RescueStackParams = {
@@ -119,5 +119,5 @@ export type RescueStackParams = {
   RepairSuggestion: { invoiceId: number };
   QuotationSuggestion: { invoiceId: number };
   Payment: undefined;
-  Feedback: undefined;
+  Feedback: { rescueDetailId: number; staffName: string; garage: string };
 };

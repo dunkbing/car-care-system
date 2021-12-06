@@ -52,7 +52,7 @@ const CustomerCarStatus: React.FC<Props> = ({ navigation, route }) => {
   const [customer, setCustomer] = React.useState<GarageCustomerDetail | null>(null);
 
   useEffect(() => {
-    void apiService.get<GarageCustomerDetail>(garageApi.getCustomer(route.params.customerId), {}, true).then(({ result }) => {
+    void apiService.get<GarageCustomerDetail>(garageApi.getCustomerDetail(route.params.customerId), {}, true).then(({ result }) => {
       setCustomer(result);
     });
   }, [apiService, route.params.customerId]);

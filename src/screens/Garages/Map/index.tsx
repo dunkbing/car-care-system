@@ -13,21 +13,18 @@ import GarageStore from '@mobx/stores/garage';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { Container } from 'typedi';
 import Marker from '@components/map/Marker';
-import AssignedEmployee from '@screens/Home/Map/AssignedEmployee';
+import AssignedEmployee from '@screens/Home/CustomerHome/AssignedEmployee';
 import RescueStore from '@mobx/stores/rescue';
 import { INVOICE_STATUS, RESCUE_STATUS } from '@utils/constants';
 import { mapService } from '@mobx/services/map';
-import InvoiceStore from '@mobx/stores/invoice';
+import { InvoiceStore, AutomotivePartStore, ServiceStore, ExaminationStore, DialogStore } from '@mobx/stores';
 import FirebaseStore from '@mobx/stores/firebase';
-import AutomotivePartStore from '@mobx/stores/automotive-part';
-import ServiceStore from '@mobx/stores/service';
 import { Location } from '@models/common';
-import { RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '@screens/Home/Map/map-component';
+import { RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '@components/map';
 import LocationService from '@mobx/services/location';
 import toast from '@utils/toast';
-import DialogStore from '@mobx/stores/dialog';
 import { firestoreCollection } from '@mobx/services/api-types';
-import {log} from "@utils/logger";
+import { log } from '@utils/logger';
 
 MapboxGL.setAccessToken(GOONG_API_KEY);
 
@@ -76,6 +73,14 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           .then((location) => {
             if (location) {
               const { rescueLocation } = rescueStore.currentStaffProcessingRescue!;
+              if (rescueLocation) {
+                cameraRef.current?.fitBounds(
+                  [location.longitude, location.latitude],
+                  [rescueLocation.longitude, rescueLocation.latitude],
+                  150,
+                  2,
+                );
+              }
               void mapService
                 .getDistanceMatrix({
                   api_key: GOONG_API_KEY,
@@ -141,14 +146,18 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
 
         void (async function () {
           await rescueStore.getCurrentProcessingStaff();
-          const { status, invoiceId, garageFeedback } = snapShot.data() as {
+          const {
+            status: rescueStatus,
+            invoiceId,
+            garageFeedback,
+          } = snapShot.data() as {
             status: number;
             garageFeedback: boolean;
             invoiceId: number;
           };
           await invoiceStore.getProposalDetail(invoiceId);
           const invoiceStatus = await (await firestore().collection('invoices').doc(`${invoiceId}`).get()).data()?.status;
-          switch (status) {
+          switch (rescueStatus) {
             case RESCUE_STATUS.ACCEPTED: {
               break;
             }
@@ -156,10 +165,18 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
               break;
             }
             case RESCUE_STATUS.ARRIVED: {
-              if (!invoiceStatus || invoiceStatus <= INVOICE_STATUS.DRAFT) {
-                navigation.navigate('AutomotivePartSuggestion');
-              } else if (invoiceStatus > INVOICE_STATUS.DRAFT && invoiceStatus <= INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER) {
-                navigation.navigate('RepairSuggestion');
+              switch (invoiceStatus) {
+                case undefined:
+                case -1:
+                  navigation.replace('AutomotivePartSuggestion');
+                  break;
+                case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID:
+                case INVOICE_STATUS.STAFF_CONFIRM_PAID:
+                  break;
+                case INVOICE_STATUS.DRAFT:
+                default:
+                  navigation.replace('RepairSuggestion');
+                  break;
               }
               break;
             }
@@ -181,20 +198,8 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
               break;
           }
 
-          switch (invoiceStatus) {
-            case INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER:
-            case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL:
-            case INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER:
-            case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER:
-              dialogStore.closeProgressDialog();
-              navigation.replace('RepairSuggestion');
-              break;
-            case INVOICE_STATUS.CUSTOMER_CONFIRM_PAID: {
-              navigation.replace('Payment');
-              break;
-            }
-            default:
-              break;
+          if (invoiceStatus === INVOICE_STATUS.CUSTOMER_CONFIRM_PAID) {
+            navigation.replace('Payment', { invoiceId });
           }
 
           if (garageFeedback) {
@@ -314,7 +319,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             });
             const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
             await invoiceStore.getGarageInvoiceDetail(invoiceId);
-            navigation.push('Payment');
+            navigation.push('Payment', { invoiceId });
           }}
         >
           <Text bold color='white' fontSize='lg'>
@@ -326,10 +331,11 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           onPress={async () => {
             const automotivePartStore = Container.get(AutomotivePartStore);
             const serviceStore = Container.get(ServiceStore);
+            const examinationStore = Container.get(ExaminationStore);
             automotivePartStore.clearParts();
             serviceStore.clearServices();
+            examinationStore.clear();
             await rescueStore.changeRescueStatusToArrived();
-            navigation.replace('AutomotivePartSuggestion');
           }}
           activeOpacity={0.8}
           style={{

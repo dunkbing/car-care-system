@@ -10,14 +10,11 @@ import { CustomerRescueHistory } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
-import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import { formatAMPM } from '@utils/time';
 
-const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistory, 'car' | 'garage' | 'rescueCase' | 'createAt'>> = ({
-  onPress,
-  car,
-  garage,
-  createAt,
-}) => {
+const HistoryView: React.FC<
+  { onPress: OnPress } & Pick<CustomerRescueHistory, 'car' | 'garage' | 'address' | 'rescueCase' | 'createAt'>
+> = ({ onPress, car, address, garage, createAt }) => {
   const rescueDate = new Date(createAt as string);
   return (
     <TouchableOpacity onPress={onPress}>
@@ -39,7 +36,7 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistory, '
             }}
           >
             <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-            <Text style={{ flex: 1, marginLeft: 10 }}>{garage.address}</Text>
+            <Text style={{ flex: 1, marginLeft: 10 }}>{address}</Text>
           </View>
           <View
             style={{
@@ -50,7 +47,7 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<CustomerRescueHistory, '
           >
             <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
             <Text style={{ flex: 1, marginLeft: 10 }}>
-              {rescueDate.toLocaleDateString('vi-VN')} | {to12HoursTime(toHourAndMinute(rescueDate))}
+              {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
             </Text>
           </View>
         </View>
@@ -75,7 +72,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
   return (
     <VStack width='100%'>
       <SearchBar
-        placeholder='Tìm kiếm tên xe'
+        placeholder='Tìm kiếm địa chỉ'
         timeout={500}
         width='90%'
         mt='5'
@@ -100,6 +97,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
                 navigation.navigate('HistoryDetail', { rescue });
               }}
               car={rescue.car}
+              address={rescue.address}
               garage={rescue.garage}
               rescueCase={rescue.rescueCase}
               createAt={rescue.createAt}

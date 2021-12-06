@@ -44,6 +44,7 @@ const FormSelect: React.FC<Props> = ({
           bg: 'teal.600',
           endIcon: <CheckIcon size={5} />,
         }}
+        fontSize='lg'
         mt='1'
         onValueChange={onValueChange}
         isDisabled={isDisabled}

@@ -27,6 +27,7 @@ export const carApi = {
 export const customerApi = {
   setDefaultGarage: 'customers/default-garage',
   updateInfo: 'customers',
+  detail: 'customers',
 };
 
 export const feedbackApi = {
@@ -35,10 +36,11 @@ export const feedbackApi = {
 };
 
 export const garageApi = {
-  getMany: 'garages',
-  get: (id: number) => `garages/${id}`,
+  searchGarages: 'garages',
+  getGarageDetail: (id: number) => `garages/${id}`,
+  getCurrentGarage: 'garages/current-garages',
   getCustomers: 'garages/customers',
-  getCustomer: (id: number) => `garages/customers/${id}`,
+  getCustomerDetail: (id: number) => `garages/customers/${id}`,
 };
 
 export const invoiceApi = {
@@ -110,9 +112,15 @@ export const staffApi = {
   get: (id: number) => `staffs/${id}`,
 };
 
+export const notificationApi = {
+  newRescue: 'rescues',
+  changeRescueStatus: 'rescues/garage/status',
+};
+
 export const firestoreCollection = {
   rescues: 'rescues',
   invoices: 'invoices',
-  garageDeviceTokens: 'garage-device-tokens',
+  managerDeviceTokens: 'manager-device-tokens',
+  staffDeviceTokens: 'staff-device-tokens',
   customerDeviceTokens: 'customer-device-tokens',
 };

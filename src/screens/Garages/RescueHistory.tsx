@@ -10,22 +10,19 @@ import { GarageRescueHistory } from '@models/rescue';
 import Container from 'typedi';
 import RescueStore from '@mobx/stores/rescue';
 import { STORE_STATUS } from '@utils/constants';
-import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import { formatAMPM } from '@utils/time';
 import AuthStore from '@mobx/stores/auth';
 
-const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'staff' | 'car' | 'customer' | 'rescueCase' | 'createAt'>> = ({
-  onPress,
-  staff,
-  customer,
-  createAt,
-}) => {
+const HistoryView: React.FC<
+  { onPress: OnPress } & Pick<GarageRescueHistory, 'customer' | 'address' | 'car' | 'rescueCase' | 'createAt'>
+> = ({ onPress, customer, address, createAt }) => {
   const rescueDate = new Date(createAt);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
         <View width='100%'>
           <Text mb={4} bold={true} fontSize={20}>
-            {`${staff?.lastName} ${staff?.firstName}`}
+            {`${customer?.lastName} ${customer?.firstName}`}
           </Text>
         </View>
         <View>
@@ -37,7 +34,7 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'st
             }}
           >
             <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-            <Text style={{ flex: 1, marginLeft: 10 }}>{customer?.address}</Text>
+            <Text style={{ flex: 1, marginLeft: 10 }}>{address}</Text>
           </View>
           <View
             style={{
@@ -48,7 +45,7 @@ const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'st
           >
             <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
             <Text style={{ flex: 1, marginLeft: 10 }}>
-              {rescueDate.toLocaleDateString('vi-VN')} | {to12HoursTime(toHourAndMinute(rescueDate))}
+              {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
             </Text>
           </View>
         </View>
@@ -111,10 +108,10 @@ const RescueHistory: React.FC<Props> = ({ navigation, route }) => {
                 navigation.navigate('HistoryDetail', { rescue });
               }}
               car={rescue.car}
-              staff={rescue.staff}
               customer={rescue.customer}
               rescueCase={rescue.rescueCase}
               createAt={rescue.createAt}
+              address={rescue.address}
             />
           ))
         )}

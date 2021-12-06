@@ -56,6 +56,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({ customer, car, onPress }) =
           flex: 1,
           flexDirection: 'row',
           marginBottom: 15,
+          paddingRight: 5,
         }}
       >
         <FAFIcon name='map-marker-alt' size={20} color='#34A853' />
@@ -106,9 +107,7 @@ const ProposalList: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     return navigation.addListener('focus', () => {
-      if (invoiceStore.pendingProposals.length === 0) {
-        void invoiceStore.getPendingProposals();
-      }
+      void invoiceStore.getPendingProposals();
     });
   }, [navigation, invoiceStore]);
 
@@ -143,7 +142,7 @@ const ProposalList: React.FC<Props> = ({ navigation }) => {
               onPress={() => navigation.navigate('QuotationSuggestion', { invoiceId: proposal.id })}
               customer={{
                 name: `${proposal.customer?.lastName} ${proposal.customer?.firstName}`,
-                address: `${proposal.customer?.address}`,
+                address: `${proposal?.rescueAddress}`,
                 phoneNumber: `${proposal.customer?.phoneNumber}`,
               }}
               car={{

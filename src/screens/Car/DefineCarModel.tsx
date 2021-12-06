@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { observer } from 'mobx-react';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
-import ImagePicker from '@components/ImagePicker';
+import ImagePicker from '@components/image/ImagePicker';
 import { Image } from 'react-native';
 
 type Props = StackScreenProps<AuthStackParams | ProfileStackParams, 'DefineCarModel'>;

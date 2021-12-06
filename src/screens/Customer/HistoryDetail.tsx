@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
-import { Link, ScrollView, Text, View, VStack } from 'native-base';
+import { Center, Link, ScrollView, Text, View, VStack } from 'native-base';
 import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AirbnbRating } from 'react-native-ratings';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ProfileStackParams } from '@screens/Navigation/params';
-import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import { formatAMPM } from '@utils/time';
 import { ApiService } from '@mobx/services/api-service';
 import { rescueApi } from '@mobx/services/api-types';
 import { GarageRescueHistoryDetail } from '@models/rescue';
 import Container from 'typedi';
 import formatMoney from '@utils/format-money';
+import { RESCUE_STATUS } from '@utils/constants';
 
 type CategoryDetailProps = {
   name: string;
@@ -98,6 +99,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
           >
             {rescue.car?.brandName || 'null'} {rescue.car?.modelName || 'null'}
           </Text>
+          <Text>Biển số xe: {`${rescue.car?.licenseNumber}`}</Text>
         </View>
         <View
           style={{
@@ -106,7 +108,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
           }}
         >
           <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-          <Text style={{ marginLeft: 10 }}>{rescue.garage.address}</Text>
+          <Text style={{ marginHorizontal: 10 }}>{rescue.address}</Text>
         </View>
         <View
           style={{
@@ -116,94 +118,110 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
         >
           <MatCommuIcon name='clock-outline' size={22} color='#1F87FE' />
           <Text style={{ marginLeft: 10 }}>
-            {rescueDate.toLocaleDateString('vi-VN')} | {to12HoursTime(toHourAndMinute(rescueDate))}
+            {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
           </Text>
         </View>
-        <View>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 16,
-            }}
-          >
-            Thiết bị
-          </Text>
+        {rescue.status === RESCUE_STATUS.REJECTED ? (
+          <Center>
+            <Text style={{ color: 'red' }}>Đã hủy yêu cầu</Text>
+          </Center>
+        ) : (
           <View>
-            {rescueDetail?.invoice?.automotivePartInvoices.length ? (
-              rescueDetail?.invoice?.automotivePartInvoices?.map((automotivePartInvoice) => (
-                <CategoryDetail
-                  key={automotivePartInvoice.id}
-                  name={`${automotivePartInvoice.automotivePart.name}`}
-                  price={automotivePartInvoice.price}
-                  quantity={automotivePartInvoice.quantity}
-                />
-              ))
-            ) : (
-              <Text>Không có thiết bị</Text>
-            )}
+            <View>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                }}
+              >
+                Thiết bị
+              </Text>
+              <View>
+                {rescueDetail?.invoice?.automotivePartInvoices.length ? (
+                  rescueDetail?.invoice?.automotivePartInvoices?.map((automotivePartInvoice) => (
+                    <CategoryDetail
+                      key={automotivePartInvoice.id}
+                      name={`${automotivePartInvoice.automotivePart.name}`}
+                      price={automotivePartInvoice.price}
+                      quantity={automotivePartInvoice.quantity}
+                    />
+                  ))
+                ) : (
+                  <Text>Không có thiết bị</Text>
+                )}
+              </View>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                }}
+              >
+                Dịch vụ
+              </Text>
+              <View>
+                {rescueDetail?.invoice?.serviceInvoices?.length ? (
+                  rescueDetail?.invoice?.serviceInvoices?.map((serviceInvoice) => (
+                    <CategoryDetail
+                      key={serviceInvoice.id}
+                      name={`${serviceInvoice.service.name}`}
+                      price={serviceInvoice.price}
+                      quantity={serviceInvoice.quantity}
+                    />
+                  ))
+                ) : (
+                  <Text>Không có dịch vụ</Text>
+                )}
+              </View>
+            </View>
+            <View my={5}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 22,
+                  textAlign: 'right',
+                }}
+              >
+                Tổng: {formatMoney(rescueDetail?.invoice?.total)}
+              </Text>
+            </View>
+            <View>
+              <Text
+                style={{
+                  marginVertical: 10,
+                  fontWeight: 'bold',
+                }}
+              >
+                Đánh giá của khách hàng
+              </Text>
+              <AirbnbRating defaultRating={rescue.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
+              <Text
+                style={{
+                  marginTop: 10,
+                  marginBottom: 5,
+                }}
+                textAlign='justify'
+              >
+                {rescue.customerFeedback?.comment}
+              </Text>
+            </View>
+            <Link
+              _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}
+              alignSelf='center'
+              mt={5}
+              onPress={() =>
+                navigation.navigate('EditFeedback', {
+                  garage: rescue.garage.name,
+                  rescueDetailId: rescue.id,
+                  staffName: `${rescue.staff?.lastName} ${rescue.staff?.firstName}`,
+                  rating: rescue.customerFeedback?.point || 0,
+                  comment: rescue.customerFeedback?.comment || '',
+                })
+              }
+            >
+              Chỉnh sửa đánh giá
+            </Link>
           </View>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 16,
-            }}
-          >
-            Dịch vụ
-          </Text>
-          <View>
-            {rescueDetail?.invoice?.serviceInvoices?.length ? (
-              rescueDetail?.invoice?.serviceInvoices?.map((serviceInvoice) => (
-                <CategoryDetail
-                  key={serviceInvoice.id}
-                  name={`${serviceInvoice.service.name}`}
-                  price={serviceInvoice.price}
-                  quantity={serviceInvoice.quantity}
-                />
-              ))
-            ) : (
-              <Text>Không có dịch vụ</Text>
-            )}
-          </View>
-        </View>
-        <View my={5}>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-              textAlign: 'right',
-            }}
-          >
-            Tổng: {formatMoney(rescueDetail?.invoice?.total)}
-          </Text>
-        </View>
-        <View>
-          <Text
-            style={{
-              marginVertical: 10,
-              fontWeight: 'bold',
-            }}
-          >
-            Đánh giá của khách hàng
-          </Text>
-          <AirbnbRating defaultRating={rescue.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
-          <Text
-            style={{
-              marginTop: 10,
-              marginBottom: 5,
-            }}
-            textAlign='justify'
-          >
-            {rescue.customerFeedback?.comment}
-          </Text>
-        </View>
-        <Link
-          _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}
-          alignSelf='center'
-          mt={5}
-          onPress={() => navigation.navigate('EditFeedback', { rescue })}
-        >
-          Chỉnh sửa đánh giá
-        </Link>
+        )}
       </VStack>
     </ScrollView>
   );

@@ -61,9 +61,9 @@ export const registerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
-    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
-    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+    .min(10, 'Số điện thoại phải có 10 chữ số')
+    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   password: yup
     .string()
@@ -81,14 +81,24 @@ export const updateCustomerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 hoặc 11 số')
-    .max(11, 'Số điện thoại phải có 10 hoặc 11 số')
-    .matches(regexes.phone, 'Số điện thoại phải có 10 hoặc 11 số'),
+    .min(10, 'Số điện thoại phải có 10 chữ số')
+    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   address: yup.string().required('Không được bỏ trống'),
   customerType: yup.number(),
   taxCode: yup.string().when(['customerType'], (customerType, schema) => {
     return customerType === CUSTOMER_TYPES.BUSINESS ? schema.required('Không được bỏ trống') : schema;
+  }),
+  dateOfBirth: yup.string().test('dateOfBirth', 'Chưa đủ 18 tuổi', (value) => {
+    const today = new Date();
+    const dateOfBirth = new Date(value || '');
+    let age = today.getFullYear() - dateOfBirth.getFullYear();
+    const month = today.getMonth() - dateOfBirth.getMonth();
+    if (month < 0 || (month === 0 && today.getDate() < dateOfBirth.getDate())) {
+      age--;
+    }
+    return age >= 18;
   }),
 });
 
@@ -170,7 +180,6 @@ export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> 
 };
 
 export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {
-  dateOfBirth: string;
   gender: Gender;
   avatar?: Avatar;
 };

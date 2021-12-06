@@ -7,9 +7,9 @@ import Container from 'typedi';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
 
-type Props = StackScreenProps<GarageHomeOptionStackParams, 'DetailRequest'>;
+type Props = StackScreenProps<GarageHomeOptionStackParams, 'RejectRequest'>;
 
-const RejectRequest: React.FC<Props> = ({ navigation }) => {
+const RejectRequest: React.FC<Props> = ({ navigation, route }) => {
   const [selectedCase, setSelectedCase] = useState('');
   const [reason, setReason] = useState('');
   const rescueStore = Container.get(RescueStore);
@@ -19,8 +19,11 @@ const RejectRequest: React.FC<Props> = ({ navigation }) => {
       toast.show('Vui lòng chọn lý do hủy yêu cầu');
       return;
     }
+
     await rescueStore.garageRejectCurrentRescueCase({
+      customerId: route.params.customerId,
       rejectRescueCaseId: Number(selectedCase),
+      rejectCase: `${rescueStore.garageRejectedCases.find((item) => item.id === Number(selectedCase))?.reason}`,
       rejectReason: reason || `${rescueStore.customerRejectedCases.find((item) => item.id === Number(selectedCase))?.reason}`,
     });
 

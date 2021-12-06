@@ -45,11 +45,11 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
 
   const onRefresh = React.useCallback(() => {
-    void garageStore.getMany('');
+    void garageStore.getMany();
   }, [garageStore]);
 
   useEffect(() => {
-    void garageStore.getMany('');
+    void garageStore.getMany();
   }, [garageStore]);
 
   function onDone() {
@@ -73,8 +73,8 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
         placeholder='Tìm garage'
         timeout={500}
         width='90%'
-        onSearch={(text: string) => {
-          void garageStore.getMany(text);
+        onSearch={(keyword: string) => {
+          void garageStore.getMany({ keyword });
         }}
         mt='5'
       />

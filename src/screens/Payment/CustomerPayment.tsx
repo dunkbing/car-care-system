@@ -109,11 +109,23 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
       if (snapshot.exists) {
         const { customerFeedback, status } = snapshot.data() as any;
         if (customerFeedback && status === RESCUE_STATUS.WORKING) {
-          navigation.navigate('Feedback');
+          navigation.navigate('Feedback', {
+            rescueDetailId: rescueStore.currentCustomerProcessingRescue?.id as number,
+            staffName: `${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`,
+            garage: `${rescueStore.currentCustomerProcessingRescue?.garage?.name}`,
+          });
         }
       }
     });
-  }, [firebaseStore.rescueDoc, invoiceStore, navigation]);
+  }, [
+    firebaseStore.rescueDoc,
+    invoiceStore,
+    navigation,
+    rescueStore.currentCustomerProcessingRescue?.garage?.name,
+    rescueStore.currentCustomerProcessingRescue?.id,
+    rescueStore.currentCustomerProcessingRescue?.staff?.firstName,
+    rescueStore.currentCustomerProcessingRescue?.staff?.lastName,
+  ]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => route.name === 'Payment');

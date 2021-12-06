@@ -1,10 +1,12 @@
 import { action, makeObservable } from 'mobx';
 import Container, { Service } from 'typedi';
+import firestore from '@react-native-firebase/firestore';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
-import { feedbackApi } from '@mobx/services/api-types';
+import { feedbackApi, firestoreCollection } from '@mobx/services/api-types';
 import { FeedbackRequestParams } from '@models/feedback';
 import { log } from '@utils/logger';
+import { RESCUE_STATUS } from '@utils/constants';
 
 @Service()
 export default class FeedbackStore extends BaseStore {
@@ -19,13 +21,18 @@ export default class FeedbackStore extends BaseStore {
 
   public async create(feedbackType: keyof typeof feedbackApi, feedback: FeedbackRequestParams) {
     this.startLoading();
-    const { error, result } = await this.apiService.post(feedbackApi[feedbackType], feedback, true, true);
-    log.info('create feedback', result, error, feedback);
 
-    if (error) {
-      this.handleError(error);
-    } else {
+    try {
+      const { error, result } = await this.apiService.post(feedbackApi[feedbackType], feedback, true, true);
+      log.info('createFeedback', result, error, feedback);
+
+      if (error) {
+        throw error;
+      }
+      await firestore().collection(firestoreCollection.rescues).doc(`${feedback.rescueDetailId}`).update({ status: RESCUE_STATUS.DONE });
       this.handleSuccess();
+    } catch (e) {
+      this.handleError(e);
     }
   }
 }

@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RescueStackParams } from './params';
 import { navHeaderStyle } from './roots';
 import DefineCarStatus from '@screens/Customer/DefineCarStatus';
-import { Map } from '@screens/Home';
+import { CustomerHome } from '@screens/Home';
 import DetailRescueRequest from '@screens/Garages/Request/DetailRescueRequest';
 import CancelRescueRequest from '@screens/Customer/CancelRescueRequest';
 import CancelStaffSuggestion from '@screens/Customer/CancelStaffSuggestion';
@@ -19,7 +19,7 @@ const RescueStackNav = createNativeStackNavigator<RescueStackParams>();
 export const RescueStack: React.FC = () => {
   return (
     <RescueStackNav.Navigator initialRouteName='Map' screenOptions={{ contentStyle: { backgroundColor: 'white' } }}>
-      <RescueStackNav.Screen name='Map' component={Map} options={{ headerShown: false }} />
+      <RescueStackNav.Screen name='Map' component={CustomerHome} options={{ headerShown: false }} />
       <RescueStackNav.Screen
         name='NearByGarages'
         component={NearByGarage}

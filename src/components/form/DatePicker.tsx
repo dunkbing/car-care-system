@@ -16,13 +16,23 @@ type Props = {
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
 };
 
-const CustomDatePicker: React.FC<Props> = ({ label, isRequired, isInvalid, errorMessage, formControlProps, value, isOpen, onConfirm }) => {
+const CustomDatePicker: React.FC<Props> = ({
+  label,
+  isDisabled,
+  isRequired,
+  isInvalid,
+  errorMessage,
+  formControlProps,
+  value,
+  isOpen,
+  onConfirm,
+}) => {
   const [open, setOpen] = useState(isOpen);
   return (
     <FormControl mb='2.5' {...formControlProps} isRequired={isRequired} isInvalid={isInvalid}>
       <FormControl.Label _text={{ bold: true }}>{label}</FormControl.Label>
-      <TouchableOpacity onPress={() => setOpen(true)}>
-        <Text fontSize='lg' color='blue.500'>
+      <TouchableOpacity onPress={() => setOpen(true)} disabled={isDisabled}>
+        <Text fontSize='lg' color={isDisabled ? 'blue.300' : 'blue.500'}>
           {value?.toLocaleDateString('vi-VN')}
         </Text>
       </TouchableOpacity>

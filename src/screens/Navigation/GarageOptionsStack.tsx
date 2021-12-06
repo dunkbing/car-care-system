@@ -34,7 +34,7 @@ export const GarageOptionsStack: React.FC = () => {
     <Stack.Navigator>
       <Stack.Screen name='Home' component={GarageHomeTab} options={{ headerShown: false }} />
       <Stack.Screen
-        name='MyGarage'
+        name='GarageDetail'
         component={GarageDetail}
         options={{
           title: 'Garage của tôi',
@@ -77,7 +77,7 @@ export const GarageOptionsStack: React.FC = () => {
       <Stack.Screen name='EditStaff' component={EditStaff} options={{ title: 'Thông tin nhân viên', ...navHeaderStyle }} />
       <Stack.Screen name='ManageCustomers' component={ManageCustomer} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
       <Stack.Screen name='CustomerCarStatus' component={CustomerCarStatus} options={{ title: 'Quản lý khách hàng', ...navHeaderStyle }} />
-      <Stack.Screen name='RescueHistory' component={RescueHistory} options={({ route }) => ({ title: route.params?.customerName ? `${route.params.customerName}` : 'Lịch sử cứu hộ', ...navHeaderStyle })} />
+      <Stack.Screen name='RescueHistory' component={RescueHistory} options={({ route }) => ({ title: route.params?.customerName ? `${route.params.customerName}` : 'Lịch sử garage', ...navHeaderStyle })} />
       <Stack.Screen name='HistoryDetail' component={HistoryDetail} options={{ title: 'Chi tiết lịch sử', ...navHeaderStyle }} />
       <Stack.Screen name='PendingRescueRequest' component={PendingRequest} options={{ title: 'Yêu cầu cứu hộ', ...navHeaderStyle }} />
       <Stack.Screen name='DetailRequest' component={DetailRequest} options={{ title: 'Chi tiết yêu cầu', ...navHeaderStyle }} />

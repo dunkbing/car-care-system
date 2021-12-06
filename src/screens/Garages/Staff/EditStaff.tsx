@@ -12,7 +12,7 @@ import DialogStore from '@mobx/stores/dialog';
 import StaffStore from '@mobx/stores/staff';
 import { STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
-import ImagePicker from '@components/ImagePicker';
+import ImagePicker from '@components/image/ImagePicker';
 import { Asset } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomDatePicker from '@components/form/DatePicker';

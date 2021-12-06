@@ -49,11 +49,11 @@ export default class FirebaseStore extends BaseStore {
       const token = await messaging().getToken();
       if (this.authStore.userType === ACCOUNT_TYPES.GARAGE_MANAGER) {
         const user = this.authStore.user as GarageUser;
-        const doc = await firestore().collection(firestoreCollection.garageDeviceTokens).doc(`${user?.garage?.id}`).get();
+        const doc = await firestore().collection(firestoreCollection.managerDeviceTokens).doc(`${user?.garage?.id}`).get();
         const tokens = doc.data()?.tokens || [];
         if (!tokens.includes(token)) {
           tokens.push(token);
-          await firestore().collection(firestoreCollection.garageDeviceTokens).doc(`${this.authStore.user?.id}`).set({ tokens });
+          await firestore().collection(firestoreCollection.managerDeviceTokens).doc(`${this.authStore.user?.id}`).set({ tokens });
         }
       }
     } catch (error) {

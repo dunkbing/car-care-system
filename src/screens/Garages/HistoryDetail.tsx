@@ -19,7 +19,7 @@ type CategoryDetailProps = {
 
 const CategoryDetail: React.FC<CategoryDetailProps> = ({ name, price, quantity }) => {
   return (
-    <View my={3}>
+    <View my={1.5}>
       <Text
         style={{
           fontWeight: 'bold',
@@ -116,7 +116,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
           }}
         >
           <FAFIcon name='map-marker-alt' size={20} color='#1F87FE' />
-          <Text style={{ marginLeft: 10 }}>{rescue.customer?.address}</Text>
+          <Text style={{ marginHorizontal: 10 }}>{rescue?.address}</Text>
         </View>
         <View>
           <Text
@@ -145,6 +145,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             style={{
               fontWeight: 'bold',
               fontSize: 16,
+              marginTop: 15,
             }}
           >
             Dịch vụ
@@ -163,6 +164,15 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
               <Text>Không có dịch vụ</Text>
             )}
           </View>
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 16,
+              marginTop: 15,
+            }}
+          >
+            Tình trạng xe
+          </Text>
         </View>
         <View my={5}>
           <Text

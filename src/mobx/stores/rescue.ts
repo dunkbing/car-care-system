@@ -20,6 +20,9 @@ import FirebaseStore from './firebase';
 import { NOTI_SERVER } from '@env';
 import { Avatar } from '@models/common';
 import { log } from '@utils/logger';
+import { withProgress } from '@mobx/services/config';
+import { parallel } from '@utils/parallel';
+import axios from 'axios';
 
 @Service()
 export default class RescueStore extends BaseStore {
@@ -400,14 +403,24 @@ export default class RescueStore extends BaseStore {
 
     try {
       const { error, result } = await this.apiService.patch<any>(rescueApi.customerRejectCurrentCase, params, true);
+      log.info('customerRejectCurrentRescueCase', error, result);
 
       if (error) {
         this.handleError(error);
       } else {
-        await firestore()
-          .collection(firestoreCollection.rescues)
-          .doc(`${result}`)
-          .update({ status: RESCUE_STATUS.REJECTED, customerRejected: true });
+        console.log(NOTI_SERVER, this.currentCustomerProcessingRescue?.garage?.id);
+        await withProgress(
+          parallel(
+            firestore()
+              .collection(firestoreCollection.rescues)
+              .doc(`${result}`)
+              .update({ status: RESCUE_STATUS.REJECTED, customerRejected: true }),
+            axios.put(`${NOTI_SERVER}/rescues/customer-cancel`, {
+              garageId: this.currentCustomerProcessingRescue?.garage?.id,
+              rejectReason: params.rejectReason,
+            }),
+          ),
+        );
         this.handleSuccess();
       }
     } catch (ex) {
@@ -438,7 +451,12 @@ export default class RescueStore extends BaseStore {
   /**
    * garage reject current rescue case
    */
-  public async garageRejectCurrentRescueCase(params: { rejectRescueCaseId: number; rejectReason: string }) {
+  public async garageRejectCurrentRescueCase(params: {
+    customerId: number;
+    rejectRescueCaseId: number;
+    rejectCase: string;
+    rejectReason: string;
+  }) {
     this.startLoading();
     log.info('garageRejectCurrentRescueCase', params);
 
@@ -451,7 +469,15 @@ export default class RescueStore extends BaseStore {
         await firestore()
           .collection(firestoreCollection.rescues)
           .doc(`${result}`)
-          .update({ status: RESCUE_STATUS.REJECTED, garageRejected: true });
+          .update({
+            status: RESCUE_STATUS.REJECTED,
+            garageRejected: true,
+            garageRejectReason: `Lý do: ${params.rejectCase}\nMô tả: ${params.rejectReason}`,
+          });
+        void axios.put(`${NOTI_SERVER}/rescues/garage-reject`, {
+          customerId: params.customerId,
+          rejectReason: params.rejectReason,
+        });
         this.handleSuccess();
       }
     } catch (ex) {

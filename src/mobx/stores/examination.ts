@@ -1,6 +1,5 @@
-import { ApiService } from '@mobx/services/api-service';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { Container, Service } from 'typedi';
+import { Service } from 'typedi';
 import BaseStore from './base-store';
 import { Avatar } from '@models/common';
 
@@ -23,12 +22,13 @@ export default class ExaminationStore extends BaseStore {
   public selectImages = (images: Avatar[]) => {
     runInAction(() => {
       this.images = [...this.images, ...images];
+      console.log(this.images);
     });
   };
 
   public removeImage(index: number) {
     runInAction(() => {
-      this.images.splice(index, 1);
+      this.images = this.images.filter((image, i) => i !== index);
     });
   }
 
@@ -37,4 +37,11 @@ export default class ExaminationStore extends BaseStore {
       this.checkCondition = condition;
     });
   };
+
+  public clear() {
+    runInAction(() => {
+      this.images = [];
+      this.checkCondition = '';
+    });
+  }
 }

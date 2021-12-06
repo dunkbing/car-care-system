@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
-import { Button, Center, Checkbox, Image, Input, ScrollView, Text, View, VStack, HStack } from 'native-base';
+import { Button, Center, Checkbox, Input, ScrollView, Text, View, VStack, HStack } from 'native-base';
 import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 import firestore from '@react-native-firebase/firestore';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
@@ -13,6 +13,7 @@ import { observer } from 'mobx-react';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
 import { rootNavigation } from '@screens/Navigation';
+import { ImageCarousel } from '@components/image';
 
 type AutomotivePartItemProps = {
   id: number;
@@ -150,17 +151,17 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
               fontSize: 12,
             }}
             placeholder={'Giá dịch vụ'}
-            value={`${price}`}
+            value={`${price.toLocaleString()}`}
             isDisabled={disabled}
             onChangeText={(value) => {
-              invoiceStore.editService(id, Number(value));
+              invoiceStore.editService(id, Number(value?.replaceAll(/\D/g, '')));
             }}
             keyboardType='numeric'
           />
           <Text fontSize={16}>đ / {unit}</Text>
         </View>
         <Text mt='1' fontSize={16}>
-          {price * quantity}đ
+          {formatMoney(price * quantity)}
         </Text>
       </View>
     </View>
@@ -219,6 +220,7 @@ const ConfirmButton: React.FC<{
       );
     }
     case INVOICE_STATUS.CUSTOMER_CONFIRM_REPAIR: {
+      enableEditing?.();
       return (
         <Button
           colorScheme='green'
@@ -231,6 +233,7 @@ const ConfirmButton: React.FC<{
                 .update({ status: INVOICE_STATUS.MANAGER_CONFIRM_REPAIR }),
             );
             rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
+            toast.show('Tạo lệnh sửa chữa thành công');
           }}
         >
           Tạo lệnh sửa chữa
@@ -261,7 +264,6 @@ const ConfirmButton: React.FC<{
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(invoiceStore.errorMessage);
-              enableEditing?.();
             } else {
               await invoiceStore.getGarageInvoiceDetail(proposalId);
             }
@@ -385,11 +387,7 @@ const QuotationSuggestion: React.FC<Props> = observer(({ navigation, route }) =>
           <Text bold fontSize='sm' w='80%'>
             {invoiceStore.managerProposalDetail?.carCheckInfo?.checkCondition}
           </Text>
-          <ScrollView horizontal m='1.5'>
-            {invoiceStore.managerProposalDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
-              <Image key={`${index}`} alt='img' source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
-            ))}
-          </ScrollView>
+          <ImageCarousel imageUrls={invoiceStore.managerProposalDetail?.carCheckInfo?.checkCarImages || []} />
         </View>
         <Center>
           <ConfirmButton

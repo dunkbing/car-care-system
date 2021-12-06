@@ -14,6 +14,10 @@ export type GarageModel = {
   location: Location;
   isAnyStaffAvailable?: boolean;
   garageFeedbacks?: Array<CustomerFeedback>;
+  feedbackStat?: {
+    count: number;
+    avgPoint: number;
+  };
 };
 
 export const loginValidationSchema = yup.object({

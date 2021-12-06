@@ -10,8 +10,8 @@ import formatMoney from '@utils/format-money';
 import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
 import RescueStore from '@mobx/stores/rescue';
-import { Image } from 'react-native';
 import { observer } from 'mobx-react';
+import { ImageCarousel } from '@components/image';
 
 type Props = StackScreenProps<RescueStackParams, 'QuotationSuggestion'>;
 
@@ -90,11 +90,7 @@ const QuotationSuggestion: React.FC<Props> = ({ navigation, route }) => {
         <Text bold fontSize='sm' w='80%'>
           {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCondition}
         </Text>
-        <ScrollView horizontal m='1.5'>
-          {invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages?.map((image, index) => (
-            <Image key={`${index}`} source={{ uri: image }} style={{ width: 60, height: 60, marginLeft: 10 }} />
-          ))}
-        </ScrollView>
+        <ImageCarousel imageUrls={invoiceStore.customerInvoiceDetail?.carCheckInfo?.checkCarImages || []} />
         {invoiceStore.customerInvoiceDetail?.status === INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER ? (
           <HStack my='4' justifyContent='space-between'>
             <Button

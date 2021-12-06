@@ -72,7 +72,7 @@ const RescueHistory: React.FC<Props> = ({ navigation }) => {
   return (
     <VStack width='100%'>
       <SearchBar
-        placeholder='Tìm kiếm tên xe'
+        placeholder='Tìm kiếm địa chỉ'
         timeout={500}
         width='90%'
         mt='5'

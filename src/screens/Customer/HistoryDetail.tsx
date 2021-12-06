@@ -108,7 +108,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
           }}
         >
           <MatCommuIcon name='map-marker' size={22} color='#1F87FE' />
-          <Text style={{ marginLeft: 10 }}>{rescue.address}</Text>
+          <Text style={{ marginHorizontal: 10 }}>{rescue.address}</Text>
         </View>
         <View
           style={{
@@ -208,7 +208,15 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
               _text={{ fontSize: 'sm', fontWeight: '700', color: '#206DB6', textDecoration: 'none' }}
               alignSelf='center'
               mt={5}
-              onPress={() => navigation.navigate('EditFeedback', { rescue })}
+              onPress={() =>
+                navigation.navigate('EditFeedback', {
+                  garage: rescue.garage.name,
+                  rescueDetailId: rescue.id,
+                  staffName: `${rescue.staff?.lastName} ${rescue.staff?.firstName}`,
+                  rating: rescue.customerFeedback?.point || 0,
+                  comment: rescue.customerFeedback?.comment || '',
+                })
+              }
             >
               Chỉnh sửa đánh giá
             </Link>

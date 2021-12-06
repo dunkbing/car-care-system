@@ -154,7 +154,7 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
             value={`${price.toLocaleString()}`}
             isDisabled={disabled}
             onChangeText={(value) => {
-              invoiceStore.editService(id, Number(value?.replaceAll(',', '')));
+              invoiceStore.editService(id, Number(value?.replaceAll(/\D/g, '')));
             }}
             keyboardType='numeric'
           />
@@ -233,6 +233,7 @@ const ConfirmButton: React.FC<{
                 .update({ status: INVOICE_STATUS.MANAGER_CONFIRM_REPAIR }),
             );
             rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
+            toast.show('Tạo lệnh sửa chữa thành công');
           }}
         >
           Tạo lệnh sửa chữa

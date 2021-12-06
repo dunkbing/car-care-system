@@ -162,6 +162,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
                 toast.show(`${invoiceStore.errorMessage}`);
               }
               navigation.navigate('Feedback', {
+                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as number,
                 customerName: `${currentStaffProcessingRescue?.customer?.lastName} ${currentStaffProcessingRescue?.customer?.firstName}`,
               });
             }}

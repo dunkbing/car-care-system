@@ -40,7 +40,7 @@ export type ProfileStackParams = {
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
-  EditFeedback: { rescue: Pick<CustomerRescueHistory, 'garage' | 'staff' | 'customerFeedback'> };
+  EditFeedback: { rescueDetailId: number; staffName: string; garage: string; rating: number; comment: string };
   ChangePassword: undefined;
 };
 
@@ -90,7 +90,7 @@ export type GarageHomeOptionStackParams = {
   RepairSuggestion: undefined;
   Payment: { invoiceId: number };
   RejectRequest: { customerId: number };
-  Feedback: undefined | { customerName: string };
+  Feedback: { rescueDetailId: number; customerName: string };
 };
 
 export type RescueStackParams = {
@@ -119,5 +119,5 @@ export type RescueStackParams = {
   RepairSuggestion: { invoiceId: number };
   QuotationSuggestion: { invoiceId: number };
   Payment: undefined;
-  Feedback: undefined;
+  Feedback: { rescueDetailId: number; staffName: string; garage: string };
 };

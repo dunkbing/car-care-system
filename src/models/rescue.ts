@@ -60,6 +60,7 @@ export type GarageRescueHistory = {
     avatarUrl: string;
   };
   customerFeedback: CustomerFeedback | null;
+  checkImageUrls: Array<string>;
   invoiceId: number;
 };
 

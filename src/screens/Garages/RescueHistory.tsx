@@ -13,19 +13,16 @@ import { STORE_STATUS } from '@utils/constants';
 import { formatAMPM } from '@utils/time';
 import AuthStore from '@mobx/stores/auth';
 
-const HistoryView: React.FC<{ onPress: OnPress } & Pick<GarageRescueHistory, 'staff' | 'address' | 'car' | 'rescueCase' | 'createAt'>> = ({
-  onPress,
-  staff,
-  address,
-  createAt,
-}) => {
+const HistoryView: React.FC<
+  { onPress: OnPress } & Pick<GarageRescueHistory, 'customer' | 'address' | 'car' | 'rescueCase' | 'createAt'>
+> = ({ onPress, customer, address, createAt }) => {
   const rescueDate = new Date(createAt);
   return (
     <TouchableOpacity onPress={onPress}>
       <View marginBottom={5} padding={3} bg='white' borderColor='black' borderRadius={5}>
         <View width='100%'>
           <Text mb={4} bold={true} fontSize={20}>
-            {`${staff?.lastName} ${staff?.firstName}`}
+            {`${customer?.lastName} ${customer?.firstName}`}
           </Text>
         </View>
         <View>
@@ -111,7 +108,7 @@ const RescueHistory: React.FC<Props> = ({ navigation, route }) => {
                 navigation.navigate('HistoryDetail', { rescue });
               }}
               car={rescue.car}
-              staff={rescue.staff}
+              customer={rescue.customer}
               rescueCase={rescue.rescueCase}
               createAt={rescue.createAt}
               address={rescue.address}

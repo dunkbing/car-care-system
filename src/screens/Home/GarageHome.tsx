@@ -71,7 +71,7 @@ const ManagerOption: React.FC<{ navigation: StackNavigationProp<GarageHomeOption
         </HStack>
         <HStack space={6} mt='6'>
           <OptionItem
-            name='Lịch sử cứu hộ'
+            name='Lịch sử garage'
             imgSrc={ListImg}
             onPress={() => {
               navigation.navigate('RescueHistory');

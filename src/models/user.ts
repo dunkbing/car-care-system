@@ -90,6 +90,16 @@ export const updateCustomerValidationSchema = yup.object({
   taxCode: yup.string().when(['customerType'], (customerType, schema) => {
     return customerType === CUSTOMER_TYPES.BUSINESS ? schema.required('Không được bỏ trống') : schema;
   }),
+  dateOfBirth: yup.string().test('dateOfBirth', 'Chưa đủ 18 tuổi', (value) => {
+    const today = new Date();
+    const dateOfBirth = new Date(value || '');
+    let age = today.getFullYear() - dateOfBirth.getFullYear();
+    const month = today.getMonth() - dateOfBirth.getMonth();
+    if (month < 0 || (month === 0 && today.getDate() < dateOfBirth.getDate())) {
+      age--;
+    }
+    return age >= 18;
+  }),
 });
 
 export const resetPasswordValidationSchema = yup.object({
@@ -170,7 +180,6 @@ export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> 
 };
 
 export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {
-  dateOfBirth: string;
   gender: Gender;
   avatar?: Avatar;
 };

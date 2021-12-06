@@ -36,7 +36,7 @@ export type ProfileStackParams = {
   CarHistory: { car: CarDetailModel };
   EditCarDetail: { car: CarDetailModel };
   DefineCarModel: { loggedIn: boolean };
-  DefaultGarage: { garageId: number };
+  GarageDetail: { garageId: number; side: 'garage' | 'customer' };
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
@@ -57,7 +57,7 @@ export type GarageTabParams = {
 
 export type GarageHomeOptionStackParams = {
   Home: undefined;
-  MyGarage: { garageId: number };
+  GarageDetail: { garageId: number; side: 'garage' | 'customer' };
   ProposalList: undefined;
   QuotationSuggestion: { invoiceId: number };
   ManageStaffs: undefined | { rescueId: number };

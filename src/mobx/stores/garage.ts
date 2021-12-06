@@ -56,7 +56,7 @@ export default class GarageStore extends BaseStore {
   ) {
     this.startLoading();
     log.info('searchGarages', params);
-    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.getMany, params);
+    const { result, error } = await this.apiService.getPluralWithPagination<GarageModel>(garageApi.searchGarages, params);
 
     if (error) {
       this.handleError(error);
@@ -71,7 +71,7 @@ export default class GarageStore extends BaseStore {
 
   public async get(id: number) {
     this.state = STORE_STATUS.LOADING;
-    const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.getMany}/${id}`);
+    const { result, error } = await this.apiService.get<GarageModel>(`${garageApi.searchGarages}/${id}`);
 
     if (error) {
       this.handleError(error);

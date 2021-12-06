@@ -51,8 +51,8 @@ const CustomerSettings: React.FC<Props> = () => {
                 return;
               }
               rootNavigation.navigate('Profile', {
-                screen: 'DefaultGarage',
-                params: { garageId: (authStore.user as CustomerLoginResponseModel).defaultGarageId as number },
+                screen: 'GarageDetail',
+                params: { garageId: (authStore.user as CustomerLoginResponseModel).defaultGarageId as number, side: 'customer' },
               });
             }}
             icon={<MatCommuIcon name='garage' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}

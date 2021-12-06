@@ -36,10 +36,11 @@ export const feedbackApi = {
 };
 
 export const garageApi = {
-  getMany: 'garages',
-  get: (id: number) => `garages/${id}`,
+  searchGarages: 'garages',
+  getGarageDetail: (id: number) => `garages/${id}`,
+  getCurrentGarage: 'garages/current-garages',
   getCustomers: 'garages/customers',
-  getCustomer: (id: number) => `garages/customers/${id}`,
+  getCustomerDetail: (id: number) => `garages/customers/${id}`,
 };
 
 export const invoiceApi = {

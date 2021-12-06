@@ -34,7 +34,7 @@ export const GarageOptionsStack: React.FC = () => {
     <Stack.Navigator>
       <Stack.Screen name='Home' component={GarageHomeTab} options={{ headerShown: false }} />
       <Stack.Screen
-        name='MyGarage'
+        name='GarageDetail'
         component={GarageDetail}
         options={{
           title: 'Garage của tôi',

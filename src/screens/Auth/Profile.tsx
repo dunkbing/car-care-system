@@ -37,6 +37,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
     uri: user.avatarUrl,
     type: 'image/jpeg',
   });
+  const disabled = authStore.userType === ACCOUNT_TYPES.GARAGE_STAFF;
 
   const imagePickerRef = React.useRef<ImagePicker>(null);
 
@@ -77,7 +78,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
             onSubmit={updateProfile}
             enableReinitialize
           >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
+            {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
               <VStack space={2} mt={3}>
                 <Center>
                   <Image
@@ -91,6 +92,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                     size='xs'
                     mt='1.5'
                     leftIcon={<Ionicons name='cloud-upload-outline' size={15} />}
+                    isDisabled={disabled}
                   >
                     {avatar.uri ? 'Sửa ảnh đại diện' : 'Thêm ảnh đại diện'}
                   </Button>
@@ -105,6 +107,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                   onBlur={handleBlur('fullName')}
                   errorMessage={errors.fullName}
                   keyboardType='ascii-capable'
+                  isDisabled={disabled}
                 />
                 <FormInput
                   isRequired
@@ -116,6 +119,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                   onBlur={handleBlur('phoneNumber')}
                   errorMessage={errors.phoneNumber}
                   keyboardType='number-pad'
+                  isDisabled={disabled}
                 />
                 <FormInput
                   isRequired
@@ -127,14 +131,18 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                   onBlur={handleBlur('email')}
                   errorMessage={errors.email}
                   keyboardType='email-address'
+                  isDisabled={disabled}
                 />
                 <CustomDatePicker
                   isRequired
                   label='Ngày sinh'
-                  value={new Date(values.dateOfBirth)}
+                  value={new Date(values.dateOfBirth || '')}
                   onConfirm={(date) => {
                     handleChange('dateOfBirth')(date.toDateString());
                   }}
+                  isInvalid={!!errors.dateOfBirth}
+                  errorMessage={errors.dateOfBirth}
+                  isDisabled={disabled}
                 />
                 <FormSelect
                   isRequired
@@ -152,6 +160,7 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                     placeholder: 'Giới tính',
                   }}
                   errorMessage={errors.gender}
+                  isDisabled={disabled}
                 />
                 <FormSelect
                   isRequired
@@ -168,17 +177,19 @@ const Profile: React.FC<Props> = ({ navigation }) => {
                     placeholder: 'Loại khách hàng',
                   }}
                   errorMessage={errors.customerType}
+                  isDisabled={disabled}
                 />
                 <FormInput
                   isRequired={values.customerType === CUSTOMER_TYPES.BUSINESS}
                   label='Mã số thuế'
                   placeholder='Nhập mã số thuế'
                   value={values.taxCode}
-                  isInvalid={!isValid}
+                  isInvalid={!!errors.taxCode}
                   onChangeText={handleChange('taxCode')}
                   onBlur={handleBlur('taxCode')}
                   errorMessage={errors.taxCode}
                   keyboardType='default'
+                  isDisabled={disabled}
                 />
                 {authStore.userType === ACCOUNT_TYPES.CUSTOMER && (
                   <Center>

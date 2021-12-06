@@ -62,7 +62,7 @@ export const ProfileStack: React.FC<Props> = () => {
       <ProfileStackNav.Screen name='RescueHistory' component={RescueHistory} options={{ title: 'Lịch sử cứu hộ', ...navHeaderStyle }} />
       <ProfileStackNav.Screen name='HistoryDetail' component={HistoryDetail} options={{ title: 'Lịch sử cứu hộ', ...navHeaderStyle }} />
       <ProfileStackNav.Screen name='EditFeedback' component={Feedback} options={{ title: 'Lịch sử cứu hộ', ...navHeaderStyle }} />
-      <ProfileStackNav.Screen name='ChangePassword' component={ChangePassword} options={{ headerShown: false }} />
+      <ProfileStackNav.Screen name='ChangePassword' component={ChangePassword} options={{ title: 'Đổi mật khẩu', ...navHeaderStyle }} />
     </ProfileStackNav.Navigator>
   );
 };

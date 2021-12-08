@@ -58,11 +58,19 @@ const EditFeedback: React.FC<Props> = observer(({ navigation, route }) => {
           />
           <Button
             onPress={async () => {
-              await feedbackStore.create('garageFeedback', {
-                rescueDetailId: route.params.rescueDetailId,
-                comment,
-                point,
-              });
+              if (route.params.type === 'create') {
+                await feedbackStore.create('feedbackToGarage', {
+                  rescueDetailId: route.params.id,
+                  comment,
+                  point,
+                });
+              } else {
+                await feedbackStore.update('updateFeedbackToGarage', {
+                  feedbackId: route.params.id,
+                  comment,
+                  point,
+                });
+              }
 
               if (feedbackStore.errorMessage) {
                 toast.show(feedbackStore.errorMessage);

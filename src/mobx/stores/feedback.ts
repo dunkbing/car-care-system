@@ -4,7 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { feedbackApi, firestoreCollection } from '@mobx/services/api-types';
-import { FeedbackRequestParams } from '@models/feedback';
+import { CreateFeedbackRequestParams, UpdateFeedbackRequestParams } from '@models/feedback';
 import { log } from '@utils/logger';
 import { RESCUE_STATUS } from '@utils/constants';
 
@@ -19,7 +19,7 @@ export default class FeedbackStore extends BaseStore {
 
   private readonly apiService = Container.get(ApiService);
 
-  public async create(feedbackType: keyof typeof feedbackApi, feedback: FeedbackRequestParams) {
+  public async create(feedbackType: 'feedbackToCustomer' | 'feedbackToGarage', feedback: CreateFeedbackRequestParams) {
     this.startLoading();
 
     try {
@@ -30,6 +30,22 @@ export default class FeedbackStore extends BaseStore {
         throw error;
       }
       await firestore().collection(firestoreCollection.rescues).doc(`${feedback.rescueDetailId}`).update({ status: RESCUE_STATUS.DONE });
+      this.handleSuccess();
+    } catch (e) {
+      this.handleError(e);
+    }
+  }
+
+  public async update(feedbackType: 'updateFeedbackToCustomer' | 'updateFeedbackToGarage', feedback: UpdateFeedbackRequestParams) {
+    this.startLoading();
+
+    try {
+      const { error, result } = await this.apiService.patch(feedbackApi[feedbackType], feedback, true, true);
+      log.info('updateFeedback', result, error, feedback);
+
+      if (error) {
+        throw error;
+      }
       this.handleSuccess();
     } catch (e) {
       this.handleError(e);

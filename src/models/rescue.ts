@@ -81,6 +81,8 @@ export type GarageRescueHistoryDetail = {
   customerFeedback: CustomerFeedback | null;
   status: RESCUE_STATUS;
   invoice: InvoiceHistoryDetail;
+  checkCondition?: string;
+  checkImageUrls?: Array<string>;
 };
 
 export type RescueDetailRequest = {

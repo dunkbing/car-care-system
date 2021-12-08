@@ -10,3 +10,4 @@ export { default as Employees } from './employees.png';
 export { default as ListImg } from './list.png';
 export { default as RequestImg } from './request.png';
 export { default as RepairSuggestionImg } from './repair_suggestion.png';
+export { default as NoImage } from './no-image.png';

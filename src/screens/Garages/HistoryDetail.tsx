@@ -10,6 +10,7 @@ import formatMoney from '@utils/format-money';
 import { ApiService } from '@mobx/services/api-service';
 import { GarageRescueHistoryDetail } from '@models/rescue';
 import { rescueApi } from '@mobx/services/api-types';
+import { ImageCarousel } from '@components/image';
 
 type CategoryDetailProps = {
   name: string;
@@ -173,6 +174,8 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
           >
             Tình trạng xe
           </Text>
+          <Text>{rescueDetail?.checkCondition || 'Không có mô tả tình trạng xe'}</Text>
+          <ImageCarousel imageUrls={rescueDetail?.checkImageUrls || []} />
         </View>
         <View my={5}>
           <Text

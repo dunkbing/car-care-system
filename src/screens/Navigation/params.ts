@@ -40,7 +40,7 @@ export type ProfileStackParams = {
   SearchGarage: undefined;
   RescueHistory: undefined;
   HistoryDetail: { rescue: CustomerRescueHistory };
-  EditFeedback: { rescueDetailId: number; staffName: string; garage: string; rating: number; comment: string };
+  EditFeedback: { id: number; type: 'update' | 'create'; staffName: string; garage: string; rating: number; comment: string };
   ChangePassword: undefined;
 };
 

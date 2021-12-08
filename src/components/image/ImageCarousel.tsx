@@ -4,6 +4,7 @@ import { ScrollView, View } from 'native-base';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageViewer from 'react-native-image-zoom-viewer-fixed';
 import ProgressiveImage from './ProgressiveImage';
+import { NoImage } from '@assets/images';
 
 const ImageCarousel: React.FC<{
   imageUrls: string[];
@@ -72,6 +73,8 @@ const ImageCarousel: React.FC<{
           }}
           index={imageViewState.index}
           renderIndicator={() => <ActivityIndicator />}
+          failImageSource={NoImage}
+          loadingRender={() => <ActivityIndicator />}
         />
       </Modal>
     </View>

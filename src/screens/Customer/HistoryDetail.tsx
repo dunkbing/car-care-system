@@ -11,6 +11,7 @@ import { GarageRescueHistoryDetail } from '@models/rescue';
 import Container from 'typedi';
 import formatMoney from '@utils/format-money';
 import { RESCUE_STATUS } from '@utils/constants';
+import { ImageCarousel } from '@components/image';
 
 type CategoryDetailProps = {
   name: string;
@@ -173,6 +174,17 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                 )}
               </View>
             </View>
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 16,
+                marginTop: 15,
+              }}
+            >
+              Tình trạng xe
+            </Text>
+            <Text>{rescueDetail?.checkCondition || 'Không có mô tả tình trạng xe'}</Text>
+            <ImageCarousel imageUrls={rescueDetail?.checkImageUrls || []} />
             <View my={5}>
               <Text
                 style={{
@@ -211,7 +223,8 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
               onPress={() =>
                 navigation.navigate('EditFeedback', {
                   garage: rescue.garage.name,
-                  rescueDetailId: rescue.id,
+                  id: rescue.customerFeedback?.id || rescue.id,
+                  type: rescue.customerFeedback ? 'update' : 'create',
                   staffName: `${rescue.staff?.lastName} ${rescue.staff?.firstName}`,
                   rating: rescue.customerFeedback?.point || 0,
                   comment: rescue.customerFeedback?.comment || '',

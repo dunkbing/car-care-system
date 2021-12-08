@@ -223,7 +223,8 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
               onPress={() =>
                 navigation.navigate('EditFeedback', {
                   garage: rescue.garage.name,
-                  rescueDetailId: rescue.id,
+                  id: rescue.customerFeedback?.id || rescue.id,
+                  type: rescue.customerFeedback ? 'update' : 'create',
                   staffName: `${rescue.staff?.lastName} ${rescue.staff?.firstName}`,
                   rating: rescue.customerFeedback?.point || 0,
                   comment: rescue.customerFeedback?.comment || '',

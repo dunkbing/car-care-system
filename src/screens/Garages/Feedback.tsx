@@ -67,7 +67,7 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
           />
           <Button
             onPress={async () => {
-              await feedbackStore.create('customerFeedback', {
+              await feedbackStore.create('feedbackToCustomer', {
                 rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as any,
                 comment,
                 point,

@@ -31,8 +31,10 @@ export const customerApi = {
 };
 
 export const feedbackApi = {
-  customerFeedback: 'feedback/customers', // Create a feedback from garage to customer
-  garageFeedback: 'feedback/garages', // Create a feedback from customer to garag
+  feedbackToCustomer: 'feedback/customers', // Create a feedback from garage to customer
+  updateFeedbackToCustomer: 'feedback/update/customers', // Update a feedback from garage to customer
+  feedbackToGarage: 'feedback/garages', // Create a feedback from customer to garag
+  updateFeedbackToGarage: 'feedback/update/garages', // Update a feedback from customer to garage
 };
 
 export const garageApi = {

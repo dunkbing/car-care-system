@@ -68,7 +68,7 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
           <Button
             onPress={async () => {
               const rescueDetailId = rescueStore.currentCustomerProcessingRescue?.id as number;
-              await feedbackStore.create('garageFeedback', {
+              await feedbackStore.create('feedbackToGarage', {
                 rescueDetailId,
                 comment,
                 point,

@@ -108,8 +108,9 @@ export const serviceApi = {
 
 export const staffApi = {
   create: 'staffs',
-  getMany: 'staffs',
   managerUpdate: 'staffs', // Manager update staff info
+  getMany: 'staffs',
+  changePassword: 'staffs/passwords',
   delete: (id: number) => `staffs/${id}`,
   get: (id: number) => `staffs/${id}`,
 };

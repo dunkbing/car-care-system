@@ -87,6 +87,7 @@ export default class AuthStore extends BaseStore {
         }
       }
     } catch (e) {
+      console.log(e);
       this.handleError(e);
     }
   }

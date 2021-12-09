@@ -53,7 +53,6 @@ export default class RescueStore extends BaseStore {
       examineCar: action,
       getRescueCases: action,
     });
-    void this.getHistories({ keyword: '' });
   }
 
   private readonly apiService = Container.get(ApiService);

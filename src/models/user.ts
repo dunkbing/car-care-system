@@ -51,8 +51,10 @@ export const loginValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(orRegex(regexes.email, regexes.phone), 'Vui lòng nhập email hoặc số điện thoại hợp lệ'),
-  password: yup.string().required('Không được bỏ trống'),
-  // .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
 });
 
 export const registerValidationSchema = yup.object({
@@ -107,10 +109,22 @@ export const resetPasswordValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
-  confirmPassword: yup
+  confirmPassword: yup.string().when('password', {
+    is: (val: string | any[]) => (val && val.length > 0 ? true : false),
+    then: yup.string().oneOf([yup.ref('password')], 'Mật khẩu không trùng khớp'),
+  }),
+});
+
+export const updatePasswordValidationSchema = yup.object({
+  oldPassword: yup
     .string()
-    .required('Vui lòng xác nhận mật khẩu')
-    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  newPassword: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  confirmPassword: yup.string().oneOf([yup.ref('newPassword'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -185,3 +199,5 @@ export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValida
 };
 
 export type ResetPasswordQueryModel = yup.InferType<typeof resetPasswordValidationSchema>;
+
+export type UpdatePasswordQueryModel = yup.InferType<typeof updatePasswordValidationSchema>;

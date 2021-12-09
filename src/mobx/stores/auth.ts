@@ -15,7 +15,7 @@ import { setHeader, withProgress } from '@mobx/services/config';
 import GarageStore from './garage';
 import { ApiService } from '@mobx/services/api-service';
 import BaseStore from './base-store';
-import { authApi, firestoreCollection } from '@mobx/services/api-types';
+import { authApi, customerApi, firestoreCollection } from '@mobx/services/api-types';
 
 @Service()
 export default class AuthStore extends BaseStore {
@@ -23,6 +23,7 @@ export default class AuthStore extends BaseStore {
     super();
     makeObservable(this, {
       user: observable,
+      registeredUser: observable,
       userType: observable,
       login: action,
       register: action,
@@ -32,6 +33,7 @@ export default class AuthStore extends BaseStore {
   private readonly apiService = Container.get(ApiService);
   private readonly garageStore = Container.get(GarageStore);
   user: User | null = null;
+  registeredUser: (LoginQueryModel & { garageId?: number }) | null = null;
   userType: ACCOUNT_TYPES | undefined | null = ACCOUNT_TYPES.CUSTOMER;
 
   public async login(loginQuery: LoginQueryModel, userType: ACCOUNT_TYPES = ACCOUNT_TYPES.CUSTOMER) {
@@ -92,6 +94,35 @@ export default class AuthStore extends BaseStore {
     }
   }
 
+  public async customerLoginAfterRegister() {
+    const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(
+      authApi.customerLogin,
+      this.registeredUser,
+      true,
+    );
+    if (error) {
+      this.handleError(error);
+    } else {
+      const token = await messaging().getToken();
+      await withProgress(
+        firestore().collection(firestoreCollection.customerDeviceTokens).doc(`${user?.id}`).set(
+          {
+            token,
+          },
+          { merge: true },
+        ),
+      );
+      runInAction(() => {
+        this.user = user;
+        this.state = STORE_STATUS.SUCCESS;
+        this.userType = ACCOUNT_TYPES.CUSTOMER;
+        this.apiService.accessToken = user?.accessToken;
+        setHeader('Authorization', `Bearer ${this.user?.accessToken as string}`);
+      });
+      await withProgress(this.apiService.patch(customerApi.setDefaultGarage, { garageId: this.registeredUser?.garageId }, true));
+    }
+  }
+
   public async register(registerData: RegisterQueryModel) {
     const date = new Date(registerData.dateOfBirth);
     const year = date.getFullYear();
@@ -111,7 +142,22 @@ export default class AuthStore extends BaseStore {
       this.handleError(error);
     } else {
       this.handleSuccess();
+      runInAction(() => {
+        this.registeredUser = {
+          emailOrPhone: registerData.email || registerData.phoneNumber,
+          password: registerData.password,
+        };
+      });
     }
+  }
+
+  public selectGarage(garageId: number) {
+    runInAction(() => {
+      this.registeredUser = {
+        ...this.registeredUser,
+        garageId,
+      } as any;
+    });
   }
 
   // send verification code
@@ -150,6 +196,7 @@ export default class AuthStore extends BaseStore {
   public logout() {
     runInAction(() => {
       this.user = null;
+      this.registeredUser = null;
       this.state = STORE_STATUS.IDLE;
       this.userType = null;
       this.apiService.accessToken = null;

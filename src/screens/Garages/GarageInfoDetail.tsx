@@ -14,6 +14,7 @@ import AuthStore from '@mobx/stores/auth';
 import { ACCOUNT_TYPES } from '@utils/constants';
 import { ApiService } from '@mobx/services/api-service';
 import { garageApi } from '@mobx/services/api-types';
+import { formatAMPM } from '@utils/time';
 
 const { height } = Dimensions.get('screen');
 
@@ -53,6 +54,7 @@ const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber
 };
 
 const GarageFeedback: React.FC<{ username: string; rating: number; content: string; time: string }> = (props) => {
+  const date = new Date(props.time);
   return (
     <VStack space={1} my='2'>
       <HStack space={3}>
@@ -62,7 +64,7 @@ const GarageFeedback: React.FC<{ username: string; rating: number; content: stri
         <AirbnbRating count={5} size={20} defaultRating={props.rating} showRating={false} isDisabled />
       </HStack>
       {props.content && <Text fontSize='md'>{props.content}</Text>}
-      <Text fontSize='sm'>{props.time}</Text>
+      <Text fontSize='sm'>{`${date.toLocaleDateString('vi-VN')} ${formatAMPM(date)}`}</Text>
     </VStack>
   );
 };
@@ -88,6 +90,7 @@ const GarageDetail: React.FC<Props> = ({ navigation, route }) => {
   function changeDefaultGarage() {
     navigation.navigate('SearchGarage');
   }
+
   return (
     <VStack h='100%' alignItems='center' bg='white'>
       <ScrollView w='100%' h={height * 0.6} contentContainerStyle={{ paddingBottom: 110 }}>
@@ -110,10 +113,10 @@ const GarageDetail: React.FC<Props> = ({ navigation, route }) => {
             {garage?.garageFeedbacks?.map((feedback) => (
               <GarageFeedback
                 key={feedback.id}
-                username='Nam Anh'
+                username={`${feedback.createdBy}`}
                 rating={feedback.point}
                 content={feedback.comment}
-                time='15-10-2021 14:29'
+                time={feedback.modifiedAt}
               />
             ))}
           </VStack>

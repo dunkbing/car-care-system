@@ -16,7 +16,7 @@ const RejectRequest: React.FC<Props> = ({ navigation, route }) => {
 
   async function confirmCancel() {
     if (!selectedCase) {
-      toast.show('Vui lòng chọn lý do hủy yêu cầu');
+      toast.show('Vui lòng mô tả lý do từ chối');
       return;
     }
 

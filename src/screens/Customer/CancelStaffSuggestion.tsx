@@ -15,7 +15,7 @@ const CancelStaffSuggestion: React.FC<Props> = observer(({ navigation, route }) 
 
   async function confirmCancel() {
     if (!reason) {
-      toast.show('Vui lòng chọn lý do hủy yêu cầu');
+      toast.show('Vui lòng mô tả lý do từ chối');
       return;
     }
 

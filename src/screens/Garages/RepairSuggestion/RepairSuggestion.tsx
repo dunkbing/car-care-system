@@ -23,6 +23,8 @@ import { rootNavigation } from '@screens/Navigation';
 import { Avatar } from '@models/common';
 import ExaminationStore from '@mobx/stores/examination';
 import { ImageCarousel } from '@components/image';
+import { DialogStore } from '@mobx/stores';
+import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 
 enum CategoryType {
   AUTOMOTIVE_PART,
@@ -70,7 +72,7 @@ const CategoryDetail: React.FC<CategoryDetailProps> = observer((props) => {
           max={300}
           min={1}
           step={1}
-          initialValue={1}
+          initialValue={quantity || 1}
           width='30%'
           height={35}
           buttonFontSize={15}
@@ -109,6 +111,7 @@ const ConfirmButton: React.FC<{
   const invoiceStore = Container.get(InvoiceStore);
   const automotivePartStore = Container.get(AutomotivePartStore);
   const serviceStore = Container.get(ServiceStore);
+  const dialogStore = Container.get(DialogStore);
 
   const [status, setStatus] = useState(-1);
   const [invoiceId, setInvoiceId] = useState(-1);
@@ -126,14 +129,27 @@ const ConfirmButton: React.FC<{
           .doc(`${result.invoiceId}`)
           .onSnapshot((snapShot) => {
             if (snapShot.exists) {
-              const invoice = snapShot.data() as { status: number };
+              const invoice = snapShot.data() as { status: number; rejectProposalReason: string };
               setStatus(invoice.status);
+              if (invoice.rejectProposalReason) {
+                dialogStore.openMsgDialog({
+                  title: 'Đề xuất bị từ chối',
+                  message: invoice.rejectProposalReason,
+                  type: DIALOG_TYPE.CONFIRM,
+                  onAgreed: () => {
+                    void firestore()
+                      .collection(firestoreCollection.invoices)
+                      .doc(`${result.invoiceId}`)
+                      .update({ rejectProposalReason: '' });
+                  },
+                });
+              }
             }
           });
       }
     };
     void fetchData();
-  }, [invoiceStore, rescueStore.currentStaffProcessingRescue?.id, status]);
+  }, [dialogStore, invoiceStore, rescueStore.currentStaffProcessingRescue?.id, status]);
 
   // #region Handle button
   const getProposalData = useCallback(() => {
@@ -160,6 +176,10 @@ const ConfirmButton: React.FC<{
       );
     }
     case INVOICE_STATUS.CUSTOMER_CONFIRMED_PROPOSAL: {
+      dialogStore.openMsgDialog({
+        message: 'Khách hàng đã xác nhận đề xuất',
+        type: DIALOG_TYPE.CONFIRM,
+      });
       disableEditing?.();
       return (
         <Button

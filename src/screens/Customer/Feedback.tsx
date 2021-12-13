@@ -7,7 +7,6 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { AirbnbRating } from 'react-native-ratings';
 
 import FeedbackStore from '@mobx/stores/feedback';
-import RescueStore from '@mobx/stores/rescue';
 import { RescueStackParams } from '@screens/Navigation/params';
 import toast from '@utils/toast';
 
@@ -18,7 +17,6 @@ function preventGoingBack(e: any) {
 }
 
 const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
-  const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
 
   const [comment, setComment] = React.useState('');
@@ -67,21 +65,19 @@ const Feedback: React.FC<Props> = observer(({ navigation, route }) => {
           />
           <Button
             onPress={async () => {
-              const rescueDetailId = rescueStore.currentCustomerProcessingRescue?.id as number;
               await feedbackStore.create('feedbackToGarage', {
-                rescueDetailId,
+                rescueDetailId: route.params.rescueDetailId,
                 comment,
                 point,
               });
 
               if (feedbackStore.errorMessage) {
                 toast.show(feedbackStore.errorMessage);
-              } else {
-                navigation.removeListener('beforeRemove', preventGoingBack);
-                navigation.goBack();
-                navigation.goBack();
-                toast.show('Đã gửi phản hồi');
               }
+              navigation.removeListener('beforeRemove', preventGoingBack);
+              navigation.goBack();
+              navigation.goBack();
+              toast.show('Đã gửi phản hồi');
             }}
             style={{
               marginVertical: 50,

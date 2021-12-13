@@ -1,4 +1,5 @@
 import { STORE_STATUS } from '@utils/constants';
+import { log } from '@utils/logger';
 import { makeObservable, observable, runInAction } from 'mobx';
 
 export default class BaseStore {
@@ -13,6 +14,7 @@ export default class BaseStore {
   }
 
   protected handleError(error: Error | any) {
+    log.error(error);
     runInAction(() => {
       this.state = STORE_STATUS.ERROR;
     });

@@ -185,17 +185,14 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
             </Text>
             <Text>{rescueDetail?.checkCondition || 'Không có mô tả tình trạng xe'}</Text>
             <ImageCarousel imageUrls={rescueDetail?.checkImageUrls || []} />
-            <View my={5}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: 22,
-                  textAlign: 'right',
-                }}
-              >
+            <VStack mt='3' space={2}>
+              <Text bold fontSize='lg' textAlign='right'>
+                Thuế GTGT (10%): {formatMoney(Number(rescueDetail?.invoice?.total) - Number(rescueDetail?.invoice?.totalBeforeTax))}
+              </Text>
+              <Text bold fontSize='lg' textAlign='right'>
                 Tổng: {formatMoney(rescueDetail?.invoice?.total)}
               </Text>
-            </View>
+            </VStack>
             <View>
               <Text
                 style={{

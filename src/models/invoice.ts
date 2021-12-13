@@ -49,6 +49,7 @@ export type InvoiceProposal = {
 export type InvoiceHistoryDetail = {
   id: number;
   total: number;
+  totalBeforeTax: number;
   status: INVOICE_STATUS;
   checkImageUrls: Array<Avatar> | null;
   serviceInvoices: Array<{

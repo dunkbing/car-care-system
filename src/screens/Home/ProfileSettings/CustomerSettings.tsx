@@ -5,7 +5,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MatCommuIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { observer } from 'mobx-react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { rootNavigation } from '@screens/Navigation/roots';
 import { CustomerTabParams } from '@screens/Navigation/params';
@@ -71,10 +70,8 @@ const CustomerSettings: React.FC<Props> = () => {
           />
           <OptionItem
             text='Đăng xuất'
-            onPress={async () => {
+            onPress={() => {
               authStore.logout();
-              await AsyncStorage.removeItem('@auth:user');
-              await AsyncStorage.removeItem('@auth:userSide');
             }}
             icon={<MatCommuIcon name='logout' style={{ alignSelf: 'center' }} size={24} color='#4c85e0' />}
           />

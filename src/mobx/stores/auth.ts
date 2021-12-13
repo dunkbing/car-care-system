@@ -2,6 +2,7 @@ import Container, { Service } from 'typedi';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CustomerLoginResponseModel,
   GarageLoginResponseModel,
@@ -94,6 +95,11 @@ export default class AuthStore extends BaseStore {
     }
   }
 
+  public async saveToLocal(user: any, side: 'customer' | 'garage') {
+    await AsyncStorage.setItem('@auth:user', JSON.stringify(user));
+    await AsyncStorage.setItem('@auth:userSide', JSON.stringify({ userSide: side }));
+  }
+
   public async customerLoginAfterRegister() {
     const { result: user, error } = await this.apiService.post<CustomerLoginResponseModel>(
       authApi.customerLogin,
@@ -128,7 +134,7 @@ export default class AuthStore extends BaseStore {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    const { error } = await this.apiService.post<RegisterResponseModel>(
+    const { error, result } = await this.apiService.post<RegisterResponseModel>(
       authApi.register,
       { ...registerData, dateOfBirth: `${year}/${month}/${day}` },
       true,
@@ -141,13 +147,14 @@ export default class AuthStore extends BaseStore {
       });
       this.handleError(error);
     } else {
-      this.handleSuccess();
       runInAction(() => {
         this.registeredUser = {
           emailOrPhone: registerData.email || registerData.phoneNumber,
           password: registerData.password,
         };
+        this.apiService.accessToken = result?.accessToken;
       });
+      this.handleSuccess();
     }
   }
 
@@ -201,6 +208,8 @@ export default class AuthStore extends BaseStore {
       this.userType = null;
       this.apiService.accessToken = null;
     });
+    void AsyncStorage.removeItem('@auth:user');
+    void AsyncStorage.removeItem('@auth:userSide');
   }
 
   public async getDetail() {

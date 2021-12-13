@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import { UpdatePasswordQueryModel, updatePasswordValidationSchema } from '@models/user';
 import Container from 'typedi';
 import { ApiService } from '@mobx/services/api-service';
-import { staffApi } from '@mobx/services/api-types';
+import { customerApi, staffApi } from '@mobx/services/api-types';
 import { AuthStore } from '@mobx/stores';
 import { ACCOUNT_TYPES } from '@utils/constants';
 import toast from '@utils/toast';
@@ -24,13 +24,17 @@ const ChangePassword: React.FC<Props> = ({ navigation }) => {
     log.info('ChangePassword.save', values);
     try {
       if (authStore.userType === ACCOUNT_TYPES.CUSTOMER) {
-        // TODO: change password for customer
+        const { error } = await apiService.put(customerApi.changePassword, values, true);
+        if (error) {
+          throw error;
+        }
       } else {
         const { error } = await apiService.put(staffApi.changePassword, values, true);
         if (error) {
           throw error;
         }
       }
+      toast.show('Đổi mật khẩu thành công');
       if (navigation.canGoBack()) {
         navigation.goBack();
       }

@@ -13,6 +13,7 @@ import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 import { BackHandler } from 'react-native';
 import { firestoreCollection } from '@mobx/services/api-types';
+import { log } from '@utils/logger';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
@@ -35,8 +36,10 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
       .collection(firestoreCollection.invoices)
       .doc(`${invoiceId}`)
       .onSnapshot((snapShot) => {
+        log.info('invoice status', snapShot.data()?.status, invoiceId);
         if (snapShot.exists) {
           const invoice = snapShot.data() as { status: number };
+          log.info('invoice', invoice);
           setInvoiceStatus(invoice.status);
         }
         void invoiceStore.getProposalDetail(invoiceId);
@@ -138,9 +141,15 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             </HStack>
           </VStack>
         ))}
-        <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(invoiceStore.garageInvoiceDetail?.total || 0)}
-        </Text>
+        <VStack mt='5' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%):{' '}
+            {formatMoney(Number(invoiceStore.garageInvoiceDetail?.total) - Number(invoiceStore.garageInvoiceDetail?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
+            Tổng: {formatMoney(invoiceStore.garageInvoiceDetail?.total)}
+          </Text>
+        </VStack>
         {invoiceStatus !== INVOICE_STATUS.CUSTOMER_CONFIRM_PAID ? (
           <Button mt='10' mb='5' isLoading isDisabled>
             Vui lòng chờ khách hàng thanh toán

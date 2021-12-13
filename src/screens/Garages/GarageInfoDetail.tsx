@@ -43,9 +43,9 @@ const GarageInfo: React.FC<Partial<GarageModel>> = ({ name, address, phoneNumber
             </HStack>
           </TouchableOpacity>
           <HStack alignItems='center' space={1}>
-            <Text fontSize='lg'>{`${feedbackStat?.avgPoint}`}</Text>
-            <AirbnbRating count={5} size={20} defaultRating={feedbackStat?.avgPoint} showRating={false} isDisabled />
-            <Text fontSize='lg'>({`${feedbackStat?.count}`})</Text>
+            <Text fontSize='lg'>{`${feedbackStat?.avgPoint || 0}`}</Text>
+            <AirbnbRating count={5} size={20} defaultRating={feedbackStat?.avgPoint || 0} showRating={false} isDisabled />
+            <Text fontSize='lg'>({`${feedbackStat?.count || 0}`})</Text>
           </HStack>
         </HStack>
       </Center>

@@ -197,7 +197,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
           }
 
           if (invoiceStatus === INVOICE_STATUS.CUSTOMER_CONFIRM_PAID) {
-            navigation.replace('Payment', { invoiceId });
+            navigation.replace('Payment', { invoiceId, rescueId: rescueStore.currentStaffProcessingRescue?.id as number });
           }
 
           if (garageFeedback) {
@@ -318,7 +318,7 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             });
             const { invoiceId } = (await firestore().collection(firestoreCollection.rescues).doc(doc).get()).data() as any;
             await invoiceStore.getGarageInvoiceDetail(invoiceId);
-            navigation.replace('Payment', { invoiceId });
+            navigation.replace('Payment', { invoiceId, rescueId: rescueStore.currentStaffProcessingRescue?.id as number });
           }}
         >
           <Text bold color='white' fontSize='lg'>

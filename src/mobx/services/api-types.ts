@@ -28,7 +28,7 @@ export const customerApi = {
   setDefaultGarage: 'customers/default-garage',
   updateInfo: 'customers',
   detail: 'customers',
-  changePassword: 'customers/change-passwords',
+  changePassword: 'customers/passwords',
 };
 
 export const feedbackApi = {

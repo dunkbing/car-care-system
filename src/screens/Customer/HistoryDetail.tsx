@@ -53,14 +53,16 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
   const [rescueDetail, setRescueDetail] = React.useState<GarageRescueHistoryDetail>();
 
   useEffect(() => {
-    if (rescue.id) {
-      void apiService.get<GarageRescueHistoryDetail>(rescueApi.customerHistoryDetail(rescue.id), {}, true).then(({ result }) => {
-        if (result) {
-          setRescueDetail(result);
-        }
-      });
-    }
-  }, [apiService, rescue.id]);
+    return navigation.addListener('focus', () => {
+      if (rescue.id) {
+        void apiService.get<GarageRescueHistoryDetail>(rescueApi.customerHistoryDetail(rescue.id), {}, true).then(({ result }) => {
+          if (result) {
+            setRescueDetail(result);
+          }
+        });
+      }
+    });
+  }, [apiService, navigation, rescue.id]);
 
   return (
     <ScrollView>
@@ -200,9 +202,9 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                   fontWeight: 'bold',
                 }}
               >
-                Đánh giá của khách hàng
+                Đánh giá của bạn
               </Text>
-              <AirbnbRating defaultRating={rescue.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
+              <AirbnbRating defaultRating={rescueDetail?.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
               <Text
                 style={{
                   marginTop: 10,
@@ -210,7 +212,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                 }}
                 textAlign='justify'
               >
-                {rescue.customerFeedback?.comment}
+                {`${rescueDetail?.customerFeedback?.comment}`}
               </Text>
             </View>
             <Link

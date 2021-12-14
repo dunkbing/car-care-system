@@ -29,13 +29,13 @@ const ConfirmButton: React.FC = observer(() => {
       ).data() as { invoiceId: number };
       firestore()
         .collection(firestoreCollection.invoices)
-        .doc(`${result.invoiceId}`)
+        .doc(`${result?.invoiceId}`)
         .onSnapshot((snapShot) => {
           if (snapShot.exists) {
             const invoice = snapShot.data() as { status: number };
             setStatus(invoice.status);
           }
-          void invoiceStore.getProposalDetail(result.invoiceId);
+          void invoiceStore.getProposalDetail(result?.invoiceId);
         });
     };
     void fetchData();
@@ -59,7 +59,7 @@ const ConfirmButton: React.FC = observer(() => {
             await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
             await firestore()
               .collection(firestoreCollection.invoices)
-              .doc(`${result.invoiceId}`)
+              .doc(`${result?.invoiceId}`)
               .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRM_PAID });
             await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).update({
               garageConfirm: true,
@@ -98,7 +98,7 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#region hooks
   useEffect(() => {
     const fetchData = async () => {
-      const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+      const { invoiceId } = ((await firebaseStore.get<{ invoiceId: number }>()) as any) || {};
       await invoiceStore.getCustomerInvoiceDetail(invoiceId);
     };
     void fetchData();
@@ -211,9 +211,15 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             </HStack>
           </VStack>
         ))}
-        <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(customerInvoiceDetail?.total || 0)}
-        </Text>
+        <VStack mt='5' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%):{' '}
+            {formatMoney(Number(customerInvoiceDetail?.total) - Number(invoiceStore.customerInvoiceDetail?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
+            Tổng: {formatMoney(customerInvoiceDetail?.total)}
+          </Text>
+        </VStack>
         <ConfirmButton />
       </ScrollView>
     </VStack>

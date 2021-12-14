@@ -1,5 +1,4 @@
 import FeedbackStore from '@mobx/stores/feedback';
-import RescueStore from '@mobx/stores/rescue';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
@@ -18,7 +17,6 @@ function preventGoingBack(e: any) {
 }
 
 const Feedback: React.FC<Props> = ({ navigation, route }) => {
-  const rescueStore = Container.get(RescueStore);
   const feedbackStore = Container.get(FeedbackStore);
 
   const [comment, setComment] = useState('');
@@ -68,12 +66,13 @@ const Feedback: React.FC<Props> = ({ navigation, route }) => {
           <Button
             onPress={async () => {
               await feedbackStore.create('feedbackToCustomer', {
-                rescueDetailId: rescueStore.currentStaffProcessingRescue?.id as any,
+                rescueDetailId: route.params.rescueDetailId,
                 comment,
                 point,
               });
               navigation.removeListener('beforeRemove', preventGoingBack);
               rootNavigation.navigate('GarageHomeStack', { screen: 'Home' });
+              toast.show('Đã gửi phản hồi');
 
               if (feedbackStore.errorMessage) {
                 toast.show(feedbackStore.errorMessage);

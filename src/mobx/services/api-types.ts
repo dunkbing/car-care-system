@@ -28,12 +28,13 @@ export const customerApi = {
   setDefaultGarage: 'customers/default-garage',
   updateInfo: 'customers',
   detail: 'customers',
+  changePassword: 'customers/change-passwords',
 };
 
 export const feedbackApi = {
   feedbackToCustomer: 'feedback/customers', // Create a feedback from garage to customer
   updateFeedbackToCustomer: 'feedback/update/customers', // Update a feedback from garage to customer
-  feedbackToGarage: 'feedback/garages', // Create a feedback from customer to garag
+  feedbackToGarage: 'feedback/garages', // Create a feedback from customer to garage
   updateFeedbackToGarage: 'feedback/update/garages', // Update a feedback from customer to garage
 };
 

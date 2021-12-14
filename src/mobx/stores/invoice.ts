@@ -69,7 +69,7 @@ export default class InvoiceStore extends BaseStore {
         await firestore()
           .collection(firestoreCollection.invoices)
           .doc(`${proposal.id}`)
-          .update({ status: INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER });
+          .update({ status: INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER, rejectQuotationReason: '' });
         this.handleSuccess();
       }
     } catch (e) {
@@ -173,7 +173,10 @@ export default class InvoiceStore extends BaseStore {
           .collection(firestoreCollection.rescues)
           .doc(`${this.rescueStore.currentStaffProcessingRescue?.id}`)
           .update({ invoiceId: result?.id });
-        await firestore().collection(firestoreCollection.invoices).doc(`${result?.id}`).set({ status: result?.status });
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${result?.id}`)
+          .set({ status: result?.status, rejectProposalReason: '' });
         this.handleSuccess();
       }
     } catch (e) {
@@ -198,7 +201,7 @@ export default class InvoiceStore extends BaseStore {
         await firestore()
           .collection(firestoreCollection.invoices)
           .doc(`${proposal.invoiceId}`)
-          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER });
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_CUSTOMER, rejectProposalReason: '' });
         this.handleSuccess();
       }
     } catch (e) {
@@ -386,7 +389,10 @@ export default class InvoiceStore extends BaseStore {
       if (error) {
         this.handleError(error);
       } else {
-        await firestore().collection(firestoreCollection.invoices).doc(`${invoiceId}`).update({ status: INVOICE_STATUS.DRAFT });
+        await firestore()
+          .collection(firestoreCollection.invoices)
+          .doc(`${invoiceId}`)
+          .set({ status: INVOICE_STATUS.DRAFT, rejectProposalReason: rejectReason }, { merge: true });
         this.handleSuccess();
       }
     } catch (e) {
@@ -412,7 +418,7 @@ export default class InvoiceStore extends BaseStore {
         await firestore()
           .collection(firestoreCollection.invoices)
           .doc(`${invoiceId}`)
-          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER });
+          .update({ status: INVOICE_STATUS.SENT_PROPOSAL_TO_MANAGER, rejectQuotationReason: rejectReason });
         this.handleSuccess();
       }
     } catch (e) {

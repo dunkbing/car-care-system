@@ -14,6 +14,8 @@ import { firestoreCollection } from '@mobx/services/api-types';
 import { withProgress } from '@mobx/services/config';
 import { rootNavigation } from '@screens/Navigation';
 import { ImageCarousel } from '@components/image';
+import { DialogStore } from '@mobx/stores';
+import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
 
 type AutomotivePartItemProps = {
   id: number;
@@ -61,7 +63,7 @@ const AutomotivePartItem: React.FC<AutomotivePartItemProps> = observer((props) =
         style={{
           backgroundColor: 'white',
           borderColor: 'grey',
-          height: 30,
+          height: 40,
           width: '100%',
           fontSize: 12,
         }}
@@ -118,7 +120,7 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
         style={{
           backgroundColor: 'white',
           borderColor: 'grey',
-          height: 30,
+          height: 40,
           width: '100%',
           fontSize: 12,
         }}
@@ -146,7 +148,7 @@ const ServiceItem: React.FC<ServiceItemProps> = observer((props) => {
             style={{
               backgroundColor: 'white',
               borderColor: 'grey',
-              height: 30,
+              height: 35,
               width: 80,
               fontSize: 12,
             }}
@@ -180,9 +182,14 @@ const TotalPay: React.FC = observer(() => {
       .reduce((a, b) => a + b, 0) ?? 0;
   const total = partTotal + serviceTotal;
   return (
-    <View alignItems='flex-end' my='10' py='15'>
-      <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Tổng: {formatMoney(total)}</Text>
-    </View>
+    <VStack mt='3' space={2}>
+      <Text bold fontSize='lg' textAlign='right'>
+        Thuế GTGT (10%): {formatMoney(total * 0.1)}
+      </Text>
+      <Text bold fontSize='lg' textAlign='right'>
+        Tổng: {formatMoney(total * 1.1)}
+      </Text>
+    </VStack>
   );
 });
 
@@ -193,6 +200,7 @@ const ConfirmButton: React.FC<{
   navigation: StackNavigationProp<GarageHomeOptionStackParams, 'QuotationSuggestion'>;
 }> = observer(({ proposalId, enableEditing, disableEditing }) => {
   const invoiceStore = Container.get(InvoiceStore);
+  const dialogStore = Container.get(DialogStore);
 
   const [invoiceStatus, setInvoiceStatus] = useState(invoiceStore.garageInvoiceDetail?.status);
 
@@ -203,12 +211,19 @@ const ConfirmButton: React.FC<{
       .onSnapshot((snapshot) => {
         if (!snapshot.exists) return;
 
-        const { status } = snapshot.data() || {};
+        const { status, rejectQuotationReason } = snapshot.data() || {};
+        if (rejectQuotationReason) {
+          dialogStore.openMsgDialog({
+            title: 'Đề xuất bị từ chối',
+            message: `${rejectQuotationReason}`,
+            type: DIALOG_TYPE.CONFIRM,
+          });
+        }
         if (status !== undefined) {
           setInvoiceStatus(status);
         }
       });
-  }, [proposalId]);
+  }, [dialogStore, proposalId]);
 
   switch (invoiceStatus) {
     case INVOICE_STATUS.SENT_QUOTATION_TO_CUSTOMER: {

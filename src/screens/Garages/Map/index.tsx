@@ -18,7 +18,6 @@ import RescueStore from '@mobx/stores/rescue';
 import { INVOICE_STATUS, RESCUE_STATUS } from '@utils/constants';
 import { mapService } from '@mobx/services/map';
 import { InvoiceStore, AutomotivePartStore, ServiceStore, ExaminationStore, DialogStore } from '@mobx/stores';
-import FirebaseStore from '@mobx/stores/firebase';
 import { Location } from '@models/common';
 import { RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '@components/map';
 import LocationService from '@mobx/services/location';
@@ -51,7 +50,6 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
   const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
   const locationService = Container.get(LocationService);
   const dialogStore = Container.get(DialogStore);
   //#endregion store
@@ -314,12 +312,13 @@ const Map: React.FC<Props> = observer(({ navigation, route }) => {
             bottom: 0,
           }}
           onPress={async () => {
-            await firebaseStore.update(`${rescueStore.currentStaffProcessingRescue?.id}`, {
+            const doc = rescueStore.currentStaffProcessingRescue?.id.toString();
+            await firestore().collection(firestoreCollection.rescues).doc(doc).update({
               customerConfirm: true,
             });
-            const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
+            const { invoiceId } = (await firestore().collection(firestoreCollection.rescues).doc(doc).get()).data() as any;
             await invoiceStore.getGarageInvoiceDetail(invoiceId);
-            navigation.push('Payment', { invoiceId });
+            navigation.replace('Payment', { invoiceId });
           }}
         >
           <Text bold color='white' fontSize='lg'>

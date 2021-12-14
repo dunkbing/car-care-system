@@ -29,6 +29,7 @@ const CustomerLogin: React.FC<Props> = ({ navigation }) => {
     if (authStore.state === STORE_STATUS.ERROR) {
       toast.show(`${authStore.errorMessage}`);
     } else {
+      void authStore.saveToLocal(values, 'customer');
       rootNavigation.navigate('CustomerHomeTab');
     }
   }

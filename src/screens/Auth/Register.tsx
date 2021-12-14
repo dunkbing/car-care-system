@@ -25,6 +25,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
       navigation.navigate('DefineCarModel');
     }
   }
+
   return (
     <NativeBaseProvider>
       <ScrollView
@@ -50,20 +51,22 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 dateOfBirth: new Date().toDateString(),
                 gender: Gender.MALE,
                 customerType: CUSTOMER_TYPES.PERSONAL,
+                companyName: '',
+                taxCode: '',
               }}
               onSubmit={onRegisterSubmit}
             >
-              {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
+              {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
                 <VStack space={2} mt={10}>
                   <FormInput
                     isRequired
                     label='Tên'
                     placeholder='Nhập tên'
                     value={values.firstName}
-                    isInvalid={!isValid}
+                    isInvalid={touched.firstName && !!errors.firstName}
                     onChangeText={handleChange('firstName')}
                     onBlur={handleBlur('firstName')}
-                    errorMessage={errors.firstName}
+                    errorMessage={touched.firstName ? errors.firstName : ''}
                     keyboardType='ascii-capable'
                   />
                   <FormInput
@@ -71,7 +74,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     label='Họ'
                     placeholder='Nhập họ'
                     value={values.lastName}
-                    isInvalid={!isValid}
+                    isInvalid={touched.lastName && !!errors.lastName}
                     onChangeText={handleChange('lastName')}
                     onBlur={handleBlur('lastName')}
                     errorMessage={errors.lastName}
@@ -82,7 +85,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     label='Số điện thoại'
                     placeholder='Nhập số điện thoại'
                     value={values.phoneNumber}
-                    isInvalid={!isValid}
+                    isInvalid={touched.phoneNumber && !!errors.phoneNumber}
                     onChangeText={handleChange('phoneNumber')}
                     onBlur={handleBlur('phoneNumber')}
                     errorMessage={errors.phoneNumber}
@@ -93,7 +96,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     label='Email'
                     placeholder='Nhập email'
                     value={values.email}
-                    isInvalid={!isValid}
+                    isInvalid={touched.email && !!errors.email}
                     onChangeText={handleChange('email')}
                     onBlur={handleBlur('email')}
                     errorMessage={errors.email}
@@ -105,7 +108,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     placeholder='Nhập mật khẩu'
                     secureTextEntry
                     value={values.password}
-                    isInvalid={!isValid}
+                    isInvalid={touched.password && !!errors.password}
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
                     errorMessage={errors.password}
@@ -116,10 +119,10 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     placeholder='Xác nhận mật khẩu'
                     secureTextEntry
                     value={values.confirmPassword}
-                    isInvalid={!isValid}
+                    isInvalid={touched.confirmPassword && !!errors.confirmPassword}
                     onChangeText={handleChange('confirmPassword')}
                     onBlur={handleBlur('confirmPassword')}
-                    errorMessage={errors.password}
+                    errorMessage={errors.confirmPassword}
                   />
                   <CustomDatePicker
                     isRequired
@@ -138,7 +141,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                       { label: 'Nữ', value: '1' },
                       { label: 'Khác', value: '2' },
                     ]}
-                    isInvalid={!isValid}
+                    isInvalid={touched && !!errors.gender}
                     onValueChange={handleChange('gender')}
                     selectProps={{
                       accessibilityLabel: 'Giới tính',
@@ -154,7 +157,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                       { label: 'Cá nhân', value: '0' },
                       { label: 'Doanh nghiệp', value: '1' },
                     ]}
-                    isInvalid={!isValid}
+                    isInvalid={touched && !!errors.customerType}
                     onValueChange={handleChange('customerType')}
                     selectProps={{
                       accessibilityLabel: 'Loại khách hàng',
@@ -162,7 +165,30 @@ const Register: React.FC<Props> = ({ navigation }) => {
                     }}
                     errorMessage={errors.customerType}
                   />
-                  <FormInput label='Mã số thuế' placeholder='Nhập mã số thuế' />
+                  <FormInput
+                    isRequired
+                    label='Tên công ty'
+                    placeholder='Tên công ty'
+                    value={`${values.companyName}`}
+                    isInvalid={touched && !!errors.companyName}
+                    onChangeText={handleChange('companyName')}
+                    onBlur={handleBlur('companyName')}
+                    errorMessage={errors.companyName}
+                    keyboardType='ascii-capable'
+                    isDisabled={values.customerType === CUSTOMER_TYPES.PERSONAL}
+                  />
+                  <FormInput
+                    isRequired
+                    label='Mã số thuế'
+                    placeholder='Nhập mã số thuế'
+                    value={`${values.taxCode}`}
+                    isInvalid={touched && !!errors.taxCode}
+                    onChangeText={handleChange('taxCode')}
+                    onBlur={handleBlur('taxCode')}
+                    errorMessage={errors.taxCode}
+                    keyboardType='ascii-capable'
+                    isDisabled={values.customerType === CUSTOMER_TYPES.PERSONAL}
+                  />
                   <VStack space={2}>
                     <Button
                       style={{ alignSelf: 'center', width: '40%', height: 40 }}

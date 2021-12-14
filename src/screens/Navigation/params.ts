@@ -88,7 +88,7 @@ export type GarageHomeOptionStackParams = {
   AutomotivePartSuggestion: undefined;
   ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
-  Payment: { invoiceId: number };
+  Payment: { rescueId: number; invoiceId: number };
   RejectRequest: { customerId: number };
   Feedback: { rescueDetailId: number; customerName: string };
 };
@@ -118,6 +118,6 @@ export type RescueStackParams = {
   GarageDetail: undefined | { garageId: number; side?: 'garage' | 'customer'; isRescueStack?: boolean };
   RepairSuggestion: { invoiceId: number };
   QuotationSuggestion: { invoiceId: number };
-  Payment: undefined;
+  Payment: { rescueId?: number };
   Feedback: { rescueDetailId: number; staffName: string; garage: string };
 };

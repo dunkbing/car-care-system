@@ -185,7 +185,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             Tổng: {formatMoney(rescueDetail?.invoice?.total)}
           </Text>
         </VStack>
-        {rescue.customerFeedback ? (
+        {rescueDetail?.customerFeedback ? (
           <View>
             <Text
               style={{
@@ -195,13 +195,13 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             >
               Đánh giá của khách hàng
             </Text>
-            <AirbnbRating defaultRating={rescue.customerFeedback.point} showRating={false} isDisabled={true} />
+            <AirbnbRating defaultRating={rescueDetail.customerFeedback.point} showRating={false} isDisabled={true} />
             <Text
               style={{
                 marginVertical: 10,
               }}
             >
-              {rescue.customerFeedback.comment}
+              {rescueDetail.customerFeedback.comment}
             </Text>
           </View>
         ) : (

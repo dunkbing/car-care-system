@@ -18,15 +18,18 @@ import { GarageOptionsStack } from '@screens/Navigation/GarageOptionsStack';
 import RescueStore from '@mobx/stores/rescue';
 import DialogStore from '@mobx/stores/dialog';
 import { DIALOG_TYPE } from '@components/dialog/MessageDialog';
-import { LoginQueryModel } from '@models/user';
+import { CustomerLoginResponseModel, LoginQueryModel } from '@models/user';
 import toast from '@utils/toast';
+import { GarageStore } from '@mobx/stores';
 
 axios.defaults.baseURL = API_URL;
 
 const App: React.FC = observer(() => {
   const authStore = Container.get(AuthStore);
+  const garageStore = Container.get(GarageStore);
   const rescueStore = Container.get(RescueStore);
   const dialogStore = Container.get(DialogStore);
+
   useEffect(() => {
     const unsubscribe = messaging().onMessage((remoteMessage) => {
       console.log('Message received. ', remoteMessage);
@@ -74,28 +77,33 @@ const App: React.FC = observer(() => {
       const savedData = await AsyncStorage.getItem('@auth:userSide');
       if (savedData) {
         const { userSide } = JSON.parse(savedData) || {};
-        if (userSide === 'garage') {
-          const user = await AsyncStorage.getItem('@auth:user');
-          if (user) {
-            const loginData = JSON.parse(user) as LoginQueryModel;
+        const user = await AsyncStorage.getItem('@auth:user');
+        if (user) {
+          const loginData = JSON.parse(user) as LoginQueryModel;
+          if (userSide === 'garage') {
             await authStore.login(loginData, ACCOUNT_TYPES.GARAGE_MANAGER);
+            void AsyncStorage.setItem('@auth:userSide', JSON.stringify({ userSide: 'garage' }));
+          } else if (userSide === 'customer') {
+            await authStore.login(loginData, ACCOUNT_TYPES.CUSTOMER).then(() => {
+              const user = authStore.user as CustomerLoginResponseModel;
+              if (user?.defaultGarageId) {
+                void garageStore.get(user.defaultGarageId);
+              }
+            });
+            void AsyncStorage.setItem('@auth:userSide', JSON.stringify({ userSide: 'customer' }));
+          }
 
-            if (authStore.state === STORE_STATUS.ERROR) {
-              toast.show(`${authStore.errorMessage}`);
-            } else {
-              dialogStore.openProgressDialog();
-              await AsyncStorage.setItem('@auth:user', JSON.stringify(loginData));
-              await AsyncStorage.setItem('@auth:userSide', JSON.stringify({ userSide: 'garage' }));
-              dialogStore.closeProgressDialog();
-              rootNavigation.navigate('GarageHomeStack');
-            }
+          if (authStore.state === STORE_STATUS.ERROR) {
+            toast.show(`${authStore.errorMessage}`);
+          } else {
+            void AsyncStorage.setItem('@auth:user', JSON.stringify(loginData));
           }
         }
       }
     };
 
     void autoLogin();
-  }, [authStore, dialogStore]);
+  }, [authStore, dialogStore, garageStore]);
 
   return (
     <NavigationContainer ref={rootNavigation}>

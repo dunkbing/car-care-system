@@ -66,7 +66,7 @@ const ChangePassword: React.FC<Props> = ({ navigation }) => {
             initialValues={{
               oldPassword: '',
               newPassword: '',
-              confirmPassword: '',
+              confirmNewPassword: '',
             }}
             onSubmit={save}
           >
@@ -100,11 +100,11 @@ const ChangePassword: React.FC<Props> = ({ navigation }) => {
                   isRequired
                   label='Xác nhận mật khẩu mới'
                   placeholder='Nhập lại mật khẩu mới'
-                  value={values.confirmPassword}
-                  isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-                  onChangeText={handleChange('confirmPassword')}
-                  onBlur={handleBlur('confirmPassword')}
-                  errorMessage={touched.confirmPassword ? errors.confirmPassword : ''}
+                  value={values.confirmNewPassword}
+                  isInvalid={touched.confirmNewPassword && !!errors.confirmNewPassword}
+                  onChangeText={handleChange('confirmNewPassword')}
+                  onBlur={handleBlur('confirmNewPassword')}
+                  errorMessage={touched.confirmNewPassword ? errors.confirmNewPassword : ''}
                   keyboardType='ascii-capable'
                   secureTextEntry
                 />

@@ -131,7 +131,7 @@ export const updatePasswordValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
-  confirmPassword: yup.string().oneOf([yup.ref('newPassword'), null], 'Mật khẩu không trùng khớp'),
+  confirmNewPassword: yup.string().oneOf([yup.ref('newPassword'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -197,7 +197,6 @@ export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
   dateOfBirth: string;
   gender: Gender;
-  
 };
 
 export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {

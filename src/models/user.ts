@@ -116,10 +116,10 @@ export const resetPasswordValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
-  confirmPassword: yup.string().when('password', {
-    is: (val: string | any[]) => (val && val.length > 0 ? true : false),
-    then: yup.string().oneOf([yup.ref('password')], 'Mật khẩu không trùng khớp'),
-  }),
+  confirmPassword: yup
+    .string()
+    .required('Không được bỏ trống')
+    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export const updatePasswordValidationSchema = yup.object({
@@ -197,7 +197,6 @@ export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
   dateOfBirth: string;
   gender: Gender;
-  
 };
 
 export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {

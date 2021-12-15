@@ -26,7 +26,7 @@ export type AuthStackParams = {
   ChangePassword: undefined;
   ForgotPassword: undefined;
   VerifyCode: { email: string };
-  ResetPassword: { verifyCode: string };
+  ResetPassword: { emailOrPhone: string };
 };
 
 export type ProfileStackParams = {

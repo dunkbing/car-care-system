@@ -17,6 +17,7 @@ import GarageStore from './garage';
 import { ApiService } from '@mobx/services/api-service';
 import BaseStore from './base-store';
 import { authApi, customerApi, firestoreCollection } from '@mobx/services/api-types';
+import { log } from '@utils/logger';
 
 @Service()
 export default class AuthStore extends BaseStore {
@@ -190,9 +191,10 @@ export default class AuthStore extends BaseStore {
   }
 
   // create new password
-  public async createNewPassword(verifyCode: string, password: string, confirmPassword: string) {
+  public async createNewPassword(emailOrPhone: string, password: string, confirmPassword: string) {
     this.startLoading();
-    const { error } = await this.apiService.post(authApi.createNewPassword, { verifyCode, password, confirmPassword }, true);
+    log.info('createNewPassword', emailOrPhone, password, confirmPassword);
+    const { error } = await this.apiService.post(authApi.createNewPassword, { emailOrPhone, password, confirmPassword }, true);
     if (error) {
       this.handleError(error);
     } else {

@@ -4,7 +4,7 @@ import FAFIcon from 'react-native-vector-icons/FontAwesome5';
 import { AirbnbRating } from 'react-native-ratings';
 import { GarageHomeOptionStackParams } from '@screens/Navigation/params';
 import { StackScreenProps } from '@react-navigation/stack';
-import { to12HoursTime, toHourAndMinute } from '@utils/time';
+import { formatAMPM } from '@utils/time';
 import Container from 'typedi';
 import formatMoney from '@utils/format-money';
 import { ApiService } from '@mobx/services/api-service';
@@ -84,7 +84,7 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             {rescue.staff?.lastName} {rescue.staff?.firstName}
           </Text>
           <Text style={{ fontSize: 16 }}>
-            {rescueDate.toLocaleDateString('vi-VN')} | {to12HoursTime(toHourAndMinute(rescueDate))}
+            {rescueDate.toLocaleDateString('vi-VN')} | {formatAMPM(rescueDate)}
           </Text>
         </View>
         <View
@@ -177,18 +177,15 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
           <Text>{rescueDetail?.checkCondition || 'Không có mô tả tình trạng xe'}</Text>
           <ImageCarousel imageUrls={rescueDetail?.checkImageUrls || []} />
         </View>
-        <View my={5}>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-              textAlign: 'right',
-            }}
-          >
+        <VStack mt='3' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%): {formatMoney(Number(rescueDetail?.invoice?.total) - Number(rescueDetail?.invoice?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
             Tổng: {formatMoney(rescueDetail?.invoice?.total)}
           </Text>
-        </View>
-        {rescue.customerFeedback ? (
+        </VStack>
+        {rescueDetail?.customerFeedback ? (
           <View>
             <Text
               style={{
@@ -198,13 +195,13 @@ const HistoryDetail: React.FC<Props> = ({ route }) => {
             >
               Đánh giá của khách hàng
             </Text>
-            <AirbnbRating defaultRating={rescue.customerFeedback.point} showRating={false} isDisabled={true} />
+            <AirbnbRating defaultRating={rescueDetail.customerFeedback.point} showRating={false} isDisabled={true} />
             <Text
               style={{
                 marginVertical: 10,
               }}
             >
-              {rescue.customerFeedback.comment}
+              {rescueDetail.customerFeedback.comment}
             </Text>
           </View>
         ) : (

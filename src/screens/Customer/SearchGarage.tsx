@@ -13,6 +13,9 @@ import { RefreshControl, TouchableOpacity } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParams, ProfileStackParams } from '@screens/Navigation/params';
 import { customerService } from '@mobx/services/customer';
+import { AuthStore } from '@mobx/stores';
+import { rootNavigation } from '@screens/Navigation';
+import toast from '@utils/toast';
 
 const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
   const garageStore = Container.get(GarageStore);
@@ -41,8 +44,9 @@ const Garage = observer(({ id, name, address }: Partial<GarageModel>) => {
 
 type ScreenProps = StackScreenProps<ProfileStackParams | AuthStackParams, 'SearchGarage'>;
 
-const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
+const SearchGarage: React.FC<ScreenProps> = ({ route }) => {
   const garageStore = Container.get(GarageStore);
+  const authStore = Container.get(AuthStore);
 
   const onRefresh = React.useCallback(() => {
     void garageStore.getMany();
@@ -52,17 +56,20 @@ const SearchGarage: React.FC<ScreenProps> = ({ navigation, route }) => {
     void garageStore.getMany();
   }, [garageStore]);
 
-  function onDone() {
-    if (route.params?.skip) {
-      navigation.pop(3);
+  async function onDone() {
+    await authStore.customerLoginAfterRegister();
+
+    if (authStore.state === STORE_STATUS.ERROR) {
+      toast.show(`${authStore.errorMessage}`);
     } else {
-      navigation.goBack();
+      rootNavigation.navigate('CustomerHomeTab');
     }
   }
 
   function onSelectGarage(garage: GarageModel) {
     return function () {
       garageStore.setCustomerDefaultGarage(garage);
+      authStore.selectGarage(garage.id);
       void customerService.setDefaultGarage(garage?.id);
     };
   }

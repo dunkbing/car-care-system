@@ -16,7 +16,6 @@ import {
 import BaseStore from './base-store';
 import { ApiService } from '@mobx/services/api-service';
 import { firestoreCollection, rescueApi } from '@mobx/services/api-types';
-import FirebaseStore from './firebase';
 import { NOTI_SERVER } from '@env';
 import { Avatar } from '@models/common';
 import { log } from '@utils/logger';
@@ -53,11 +52,9 @@ export default class RescueStore extends BaseStore {
       examineCar: action,
       getRescueCases: action,
     });
-    void this.getHistories({ keyword: '' });
   }
 
   private readonly apiService = Container.get(ApiService);
-  private readonly firebaseStore = Container.get(FirebaseStore);
 
   customerRescueHistories: Array<CustomerRescueHistory> = [];
   currentCustomerProcessingRescue: AvailableCustomerRescueDetail | null = null;
@@ -162,7 +159,7 @@ export default class RescueStore extends BaseStore {
       if (error) {
         this.handleError(error);
       } else {
-        await this.firebaseStore.set(`${result?.id}`, { status: RESCUE_STATUS.PENDING });
+        await firestore().collection(firestoreCollection.rescues).doc(result?.id.toString()).set({ status: RESCUE_STATUS.PENDING });
         await this.apiService.post(
           `${NOTI_SERVER}/rescues`,
           {
@@ -197,12 +194,10 @@ export default class RescueStore extends BaseStore {
         this.handleSuccess();
 
         if (this.currentCustomerProcessingRescue) {
-          if (!this.firebaseStore.rescueDoc) {
-            this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentCustomerProcessingRescue.id}`);
-          }
-          await this.firebaseStore
-            .update(`${this.currentCustomerProcessingRescue?.id}`, { status: this.currentCustomerProcessingRescue?.status })
-            .catch(console.error);
+          await firestore()
+            .collection(firestoreCollection.rescues)
+            .doc(`${this.currentCustomerProcessingRescue?.id}`)
+            .update({ status: this.currentCustomerProcessingRescue?.status });
         }
       }
     } catch (ex) {
@@ -228,11 +223,10 @@ export default class RescueStore extends BaseStore {
         });
         this.handleSuccess();
         if (this.currentStaffProcessingRescue) {
-          if (!this.firebaseStore.rescueDoc) {
-            this.firebaseStore.rescueDoc = this.firebaseStore.rescuesRef.doc(`${this.currentStaffProcessingRescue.id}`);
-          }
-          await this.firebaseStore
-            .update(`${this.currentStaffProcessingRescue?.id}`, { status: this.currentStaffProcessingRescue?.status })
+          await firestore()
+            .collection(firestoreCollection.rescues)
+            .doc(`${this.currentStaffProcessingRescue?.id}`)
+            .update({ status: this.currentStaffProcessingRescue?.status })
             .catch((error) => this.handleError(error));
         }
       }
@@ -261,7 +255,10 @@ export default class RescueStore extends BaseStore {
       } else {
         this.handleSuccess();
         this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.ACCEPTED } as any;
-        await this.firebaseStore.set(`${result?.rescueDetailId}`, { status: RESCUE_STATUS.ACCEPTED, invoiceId: -1 });
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${result?.rescueDetailId}`)
+          .set({ status: RESCUE_STATUS.ACCEPTED, invoiceId: -1 });
       }
     } catch (ex) {
       this.handleError(ex);
@@ -283,7 +280,10 @@ export default class RescueStore extends BaseStore {
       } else {
         this.currentStaffRescueState = { currentStatus: params.status, estimatedArrivalTime: params.estimatedArrivalTime };
         this.handleSuccess();
-        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVING });
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${this.currentStaffProcessingRescue?.id}`)
+          .update({ status: RESCUE_STATUS.ARRIVING });
       }
     } catch (ex) {
       this.handleError(ex);
@@ -305,7 +305,10 @@ export default class RescueStore extends BaseStore {
       } else {
         this.currentStaffRescueState = { currentStatus: RESCUE_STATUS.ARRIVED, estimatedArrivalTime: 0 };
         this.handleSuccess();
-        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.ARRIVED });
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${this.currentStaffProcessingRescue?.id}`)
+          .update({ status: RESCUE_STATUS.ARRIVED });
       }
     } catch (ex) {
       this.handleError(ex);
@@ -327,7 +330,10 @@ export default class RescueStore extends BaseStore {
       } else {
         this.handleSuccess();
         this.currentStaffRescueState = { ...this.currentStaffRescueState, currentStatus: RESCUE_STATUS.WORKING } as any;
-        await this.firebaseStore.update(`${this.currentStaffProcessingRescue?.id}`, { status: RESCUE_STATUS.WORKING }).catch(console.error);
+        await firestore()
+          .collection(firestoreCollection.rescues)
+          .doc(`${this.currentStaffProcessingRescue?.id}`)
+          .update({ status: RESCUE_STATUS.WORKING });
       }
     } catch (ex) {
       this.handleError(ex);

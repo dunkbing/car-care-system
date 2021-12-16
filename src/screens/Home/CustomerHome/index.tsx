@@ -30,7 +30,6 @@ import { parallel } from '@utils/parallel';
 import { withProgress } from '@mobx/services/config';
 import { CarModel } from '@models/car';
 import RescueStatusBar from './RescueStatusBar';
-import FirebaseStore from '@mobx/stores/firebase';
 import InvoiceStore from '@mobx/stores/invoice';
 import { GarageMarkers, RescueLocationMarker, RescueRoutes, StaffLocationMarker } from '../../../components/map';
 import { firestoreCollection } from '@mobx/services/api-types';
@@ -59,7 +58,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
   const carStore = Container.get(CarStore);
   const dialogStore = Container.get(DialogStore);
   const rescueStore = Container.get(RescueStore);
-  const firebaseStore = Container.get(FirebaseStore);
   const invoiceStore = Container.get(InvoiceStore);
   //#endregion stores
 
@@ -199,9 +197,10 @@ const Map: React.FC<Props> = ({ navigation }) => {
    */
   const observeRescueStatus = useCallback(() => {
     let timeOutId: NodeJS.Timeout;
+    const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
     const rescueUnsub = firestore()
       .collection(firestoreCollection.rescues)
-      .doc(`${rescueStore.currentCustomerProcessingRescue?.id}`)
+      .doc(`${rescueId}`)
       .onSnapshot((rescueSnapshot) => {
         if (!rescueSnapshot.data()) return;
 
@@ -403,7 +402,7 @@ const Map: React.FC<Props> = ({ navigation }) => {
           }
 
           if (rescueStore.currentCustomerProcessingRescue && customerConfirm && status === RESCUE_STATUS.WORKING) {
-            navigation.navigate('Payment');
+            navigation.navigate('Payment', { rescueId });
           }
         })();
       });
@@ -445,7 +444,6 @@ const Map: React.FC<Props> = ({ navigation }) => {
     rescueLocation?.longitude,
     rescueStore,
     rescueStore.currentCustomerProcessingRescue?.id,
-    firebaseStore.rescuesRef,
   ]);
 
   const cameraRef = useRef<MapboxGL.Camera>(null);
@@ -581,7 +579,9 @@ const Map: React.FC<Props> = ({ navigation }) => {
           <PopupGarage
             garage={garage as any}
             handleSos={handleSos(garage as any)}
-            viewGarageDetail={() => navigation.navigate('GarageDetail', { garageId: garage?.id as number, isRescueStack: true })}
+            viewGarageDetail={() =>
+              navigation.navigate('GarageDetail', { garageId: garage?.id as number, side: 'customer', isRescueStack: true })
+            }
           />
         )}
       />

@@ -162,7 +162,6 @@ export class ApiService {
       log.error('error', error);
       return { result: null, error: this.processError(error) };
     } finally {
-      console.log('finally');
       this.dialogStore.closeProgressDialog();
     }
   }

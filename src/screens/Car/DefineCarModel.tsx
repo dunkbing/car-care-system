@@ -41,24 +41,31 @@ const DefineCarModel: React.FC<Props> = ({ navigation, route }) => {
   const imagePickerRef = React.createRef<ImagePicker>();
   //#endregion
 
-  function chooseGarage() {
-    navigation.navigate('SearchGarage', { skip: true });
+  async function chooseGarage() {
+    await carStore.create(car);
+
+    if (carStore.state === STORE_STATUS.ERROR) {
+      toast.show(carStore.errorMessage);
+    } else {
+      navigation.navigate('SearchGarage', { skip: true });
+    }
   }
 
-  function createCar() {
-    void carStore.create(car).then(() => {
-      if (carStore.state === STORE_STATUS.SUCCESS) {
-        navigation.goBack();
-      } else {
-        toast.show(carStore.errorMessage);
-      }
-    });
+  async function createCar() {
+    await carStore.create(car);
+
+    if (carStore.state === STORE_STATUS.SUCCESS) {
+      navigation.goBack();
+    } else {
+      toast.show(carStore.errorMessage);
+    }
   }
 
   function onSelectBrand(brandId: number | string) {
     setBrand(brandId as number);
     void carModelStore.getModels(brandId as number);
   }
+
   return (
     <NativeBaseProvider>
       <ScrollView

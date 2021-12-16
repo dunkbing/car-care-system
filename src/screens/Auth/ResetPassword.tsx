@@ -15,7 +15,7 @@ type Props = StackScreenProps<AuthStackParams, 'ResetPassword'>;
 const ResetPassword: React.FC<Props> = ({ navigation, route }) => {
   const authStore = Container.get(AuthStore);
   async function resetPassword(values: ResetPasswordQueryModel) {
-    await authStore.createNewPassword(route.params.verifyCode, values.password, values.confirmPassword);
+    await authStore.createNewPassword(route.params.emailOrPhone, values.password, values.confirmPassword);
 
     if (authStore.errorMessage) {
       toast.show(`${authStore.errorMessage}`);
@@ -34,7 +34,7 @@ const ResetPassword: React.FC<Props> = ({ navigation, route }) => {
           }}
           onSubmit={resetPassword}
         >
-          {({ handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <VStack space={2} mt={5}>
               <FormInput
                 label='Mật khẩu mới'
@@ -42,7 +42,7 @@ const ResetPassword: React.FC<Props> = ({ navigation, route }) => {
                 secureTextEntry
                 isRequired
                 value={values.password}
-                isInvalid={!isValid}
+                isInvalid={touched.password && !!errors.password}
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
                 errorMessage={errors.password}
@@ -53,7 +53,7 @@ const ResetPassword: React.FC<Props> = ({ navigation, route }) => {
                 secureTextEntry
                 isRequired
                 value={values.confirmPassword}
-                isInvalid={!isValid}
+                isInvalid={touched.confirmPassword && !!errors.confirmPassword}
                 onChangeText={handleChange('confirmPassword')}
                 onBlur={handleBlur('confirmPassword')}
                 errorMessage={errors.confirmPassword}

@@ -8,7 +8,6 @@ import Container from 'typedi';
 import firestore from '@react-native-firebase/firestore';
 import { colors, INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
-import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 import { BackHandler } from 'react-native';
@@ -19,7 +18,6 @@ type Props = StackScreenProps<RescueStackParams, 'Payment'>;
 const ConfirmButton: React.FC = observer(() => {
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
   const [status, setStatus] = useState(-1);
 
   useEffect(() => {
@@ -29,13 +27,13 @@ const ConfirmButton: React.FC = observer(() => {
       ).data() as { invoiceId: number };
       firestore()
         .collection(firestoreCollection.invoices)
-        .doc(`${result.invoiceId}`)
+        .doc(`${result?.invoiceId}`)
         .onSnapshot((snapShot) => {
           if (snapShot.exists) {
             const invoice = snapShot.data() as { status: number };
             setStatus(invoice.status);
           }
-          void invoiceStore.getProposalDetail(result.invoiceId);
+          void invoiceStore.getProposalDetail(result?.invoiceId);
         });
     };
     void fetchData();
@@ -52,19 +50,18 @@ const ConfirmButton: React.FC = observer(() => {
           _text={{ color: 'white' }}
           onPress={async () => {
             const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
-            const data = await firebaseStore.get<{ invoiceId: number }>();
             const result = (await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).get()).data() as {
               invoiceId: number;
             };
-            await invoiceStore.customerConfirmsPayment(data?.invoiceId as number);
+            await invoiceStore.customerConfirmsPayment(result?.invoiceId);
             await firestore()
               .collection(firestoreCollection.invoices)
-              .doc(`${result.invoiceId}`)
+              .doc(`${result?.invoiceId}`)
               .update({ status: INVOICE_STATUS.CUSTOMER_CONFIRM_PAID });
             await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).update({
               garageConfirm: true,
             });
-            await invoiceStore.getCustomerInvoiceDetail(data?.invoiceId as any);
+            await invoiceStore.getCustomerInvoiceDetail(result?.invoiceId);
 
             if (invoiceStore.state === STORE_STATUS.ERROR) {
               toast.show(`${invoiceStore.errorMessage}`);
@@ -89,7 +86,6 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#region stores
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
   //#endregion
 
   const { currentCustomerProcessingRescue } = rescueStore;
@@ -98,33 +94,39 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#region hooks
   useEffect(() => {
     const fetchData = async () => {
-      const { invoiceId } = (await firebaseStore.get<{ invoiceId: number }>()) as any;
-      await invoiceStore.getCustomerInvoiceDetail(invoiceId);
+      const rescueId = rescueStore.currentCustomerProcessingRescue?.id;
+      const result = (await firestore().collection(firestoreCollection.rescues).doc(`${rescueId}`).get()).data() as {
+        invoiceId: number;
+      };
+      await invoiceStore.getCustomerInvoiceDetail(result?.invoiceId);
     };
     void fetchData();
-  }, [firebaseStore, invoiceStore]);
+  }, [invoiceStore, rescueStore.currentCustomerProcessingRescue?.id]);
 
   useEffect(() => {
-    return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
-      if (snapshot.exists) {
-        const { customerFeedback, status } = snapshot.data() as any;
-        if (customerFeedback && status === RESCUE_STATUS.WORKING) {
-          navigation.navigate('Feedback', {
-            rescueDetailId: rescueStore.currentCustomerProcessingRescue?.id as number,
-            staffName: `${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`,
-            garage: `${rescueStore.currentCustomerProcessingRescue?.garage?.name}`,
-          });
+    return firestore()
+      .collection(firestoreCollection.rescues)
+      .doc(`${route.params?.rescueId}`)
+      .onSnapshot((snapshot) => {
+        if (snapshot.exists) {
+          const { customerFeedback, status } = snapshot.data() as any;
+          if (customerFeedback && status === RESCUE_STATUS.WORKING) {
+            navigation.navigate('Feedback', {
+              rescueDetailId: rescueStore.currentCustomerProcessingRescue?.id as number,
+              staffName: `${rescueStore.currentCustomerProcessingRescue?.staff?.lastName} ${rescueStore.currentCustomerProcessingRescue?.staff?.firstName}`,
+              garage: `${rescueStore.currentCustomerProcessingRescue?.garage?.name}`,
+            });
+          }
         }
-      }
-    });
+      });
   }, [
-    firebaseStore.rescueDoc,
     invoiceStore,
     navigation,
     rescueStore.currentCustomerProcessingRescue?.garage?.name,
     rescueStore.currentCustomerProcessingRescue?.id,
     rescueStore.currentCustomerProcessingRescue?.staff?.firstName,
     rescueStore.currentCustomerProcessingRescue?.staff?.lastName,
+    route.params?.rescueId,
   ]);
 
   useEffect(() => {
@@ -211,9 +213,15 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             </HStack>
           </VStack>
         ))}
-        <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(customerInvoiceDetail?.total || 0)}
-        </Text>
+        <VStack mt='5' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%):{' '}
+            {formatMoney(Number(customerInvoiceDetail?.total) - Number(invoiceStore.customerInvoiceDetail?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
+            Tổng: {formatMoney(customerInvoiceDetail?.total)}
+          </Text>
+        </VStack>
         <ConfirmButton />
       </ScrollView>
     </VStack>

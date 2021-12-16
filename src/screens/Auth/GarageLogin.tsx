@@ -2,6 +2,7 @@ import React from 'react';
 import { NativeBaseProvider, Box, Heading, VStack, Link, ScrollView } from 'native-base';
 import { Container } from 'typedi';
 import { StackScreenProps } from '@react-navigation/stack';
+
 import { AuthStackParams } from '@screens/Navigation/params';
 import { rootNavigation } from '@screens/Navigation/roots';
 import { LoginQueryModel } from '@models/user';
@@ -14,15 +15,18 @@ type Props = StackScreenProps<AuthStackParams, 'GarageLogin'>;
 
 const GarageLogin: React.FC<Props> = ({ navigation }) => {
   const authStore = Container.get(AuthStore);
+
   async function onLoginSubmit(values: LoginQueryModel) {
     await authStore.login(values, ACCOUNT_TYPES.GARAGE_MANAGER);
 
     if (authStore.state === STORE_STATUS.ERROR) {
       toast.show(`${authStore.errorMessage}`);
     } else {
+      await authStore.saveToLocal(values, 'garage');
       rootNavigation.navigate('GarageHomeStack');
     }
   }
+
   return (
     <NativeBaseProvider>
       <ScrollView style={{ backgroundColor: 'white', height: '100%' }}>

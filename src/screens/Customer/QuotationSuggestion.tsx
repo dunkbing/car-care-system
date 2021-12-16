@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, HStack, ScrollView, Text, View, VStack } from 'native-base';
+import { Button, HStack, ScrollView, Text, VStack } from 'native-base';
 import firestore from '@react-native-firebase/firestore';
 import Container from 'typedi';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -81,9 +81,15 @@ const QuotationSuggestion: React.FC<Props> = ({ navigation, route }) => {
             </VStack>
           );
         })}
-        <View alignItems='flex-end' mt='5'>
-          <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Tổng: {formatMoney(invoiceStore.customerInvoiceDetail?.total)}</Text>
-        </View>
+        <VStack mt='5' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%):{' '}
+            {formatMoney(Number(invoiceStore.customerInvoiceDetail?.total) - Number(invoiceStore.customerInvoiceDetail?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
+            Tổng: {formatMoney(invoiceStore.customerInvoiceDetail?.total)}
+          </Text>
+        </VStack>
         <Text mt='10' bold fontSize='2xl'>
           Tình trạng xe sau khi kiểm tra
         </Text>

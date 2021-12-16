@@ -53,14 +53,16 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
   const [rescueDetail, setRescueDetail] = React.useState<GarageRescueHistoryDetail>();
 
   useEffect(() => {
-    if (rescue.id) {
-      void apiService.get<GarageRescueHistoryDetail>(rescueApi.customerHistoryDetail(rescue.id), {}, true).then(({ result }) => {
-        if (result) {
-          setRescueDetail(result);
-        }
-      });
-    }
-  }, [apiService, rescue.id]);
+    return navigation.addListener('focus', () => {
+      if (rescue.id) {
+        void apiService.get<GarageRescueHistoryDetail>(rescueApi.customerHistoryDetail(rescue.id), {}, true).then(({ result }) => {
+          if (result) {
+            setRescueDetail(result);
+          }
+        });
+      }
+    });
+  }, [apiService, navigation, rescue.id]);
 
   return (
     <ScrollView>
@@ -185,17 +187,14 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
             </Text>
             <Text>{rescueDetail?.checkCondition || 'Không có mô tả tình trạng xe'}</Text>
             <ImageCarousel imageUrls={rescueDetail?.checkImageUrls || []} />
-            <View my={5}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: 22,
-                  textAlign: 'right',
-                }}
-              >
+            <VStack mt='3' space={2}>
+              <Text bold fontSize='lg' textAlign='right'>
+                Thuế GTGT (10%): {formatMoney(Number(rescueDetail?.invoice?.total) - Number(rescueDetail?.invoice?.totalBeforeTax))}
+              </Text>
+              <Text bold fontSize='lg' textAlign='right'>
                 Tổng: {formatMoney(rescueDetail?.invoice?.total)}
               </Text>
-            </View>
+            </VStack>
             <View>
               <Text
                 style={{
@@ -203,9 +202,9 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                   fontWeight: 'bold',
                 }}
               >
-                Đánh giá của khách hàng
+                Đánh giá của bạn
               </Text>
-              <AirbnbRating defaultRating={rescue.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
+              <AirbnbRating defaultRating={rescueDetail?.customerFeedback?.point || 0} showRating={false} isDisabled={true} />
               <Text
                 style={{
                   marginTop: 10,
@@ -213,7 +212,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                 }}
                 textAlign='justify'
               >
-                {rescue.customerFeedback?.comment}
+                {`${rescueDetail?.customerFeedback?.comment}`}
               </Text>
             </View>
             <Link

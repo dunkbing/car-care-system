@@ -8,11 +8,11 @@ import React, { useEffect } from 'react';
 import Container from 'typedi';
 import { colors, INVOICE_STATUS, RESCUE_STATUS, STORE_STATUS } from '@utils/constants';
 import toast from '@utils/toast';
-import FirebaseStore from '@mobx/stores/firebase';
 import RescueStore from '@mobx/stores/rescue';
 import formatMoney from '@utils/format-money';
 import { BackHandler } from 'react-native';
 import { firestoreCollection } from '@mobx/services/api-types';
+import { log } from '@utils/logger';
 
 type Props = StackScreenProps<GarageHomeOptionStackParams, 'Payment'>;
 
@@ -20,11 +20,10 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   //#region stores
   const rescueStore = Container.get(RescueStore);
   const invoiceStore = Container.get(InvoiceStore);
-  const firebaseStore = Container.get(FirebaseStore);
   //#endregion
 
   const { currentStaffProcessingRescue } = rescueStore;
-  const { invoiceId } = route.params;
+  const { invoiceId, rescueId } = route.params;
 
   //#region hooks
   const [invoiceStatus, setInvoiceStatus] = React.useState(-1);
@@ -35,8 +34,10 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
       .collection(firestoreCollection.invoices)
       .doc(`${invoiceId}`)
       .onSnapshot((snapShot) => {
+        log.info('invoice status', snapShot.data()?.status, invoiceId);
         if (snapShot.exists) {
           const invoice = snapShot.data() as { status: number };
+          log.info('invoice', invoice);
           setInvoiceStatus(invoice.status);
         }
         void invoiceStore.getProposalDetail(invoiceId);
@@ -46,15 +47,18 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
   }, [invoiceId, invoiceStore, rescueStore.currentStaffProcessingRescue?.id]);
 
   useEffect(() => {
-    return firebaseStore.rescueDoc?.onSnapshot((snapshot) => {
-      if (snapshot.exists) {
-        const { garageConfirm, invoiceId } = (snapshot.data() as any) || {};
-        if (garageConfirm) {
-          void invoiceStore.getGarageInvoiceDetail(invoiceId);
+    return firestore()
+      .collection(firestoreCollection.rescues)
+      .doc(`${rescueId}`)
+      .onSnapshot((snapshot) => {
+        if (snapshot.exists) {
+          const { garageConfirm, invoiceId } = (snapshot.data() as any) || {};
+          if (garageConfirm) {
+            void invoiceStore.getGarageInvoiceDetail(invoiceId);
+          }
         }
-      }
-    });
-  }, [firebaseStore.rescueDoc, invoiceStore]);
+      });
+  }, [invoiceStore, rescueId]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => route.name === 'Payment');
@@ -138,9 +142,15 @@ const Payment: React.FC<Props> = observer(({ navigation, route }) => {
             </HStack>
           </VStack>
         ))}
-        <Text mt='10' bold fontSize='2xl' textAlign='right'>
-          Tổng {formatMoney(invoiceStore.garageInvoiceDetail?.total || 0)}
-        </Text>
+        <VStack mt='5' space={2}>
+          <Text bold fontSize='lg' textAlign='right'>
+            Thuế GTGT (10%):{' '}
+            {formatMoney(Number(invoiceStore.garageInvoiceDetail?.total) - Number(invoiceStore.garageInvoiceDetail?.totalBeforeTax))}
+          </Text>
+          <Text bold fontSize='lg' textAlign='right'>
+            Tổng: {formatMoney(invoiceStore.garageInvoiceDetail?.total)}
+          </Text>
+        </VStack>
         {invoiceStatus !== INVOICE_STATUS.CUSTOMER_CONFIRM_PAID ? (
           <Button mt='10' mb='5' isLoading isDisabled>
             Vui lòng chờ khách hàng thanh toán

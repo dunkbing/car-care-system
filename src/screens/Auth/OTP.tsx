@@ -43,7 +43,7 @@ const OTP: React.FC<Props> = ({ navigation, route }) => {
             if (authStore.state === STORE_STATUS.ERROR) {
               toast.show(`${authStore.errorMessage}`);
             } else {
-              navigation.navigate('ResetPassword', { verifyCode: otp });
+              navigation.navigate('ResetPassword', { emailOrPhone: route.params.email });
             }
           }}
           style={{ alignSelf: 'center', width: '40%', height: 40 }}

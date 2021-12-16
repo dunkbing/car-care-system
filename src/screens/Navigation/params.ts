@@ -26,7 +26,7 @@ export type AuthStackParams = {
   ChangePassword: undefined;
   ForgotPassword: undefined;
   VerifyCode: { email: string };
-  ResetPassword: { verifyCode: string };
+  ResetPassword: { emailOrPhone: string };
 };
 
 export type ProfileStackParams = {
@@ -88,7 +88,7 @@ export type GarageHomeOptionStackParams = {
   AutomotivePartSuggestion: undefined;
   ServiceSuggestion: undefined;
   RepairSuggestion: undefined;
-  Payment: { invoiceId: number };
+  Payment: { rescueId: number; invoiceId: number };
   RejectRequest: { customerId: number };
   Feedback: { rescueDetailId: number; customerName: string };
 };
@@ -115,9 +115,9 @@ export type RescueStackParams = {
     | {
         onCancel: (() => void) | undefined;
       };
-  GarageDetail: undefined | { garageId: number; isRescueStack?: boolean };
+  GarageDetail: undefined | { garageId: number; side?: 'garage' | 'customer'; isRescueStack?: boolean };
   RepairSuggestion: { invoiceId: number };
   QuotationSuggestion: { invoiceId: number };
-  Payment: undefined;
+  Payment: { rescueId?: number };
   Feedback: { rescueDetailId: number; staffName: string; garage: string };
 };

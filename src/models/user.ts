@@ -51,8 +51,10 @@ export const loginValidationSchema = yup.object({
     .string()
     .required('Không được bỏ trống')
     .matches(orRegex(regexes.email, regexes.phone), 'Vui lòng nhập email hoặc số điện thoại hợp lệ'),
-  password: yup.string().required('Không được bỏ trống'),
-  // .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  password: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
 });
 
 export const registerValidationSchema = yup.object({
@@ -61,19 +63,27 @@ export const registerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 chữ số')
-    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .length(10, 'Số điện thoại phải có 10 số')
     .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   password: yup
     .string()
     .required('Không được bỏ trống')
     .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
-  confirmPassword: yup
-    .string()
-    .required('Vui lòng xác nhận mật khẩu')
-    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
+  confirmPassword: yup.string().when('password', {
+    is: (val: string | any[]) => (val && val.length > 0 ? true : false),
+    then: yup.string().oneOf([yup.ref('password')], 'Mật khẩu không trùng khớp'),
+  }),
   address: yup.string().required('Không được bỏ trống'),
+  customerType: yup.number(),
+  companyName: yup.string().when('customerType', {
+    is: (customerType: number) => customerType > 0,
+    then: yup.string().required('Vui lòng nhập tên công ty'),
+  }),
+  taxCode: yup.string().when('customerType', {
+    is: (customerType: number) => customerType > 0,
+    then: yup.string().required('Vui lòng nhập mã số thuế'),
+  }),
 });
 
 export const updateCustomerValidationSchema = yup.object({
@@ -81,8 +91,7 @@ export const updateCustomerValidationSchema = yup.object({
   phoneNumber: yup
     .string()
     .required('Không được bỏ trống')
-    .min(10, 'Số điện thoại phải có 10 chữ số')
-    .max(11, 'Số điện thoại phải có 10 chữ số')
+    .length(10, 'Số điện thoại phải có 10 chữ số')
     .matches(regexes.phone, 'Số điện thoại phải có 10 chữ số'),
   email: yup.string().required('Không được bỏ trống').max(254, 'Email quá dài.').matches(regexes.email, 'Email không hợp lệ'),
   address: yup.string().required('Không được bỏ trống'),
@@ -109,8 +118,20 @@ export const resetPasswordValidationSchema = yup.object({
     .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
   confirmPassword: yup
     .string()
-    .required('Vui lòng xác nhận mật khẩu')
+    .required('Không được bỏ trống')
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng khớp'),
+});
+
+export const updatePasswordValidationSchema = yup.object({
+  oldPassword: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  newPassword: yup
+    .string()
+    .required('Không được bỏ trống')
+    .matches(regexes.password, 'Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 ký tự đặc biệt và 1 chữ cái viết hoa'),
+  confirmPassword: yup.string().oneOf([yup.ref('newPassword'), null], 'Mật khẩu không trùng khớp'),
 });
 
 export type LoginQueryModel = yup.InferType<typeof loginValidationSchema>;
@@ -176,7 +197,6 @@ export type User = CustomerLoginResponseModel | GarageLoginResponseModel;
 export type RegisterQueryModel = yup.InferType<typeof registerValidationSchema> & {
   dateOfBirth: string;
   gender: Gender;
-  customerType: CUSTOMER_TYPES;
 };
 
 export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValidationSchema> & {
@@ -185,3 +205,5 @@ export type CustomerUpdateQueryModel = yup.InferType<typeof updateCustomerValida
 };
 
 export type ResetPasswordQueryModel = yup.InferType<typeof resetPasswordValidationSchema>;
+
+export type UpdatePasswordQueryModel = yup.InferType<typeof updatePasswordValidationSchema>;
